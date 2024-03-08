@@ -1,0 +1,2 @@
+# insigths
+Projects that come to mind out of nowhere and may not even make sense
