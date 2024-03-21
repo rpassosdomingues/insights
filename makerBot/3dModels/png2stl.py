@@ -73,7 +73,7 @@ def main(image_path, cube_size, cube_height, resolution_scale):
     bpy.ops.object.delete()  # Delete all selected objects
 
     generate_cube_grid(image_path, cube_size, cube_height, resolution_scale)
-    bpy.ops.export_mesh.stl(filepath="output/faruni_origem.stl")
+    bpy.ops.export_mesh.stl(filepath="out/faruni_origem.stl")
 
 # Example usage
 if __name__ == "__main__":
