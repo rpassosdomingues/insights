@@ -79,7 +79,7 @@ def main(image_path, cube_size, cube_height, resolution_scale):
 if __name__ == "__main__":
     image_path = "images/faruni_origem.png"
     cube_size = 1.0  # Cube size
-    cube_height = 1.0  # Cube height
-    resolution_scale = 0.10  # Image resolution scale factor (0.5 = half resolution)
+    cube_height = 2.0  # Cube height
+    resolution_scale = 0.2  # Image resolution scale factor (0.5 = half resolution)
 
     main(image_path, cube_size, cube_height, resolution_scale)
