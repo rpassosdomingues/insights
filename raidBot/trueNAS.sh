@@ -4,6 +4,9 @@
 echo "Instalando ZFS..."
 sudo apt install -y zfsutils-linux
 
+echo "Instalando rsync..."
+sudo apt install -y rsync
+
 # Variáveis de configuração
 POOL_NAME="raid0pool"
 DISK1="/dev/sda"
