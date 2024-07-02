@@ -89,11 +89,11 @@ main() {
     otimizar_armazenamento
 
     # Copia e organiza os arquivos
-    copiar_arquivos main
+    copiar_arquivos cache
 
-    # Monitora o espaço em disco antes de copiar o cache
+    # Monitora o espaço em disco antes de copiar a main
     if monitorar_espaco; then
-        copiar_arquivos cache
+        copiar_arquivos main
     fi
 }
 
