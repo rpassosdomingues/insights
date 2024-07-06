@@ -8,11 +8,11 @@
  */
 
 // Identificador do Formulário
-var FORM_ID = 'd/FORM_ID/edit';
+var FORM_ID = '/d/FORM_ID/edit';
 // URL da planilha de respostas
-var URL_PLANILHA_RESPOSTAS = 'https://planilha_respostas#gid=42';
+var URL_PLANILHA_RESPOSTAS = 'http://planilha_respostas_gid=42';
 // Nome da aba onde estão as respostas
-var SHEET_NAME = 'nome_aba';
+var SHEET_NAME = 'nome_da_aba';
 
 /**
  * Função para encontrar o índice da coluna correspondente à pergunta na primeira linha da matriz de respostas
@@ -88,29 +88,31 @@ function geraProtocolo(carimboDataHora) {
 /**
  * Função para enviar e-mails com cópias condicionais baseadas nas respostas do formulário
  * @param {string} protocolo - O protocolo com base no carimbo de data e hora da resposta do formulário
+ * @param {string} nome - O nome do destinatário principal
  * @param {string} email - O e-mail do destinatário principal
  * @param {string} campus - O campus de utilização do espaço NidusLab Maker
  * @param {string} isPatente - Indicação se o projeto está envolvido em propriedade intelectual
  */
-function enviaEmailsEmCopia(protocolo, email, campus, isPatente) {
+function enviaEmailsEmCopia(protocolo, nome, email, campus, isPatente) {
   var assunto = "[Formulário Maker] Protocolo da Solicitação de Serviços";
   
-  // Verificar se campus e isPatente estão definidos
-  var ccEmails = ["rafaelpassosdomingues@gmail.com"];
+  var ccEmails = [];
 
-  if (campus && campus.toLowerCase().includes("Poços de Caldas - MG")) {
+  ccEmails.push("rafael.domingues@sou.unifal-mg.edu.br");
+
+  if (campus && campus.includes("Poços de Caldas - MG")) {
     ccEmails.push("rpassosdomingues@gmail.com");
-  } else if (campus && campus.toLowerCase().includes("Varginha - MG")) {
-    ccEmails.push("rafael.domingues@sou.unifal-mg.edu.br");
+  } else if (campus && campus.includes("Varginha - MG")) {
+    ccEmails.push("rafaelpassosdomingues@gmail.com");
   }
 
   // Verificar se isPatente está definido
-  if (isPatente && (isPatente.toLowerCase().includes("Sim") || isPatente.toLowerCase().includes("Talvez"))) {
+  if (isPatente && (isPatente.includes("Sim") || isPatente.includes("Talvez"))) {
     ccEmails.push("rafaelpassosdomingues@outlook.com");
   }
 
   // Corpo do e-mail com o protocolo
-  var corpo = `Olá!\n\nSua solicitação de serviços do Laboratório NidusLab Maker foi registrada com sucesso!\n\nO protocolo da sua solicitação é: ${protocolo}.\n\nAtenciosamente,\nRafael Passos Domingues\nBolsista de Desenvolvimento em Ciência, Tecnologia e Inovação`;
+  var corpo = `Olá, ${nome}.\n\nSua solicitação de serviços do Laboratório NidusLab Maker foi registrada com sucesso!\n\nO protocolo da sua solicitação é: ${protocolo}.\n\nAtenciosamente,\nRafael Passos Domingues\nBolsista de Desenvolvimento em Ciência, Tecnologia e Inovação`;
 
   // Enviar e-mail com cópias atendendo cada caso
   MailApp.sendEmail({
@@ -139,12 +141,13 @@ function main() {
     
   // Acessar as respostas específicas usando a matriz de respostas
   var carimboDataHora = obtemResposta("Carimbo de data/hora", matrizRespostas); // Obter o carimbo de data e hora
+  var nome = obtemResposta("[1.1] Nome Completo do Solicitante (Servidor da UNIFAL)", matrizRespostas);
   var email = obtemResposta("Endereço de e-mail", matrizRespostas);
   var campus = obtemResposta("[2.1]  Campus de utilização do espaço NidusLab Maker", matrizRespostas);
   var isPatente = obtemResposta("[4.1]  O projeto a ser desenvolvido está envolvido em processo de propriedade intelectual? (Se a resposta da pergunta acima for sim, a Agência de Inovação e Empreendedorismo entrará em contato com instruções através do contato disponibilizado)", matrizRespostas);
 
   // Verificar se os dados necessários foram obtidos
-  if (!carimboDataHora || !email || !campus || !isPatente) {
+  if (!nome || !carimboDataHora || !email || !campus || !isPatente) {
     Logger.log("Respostas essenciais não encontradas.");
     return;
   }
@@ -153,6 +156,6 @@ function main() {
   var protocolo = geraProtocolo(carimboDataHora);
     
   // Enviar e-mail com cópias condicionais
-  enviaEmailsEmCopia(protocolo, email, campus, isPatente);
-     
+  enviaEmailsEmCopia(protocolo, nome, email, campus, isPatente);
+
 }
