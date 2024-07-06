@@ -10,9 +10,9 @@
 // Identificador do Formulário
 var FORM_ID = 'd/FORM_ID/edit';
 // URL da planilha de respostas
-var URL_PLANILHA_RESPOSTAS = 'https://planilha_respostas_gid=42';
+var URL_PLANILHA_RESPOSTAS = 'https://planilha_respostas#gid=42';
 // Nome da aba onde estão as respostas
-var SHEET_NAME = 'nome-da-aba';
+var SHEET_NAME = 'nome_aba';
 
 /**
  * Função para encontrar o índice da coluna correspondente à pergunta na primeira linha da matriz de respostas
@@ -125,44 +125,34 @@ function enviaEmailsEmCopia(protocolo, email, campus, isPatente) {
  * Função principal que coordena a execução das outras funções na ordem correta ao enviar o formulário
  * @param {object} e - O objeto de evento contendo as respostas do formulário
  */
-function main(e) {
-  // Verifica se o objeto de evento e as respostas nomeadas estão presentes
-  if (!e || !e.namedValues) {
-    Logger.log("Objeto de evento inválido, sem respostas.");
+function main() {
+  var planilha = SpreadsheetApp.openByUrl(URL_PLANILHA_RESPOSTAS);
+  var abaRespostas = planilha.getSheetByName(SHEET_NAME);
+    
+  if (!abaRespostas) {
+    Logger.log("Aba de respostas não encontrada na planilha.");
     return;
   }
-  
-  try {
-    var planilha = SpreadsheetApp.openByUrl(URL_PLANILHA_RESPOSTAS);
-    var abaRespostas = planilha.getSheetByName(SHEET_NAME);
     
-    if (!abaRespostas) {
-      Logger.log("Aba de respostas não encontrada na planilha.");
-      return;
-    }
+  // Obter todas as respostas da planilha
+  var matrizRespostas = abaRespostas.getDataRange().getValues();
     
-    // Obter todas as respostas da planilha
-    var matrizRespostas = abaRespostas.getDataRange().getValues();
-    
-    // Acessar as respostas específicas usando a matriz de respostas
-    var carimboDataHora = obtemResposta("Carimbo de data/hora", matrizRespostas); // Obter o carimbo de data e hora
-    var email = obtemResposta("Endereço de e-mail", matrizRespostas);
-    var campus = obtemResposta("[2.1]  Campus de utilização do espaço NidusLab Maker", matrizRespostas);
-    var isPatente = obtemResposta("[4.1]  O projeto a ser desenvolvido está envolvido em processo de propriedade intelectual? (Se a resposta da pergunta acima for sim, a Agência de Inovação e Empreendedorismo entrará em contato com instruções através do contato disponibilizado)", matrizRespostas);
+  // Acessar as respostas específicas usando a matriz de respostas
+  var carimboDataHora = obtemResposta("Carimbo de data/hora", matrizRespostas); // Obter o carimbo de data e hora
+  var email = obtemResposta("Endereço de e-mail", matrizRespostas);
+  var campus = obtemResposta("[2.1]  Campus de utilização do espaço NidusLab Maker", matrizRespostas);
+  var isPatente = obtemResposta("[4.1]  O projeto a ser desenvolvido está envolvido em processo de propriedade intelectual? (Se a resposta da pergunta acima for sim, a Agência de Inovação e Empreendedorismo entrará em contato com instruções através do contato disponibilizado)", matrizRespostas);
 
-    // Verificar se os dados necessários foram obtidos
-    if (!carimboDataHora || !email || !campus || !isPatente) {
-      Logger.log("Respostas essenciais não encontradas.");
-      return;
-    }
-
-    // Gera o protocolo
-    var protocolo = geraProtocolo(carimboDataHora);
-    
-    // Enviar e-mail com cópias condicionais
-    enviaEmailsEmCopia(protocolo, email, campus, isPatente);
-    
-  } catch (error) {
-    Logger.log("Ocorreu um erro ao processar o formulário: " + error.message);
+  // Verificar se os dados necessários foram obtidos
+  if (!carimboDataHora || !email || !campus || !isPatente) {
+    Logger.log("Respostas essenciais não encontradas.");
+    return;
   }
+
+  // Gera o protocolo
+  var protocolo = geraProtocolo(carimboDataHora);
+    
+  // Enviar e-mail com cópias condicionais
+  enviaEmailsEmCopia(protocolo, email, campus, isPatente);
+     
 }
