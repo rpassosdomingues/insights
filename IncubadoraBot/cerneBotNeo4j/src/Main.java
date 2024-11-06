@@ -8,149 +8,201 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * Main application class for the JavaFX application that interacts with a Neo4j database
+ * to add, remove, and search for words. It also allows the user to select tags and display
+ * practices associated with those tags.
+ */
 public class Main extends Application {
 
-    // Classe interna para conectar ao Neo4j
+    /**
+     * Neo4j Database Connector Class
+     * This class manages the connection to the Neo4j database.
+     */
     static class Neo4jConnector {
         private final Driver driver;
 
-        // Construtor que inicializa a conexão com o banco de dados Neo4j
+        /**
+         * Constructor to initialize the connection to the Neo4j database.
+         *
+         * @param uri  URI for the Neo4j database connection (e.g., bolt://localhost:7687).
+         * @param user The username for the Neo4j database authentication.
+         */
         public Neo4jConnector(String uri, String user) {
-            // Lê a senha do Neo4j da variável de ambiente
+            // Retrieve the Neo4j password from the environment variable
             String password = System.getenv("NEO4J_PASSWORD");
             if (password == null) {
-                throw new IllegalStateException("A variável de ambiente NEO4J_PASSWORD não está definida!");
+                throw new IllegalStateException("NEO4J_PASSWORD environment variable is not set!");
             }
+            // Create the driver to connect to Neo4j
             this.driver = GraphDatabase.driver(uri, AuthTokens.basic(user, password));
         }
 
-        // Método para retornar a sessão do Neo4j
+        /**
+         * Returns a session for interacting with the Neo4j database.
+         *
+         * @return A session to interact with the database.
+         */
         public Session getSession() {
             return driver.session();
         }
 
-        // Método para fechar a conexão com o banco de dados
+        /**
+         * Closes the connection to the Neo4j database.
+         */
         public void close() {
             driver.close();
         }
     }
 
-    // Método para adicionar uma palavra ao banco
+    /**
+     * Adds a word to the Neo4j database.
+     *
+     * @param neo4jConnector The Neo4jConnector instance to interact with the database.
+     * @param word           The word to add to the database.
+     * @param resultLabel    The label where the result message will be displayed.
+     */
     private void addWord(Neo4jConnector neo4jConnector, String word, Label resultLabel) {
         try (Session session = neo4jConnector.getSession()) {
-            // Converter a palavra para minúsculas para garantir que não seja duplicada
-            word = word.toLowerCase();
+            word = word.toLowerCase();  // Ensure case-insensitivity for word comparison
 
-            // Consultar se a palavra já existe
+            // Query to check if the word already exists in the database
             String queryCheck = "MATCH (w:Word {name: $name}) RETURN w";
             Result resultCheck = session.run(queryCheck, Values.parameters("name", word));
-            
+
             if (resultCheck.hasNext()) {
-                // Se a palavra já existe
-                resultLabel.setText("A palavra '" + word + "' já existe.");
+                resultLabel.setText("The word '" + word + "' already exists.");
             } else {
-                // Adicionar a palavra ao banco
+                // Add the word if it doesn't already exist
                 String queryAdd = "CREATE (w:Word {name: $name})";
                 session.run(queryAdd, Values.parameters("name", word));
-                resultLabel.setText("Palavra '" + word + "' adicionada.");
+                resultLabel.setText("Word '" + word + "' added.");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            resultLabel.setText("Erro ao adicionar a palavra.");
+            resultLabel.setText("Error adding the word.");
         }
     }
 
-    // Método para remover uma palavra do banco
+    /**
+     * Removes a word from the Neo4j database.
+     *
+     * @param neo4jConnector The Neo4jConnector instance to interact with the database.
+     * @param word           The word to remove from the database.
+     * @param resultLabel    The label where the result message will be displayed.
+     */
     private void removeWord(Neo4jConnector neo4jConnector, String word, Label resultLabel) {
         try (Session session = neo4jConnector.getSession()) {
-            // Converter a palavra para minúsculas para garantir que a remoção seja insensível a maiúsculas/minúsculas
-            word = word.toLowerCase();
+            word = word.toLowerCase();  // Ensure case-insensitivity for word comparison
 
-            // Consultar se a palavra existe
+            // Query to check if the word exists
             String queryCheck = "MATCH (w:Word {name: $name}) RETURN w";
             Result resultCheck = session.run(queryCheck, Values.parameters("name", word));
-            
+
             if (resultCheck.hasNext()) {
-                // Se a palavra existe, apagá-la
+                // Remove the word if it exists in the database
                 String queryDelete = "MATCH (w:Word {name: $name}) DELETE w";
                 session.run(queryDelete, Values.parameters("name", word));
-                resultLabel.setText("Palavra '" + word + "' removida.");
+                resultLabel.setText("Word '" + word + "' removed.");
             } else {
-                // Se a palavra não for encontrada
-                resultLabel.setText("Palavra '" + word + "' não encontrada para remoção.");
+                resultLabel.setText("Word '" + word + "' not found for removal.");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            resultLabel.setText("Erro ao remover a palavra.");
+            resultLabel.setText("Error removing the word.");
         }
     }
 
-    // Método para buscar palavras no banco
+    /**
+     * Searches for a word in the Neo4j database.
+     *
+     * @param neo4jConnector The Neo4jConnector instance to interact with the database.
+     * @param word           The word to search for in the database.
+     * @param resultLabel    The label where the result message will be displayed.
+     */
     private void searchWord(Neo4jConnector neo4jConnector, String word, Label resultLabel) {
         try (Session session = neo4jConnector.getSession()) {
-            // Converter a palavra para minúsculas para garantir busca insensível a maiúsculas/minúsculas
-            word = word.toLowerCase();
+            word = word.toLowerCase();  // Ensure case-insensitivity for search
 
-            // Consulta para verificar se a palavra existe
+            // Query to check if the word exists
             String query = "MATCH (w:Word {name: $name}) RETURN w";
             Result result = session.run(query, Values.parameters("name", word));
-            
-            // Verificando se o resultado tem o nó
+
+            // Display the result message based on whether the word is found
             if (result.hasNext()) {
-                resultLabel.setText("Palavra '" + word + "' encontrada.");
+                resultLabel.setText("Word '" + word + "' found.");
             } else {
-                resultLabel.setText("Palavra '" + word + "' não encontrada.");
+                resultLabel.setText("Word '" + word + "' not found.");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            resultLabel.setText("Erro ao buscar a palavra.");
+            resultLabel.setText("Error searching for the word.");
         }
     }
 
+    /**
+     * Initializes and starts the JavaFX application window.
+     *
+     * @param primaryStage The primary stage for the JavaFX application.
+     */
     @Override
     public void start(Stage primaryStage) {
-        // Conectar ao Neo4j usando a variável de ambiente para a senha
+        // Initialize Neo4j connection
         Neo4jConnector neo4jConnector = new Neo4jConnector("bolt://localhost:7687", "neo4j");
 
-        // Campos de texto para digitar palavras
+        // UI Elements
         TextField wordInput = new TextField();
-        wordInput.setPromptText("Digite a palavra");
-        wordInput.setVisible(false); // Inicialmente invisível
+        wordInput.setPromptText("Enter word");
+        wordInput.setVisible(false); // Initially invisible
 
-        // Rótulo para exibir o resultado da operação
         Label resultLabel = new Label();
 
-        // Botões de operação
-        Button addButton = new Button("Adicionar Palavra");
-        Button removeButton = new Button("Remover Palavra");
-        Button searchButton = new Button("Buscar Palavra");
+        Button registerActionButton = new Button("Register Action");
+        Button addButton = new Button("Add Word");
+        Button removeButton = new Button("Remove Word");
+        Button searchButton = new Button("Search Word");
 
-        // Variável para controlar qual operação está sendo feita
+        // Operation control variable
         final String[] operation = {""};
 
-        // Definir o comportamento dos botões
+        // Event Handlers for buttons
+        registerActionButton.setOnAction(e -> {
+            // Create a new tag selection panel for actions
+            VBox tagSelectionPanel = createTagSelectionPanel();
+            Scene secondaryScene = new Scene(tagSelectionPanel, 400, 300);
+
+            Stage tagSelectionStage = new Stage();
+            tagSelectionStage.setTitle("Select Tags");
+            tagSelectionStage.setScene(secondaryScene);
+            tagSelectionStage.show();
+        });
+
         addButton.setOnAction(e -> {
             wordInput.setVisible(true);
-            resultLabel.setText(""); // Limpar o resultado
-            operation[0] = "add";  // Definir a operação como "adicionar"
-            enableButtons(addButton, removeButton, searchButton, false);  // Desabilitar botões
+            resultLabel.setText("");  // Clear previous results
+            operation[0] = "add";  // Set operation to "add"
+            toggleButtons(addButton, removeButton, searchButton, false);  // Disable buttons
         });
 
         removeButton.setOnAction(e -> {
             wordInput.setVisible(true);
-            resultLabel.setText(""); // Limpar o resultado
-            operation[0] = "remove";  // Definir a operação como "remover"
-            enableButtons(addButton, removeButton, searchButton, false);  // Desabilitar botões
+            resultLabel.setText("");  // Clear previous results
+            operation[0] = "remove";  // Set operation to "remove"
+            toggleButtons(addButton, removeButton, searchButton, false);  // Disable buttons
         });
 
         searchButton.setOnAction(e -> {
             wordInput.setVisible(true);
-            resultLabel.setText(""); // Limpar o resultado
-            operation[0] = "search";  // Definir a operação como "buscar"
-            enableButtons(addButton, removeButton, searchButton, false);  // Desabilitar botões
+            resultLabel.setText("");  // Clear previous results
+            operation[0] = "search";  // Set operation to "search"
+            toggleButtons(addButton, removeButton, searchButton, false);  // Disable buttons
         });
 
-        // Quando o usuário pressiona enter no campo de texto, realiza a operação
+        // Word Input Action: Submit word and perform the selected operation
         wordInput.setOnAction(e -> {
             String word = wordInput.getText();
             if (!word.isEmpty()) {
@@ -162,31 +214,54 @@ public class Main extends Application {
                     searchWord(neo4jConnector, word, resultLabel);
                 }
                 wordInput.clear();
-                wordInput.setVisible(false); // Ocultar o campo de texto após operação
-                enableButtons(addButton, removeButton, searchButton, true); // Reabilitar botões
+                wordInput.setVisible(false); // Hide text input field
+                toggleButtons(addButton, removeButton, searchButton, true); // Enable buttons
             }
         });
 
-        // Layout da interface gráfica
-        VBox layout = new VBox(10, addButton, removeButton, searchButton, wordInput, resultLabel);
+        // Main layout setup
+        VBox layout = new VBox(10, addButton, removeButton, searchButton, registerActionButton, wordInput, resultLabel);
         layout.setAlignment(Pos.CENTER);
 
-        // Configuração da cena
+        // Scene setup
         Scene scene = new Scene(layout, 400, 200);
         primaryStage.setTitle("Neo4j Word Operations");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
-    // Método para habilitar ou desabilitar os botões de operação
-    private void enableButtons(Button addButton, Button removeButton, Button searchButton, boolean enable) {
+    /**
+     * Creates a panel with checkboxes for each tag to allow the user to select tags.
+     *
+     * @return A VBox containing checkboxes for each tag.
+     */
+    private VBox createTagSelectionPanel() {
+        List<String> allTags = TagSearch.getAllTags();
+        VBox vbox = new VBox(10);
+
+        for (String tag : allTags) {
+            CheckBox checkBox = new CheckBox(tag);
+            vbox.getChildren().add(checkBox);
+        }
+
+        return vbox;
+    }
+
+    /**
+     * Toggles the enable state of the operation buttons.
+     *
+     * @param addButton    The button for adding a word.
+     * @param removeButton The button for removing a word.
+     * @param searchButton The button for searching a word.
+     * @param enable       Boolean flag indicating whether to enable or disable the buttons.
+     */
+    private void toggleButtons(Button addButton, Button removeButton, Button searchButton, boolean enable) {
         addButton.setDisable(!enable);
         removeButton.setDisable(!enable);
         searchButton.setDisable(!enable);
     }
 
     public static void main(String[] args) {
-        // Iniciar a aplicação JavaFX
         launch(args);
     }
 }

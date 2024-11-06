@@ -15,7 +15,7 @@
 
     <build>
         <sourceDirectory>${project.basedir}/src</sourceDirectory>
-        
+
         <plugins>
             <!-- Plugin de compilação -->
             <plugin>
@@ -41,7 +41,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>src.Main</mainClass> <!-- ajuste para o caminho da sua classe Main -->
+                    <mainClass>src.Main</mainClass> <!-- Ajuste para o caminho da sua classe Main -->
                     <jvmArgs>
                         <!-- Configura o caminho correto para as dependências JavaFX -->
                         <arg>--module-path</arg>

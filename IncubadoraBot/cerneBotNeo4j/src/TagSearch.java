@@ -12,75 +12,110 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Main class for managing and displaying tags associated with practices.
+ * This system allows the selection of tags and displays the practices associated with those tags.
+ */
 public class TagSearch {
 
-    // Mapa para armazenar as tags e suas práticas associadas
+    // Map to store tags and their associated practices
     private static final Map<String, List<Praticas>> tagToPracticesMap = new HashMap<>();
 
-    // Lista para armazenar as tags selecionadas
+    // List to store the tags selected by the user
     private static List<String> selectedTags = new ArrayList<>();
 
-    // Inicializando o mapa com as tags e práticas associadas
+    // Initializing the map with tags and associated practices
     static {
+        // Iterates over all practices and their tags to fill the tag-to-practice map
         for (Praticas pratica : Praticas.values()) {
             for (String tag : pratica.getTags()) {
+                // For each tag, associate the corresponding practice
                 tagToPracticesMap.computeIfAbsent(tag, k -> new ArrayList<>()).add(pratica);
             }
         }
     }
 
-    // Método para encontrar práticas associadas às tags selecionadas
+    /**
+     * Method responsible for finding all practices associated with the selected tags.
+     * 
+     * @param selectedTags The list of tags selected by the user.
+     * @return A list of practices associated with the selected tags.
+     */
     public static List<Praticas> findPracticesByTags(List<String> selectedTags) {
         List<Praticas> result = new ArrayList<>();
+        // For each selected tag, look for the associated practices
         for (String tag : selectedTags) {
             List<Praticas> praticas = tagToPracticesMap.get(tag);
             if (praticas != null) {
-                result.addAll(praticas);
+                result.addAll(praticas);  // Adds the found practices to the result list
             }
         }
         return result;
     }
 
-    // Método para obter todas as tags
+    /**
+     * Method that returns all the tags available in the system.
+     * 
+     * @return A list containing all the tags.
+     */
     public static List<String> getAllTags() {
         return new ArrayList<>(tagToPracticesMap.keySet());
     }
 
-    // Método que lida com a seleção de uma tag (adiciona ou remove da lista de tags selecionadas)
+    /**
+     * Method that handles the selection of a tag.
+     * If the tag is already selected, it is removed from the list; otherwise, it is added.
+     * 
+     * @param button The tag button in the graphical interface.
+     * @param tag The tag being selected or deselected.
+     */
     public static void handleTagSelection(Button button, String tag) {
         if (selectedTags.contains(tag)) {
-            selectedTags.remove(tag);  // Deselect tag if already selected
-            button.setStyle("-fx-background-color: #E0E0E0; -fx-padding: 10;");
+            // If the tag is already in the list, remove it (deselecting the tag)
+            selectedTags.remove(tag);
+            button.setStyle("-fx-background-color: #E0E0E0; -fx-padding: 10;");  // Changes the style to indicate deselection
         } else {
-            selectedTags.add(tag);  // Add tag to the selected list
-            button.setStyle("-fx-background-color: #90CAF9; -fx-padding: 10;");  // Change color to indicate selection
+            // Otherwise, add the tag to the selected list
+            selectedTags.add(tag);
+            button.setStyle("-fx-background-color: #90CAF9; -fx-padding: 10;");  // Changes the style to indicate selection
         }
-        // Exibe a lista de tags selecionadas no console (para uso posterior)
-        System.out.println("Tags selecionadas: " + selectedTags);
+        // Displays the selected tags in the console, useful for debugging and verification
+        System.out.println("Selected tags: " + selectedTags);
     }
 
-    // Exibição de tags como botões na interface gráfica (usando JavaFX)
+    /**
+     * Displays the tags as buttons in the graphical interface using JavaFX.
+     * 
+     * Each button represents a tag and allows the user to select or deselect tags.
+     * 
+     * @param primaryStage The main stage of the JavaFX application.
+     */
     public static void displayTagButtons(Stage primaryStage) {
-        FlowPane flowPane = new FlowPane();
+        FlowPane flowPane = new FlowPane();  // Creates the layout to organize the buttons
 
-        // Criando um botão para cada tag
+        // Creates a button for each available tag and associates a selection/deselection event
         for (String tag : getAllTags()) {
             Button button = new Button(tag);
-            button.setFont(new Font(14));
-            button.setStyle("-fx-background-color: #E0E0E0; -fx-padding: 10;");
+            button.setFont(new Font(14));  // Sets the font size of the button
+            button.setStyle("-fx-background-color: #E0E0E0; -fx-padding: 10;");  // Sets the initial button style
+            // Click event that calls the tag selection handler method
             button.setOnAction(e -> handleTagSelection(button, tag));
-            flowPane.getChildren().add(button);
+            flowPane.getChildren().add(button);  // Adds the button to the layout
         }
 
-        // Configurando o layout e a cena
-        Scene scene = new Scene(flowPane, 400, 300);
-        primaryStage.setTitle("Seleção de Tags");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+        // Configures the application scene and the main stage
+        Scene scene = new Scene(flowPane, 400, 300);  // Defines the scene with the layout and size
+        primaryStage.setTitle("Tag Selection");  // Sets the window title
+        primaryStage.setScene(scene);  // Sets the scene on the main window
+        primaryStage.show();  // Displays the window
     }
 
-    // Main para rodar a aplicação JavaFX
+    /**
+     * Main method that starts the JavaFX application.
+     * 
+     * @param args Command-line arguments (not used in this case).
+     */
     public static void main(String[] args) {
-        Application.launch(args);
+        Application.launch(args);  // Launches the JavaFX application
     }
 }
