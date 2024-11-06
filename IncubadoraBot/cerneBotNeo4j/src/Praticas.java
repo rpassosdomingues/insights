@@ -30,9 +30,9 @@ public enum Praticas {
     GESTAO_OFERTAS_DEMANDAS("3.2.2 Gestão de Ofertas e Demandas", Arrays.asList("Tag23", "Tag27")),
     INCUBACAO_VIRTUAL("3.2.3 Incubação Virtual", Arrays.asList("Tag24", "Tag28")),
     GESTAO_AMBIENTAL("3.3.1 Gestão Ambiental", Arrays.asList("Tag25", "Tag29")),
-    RESPONSABILIDADE_SOCIAL("3.3.2 Responsabilidade Social", Arrays.asList("Tag26", "Tag30"));
-    INTERNACIONALIZACAO_INCUBADORA("4.1.1 Internacionalização da Incubadora", Arrays.asList("Tag26", "Tag30"));
-    INTERNACIONALIZACAO_EMPREENDIMENTOS("4.1.2 Internacionalização dos Empreendimentos", Arrays.asList("Tag26", "Tag30"));
+    RESPONSABILIDADE_SOCIAL("3.3.2 Responsabilidade Social", Arrays.asList("Tag26", "Tag30")),
+    INTERNACIONALIZACAO_INCUBADORA("4.1.1 Internacionalização da Incubadora", Arrays.asList("Tag26", "Tag30")),
+    INTERNACIONALIZACAO_EMPREENDIMENTOS("4.1.2 Internacionalização dos Empreendimentos", Arrays.asList("Tag27", "Tag31"));
 
     private final String descricao;
     private final List<String> tags;
@@ -49,6 +49,14 @@ public enum Praticas {
 
     public List<String> getTags() {
         return tags;
+    }
+
+    public static List<String> getAllTags() {
+    // Utiliza o stream para coletar todas as tags de todas as práticas e as adiciona em uma lista
+    return Arrays.stream(Praticas.values())
+                 .flatMap(pratica -> pratica.getTags().stream())  // Achata as listas de tags
+                 .distinct()  // Elimina duplicatas
+                 .toList();  // Converte para uma lista
     }
 
     // Método que verifica se uma prática possui uma ou mais tags associadas
