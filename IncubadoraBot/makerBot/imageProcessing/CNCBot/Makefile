@@ -12,14 +12,14 @@ SOURCES = $(wildcard $(SRC_DIR)/*.java)
 JAVAC = javac
 JAVA = java
 
-# Caminho para as bibliotecas JavaFX
-PATH_TO_FX = /opt/javafx-21/lib
+# Caminho do JavaFX
+JAVA_FX=/opt/javafx-21/lib
 
 # Parâmetros de compilação com JavaFX
-JAVAC_FLAGS = --module-path $(PATH_TO_FX) --add-modules javafx.controls,javafx.swing
+JAVAC_FLAGS = --module-path $(JAVA_FX) --add-modules javafx.controls,javafx.swing
 
 # Parâmetros de execução com JavaFX
-JAVA_FLAGS = --module-path $(PATH_TO_FX) --add-modules javafx.controls,javafx.swing
+JAVA_FLAGS = --module-path $(JAVA_FX) --add-modules javafx.controls,javafx.swing
 
 # Comando "all" compila e executa o programa
 all: compile run
