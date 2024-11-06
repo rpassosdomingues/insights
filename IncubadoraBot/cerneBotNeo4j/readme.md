@@ -84,3 +84,29 @@ Agendar: Permite agendar reuniões, campanhas ou ações em diversas áreas.
 Reservar: Usado para reservar salas ou espaços.
 Solicitar: Pode ser incluído como uma funcionalidade para que os usuários façam pedidos de novas ações ou campanhas, dependendo do contexto.
 Todos esses métodos são organizados de maneira que a classe principal Incubadora possa coordenar e utilizar os recursos de cada uma das classes especializadas.
+
+## Práticas como Enum: 31 práticas constantes definidas em um enum.
+
+- Tags Fixas: As tags serão pré-definidas e cadastradas no banco de dados, e você poderá selecionar várias tags usando caixas de seleção (checkboxes).
+
+- Decisor Automático: O sistema irá automaticamente comparar as tags selecionadas com as práticas já cadastradas e decidir qual(is) prática(s) são mais adequadas para a ação, com base no grafo de relações entre as tags e práticas.
+
+- Práticas Definidas: As práticas serão um enum de 31 valores constantes.
+- Tags: Tags serão selecionadas por meio de caixas de seleção.
+- Decisão Automática: Após selecionar as tags, o sistema compara as tags escolhidas com as associadas às práticas no grafo, e automaticamente decide qual(is) prática(s) está(ão) mais associada(s) às tags selecionadas.
+
+## Etapas para Implementação
+
+1. Definição das Práticas (Enum):
+
+As práticas serão representadas por um enum.
+Cada prática terá um conjunto de tags associadas a ela.
+
+2. Banco de Tags:
+
+Teremos um conjunto de tags previamente cadastradas no banco de dados.
+As tags poderão ser selecionadas por caixas de seleção.
+
+3. Decisor (Lógica de Vinculação):
+
+O sistema irá comparar as tags selecionadas com as tags associadas às práticas no banco de dados e determinar qual prática (ou práticas) são as mais adequadas para a ação.
