@@ -6,6 +6,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
@@ -20,7 +21,8 @@ import src.Praticas;
  * practices associated with those tags.
  */
 public class Main extends Application {
-
+    // Declare the 'state' variable at the class level
+    private boolean state = true;  // This will enable buttons by default
     /**
      * Neo4j Database Connector Class
      * This class manages the connection to the Neo4j database.
@@ -147,6 +149,41 @@ public class Main extends Application {
     }
 
     /**
+     * Creates a tag selection panel for selecting tags.
+     *
+     * @return A VBox containing the tag selection controls.
+     */
+    private VBox createTagSelectionPanel() {
+        ComboBox<String> tagComboBox = new ComboBox<>();
+        tagComboBox.getItems().addAll("Tag1", "Tag2", "Tag3");
+        Button searchKeyPracticesButton = new Button("Search Key Practices");
+
+        searchKeyPracticesButton.setOnAction(e -> {
+            String selectedTag = tagComboBox.getValue();
+            if (selectedTag != null) {
+                // Here you can add logic to search for key practices based on the selected tag
+                System.out.println("Searching for key practices related to tag: " + selectedTag);
+            }
+        });
+
+        return new VBox(10, tagComboBox, searchKeyPracticesButton);
+    }
+
+    /**
+    * Toggles the visibility and state of the buttons.
+    * This method will either enable or disable the provided buttons based on the given state.
+    *
+    * @param state  Whether to enable or disable the buttons. 
+    *              If true, the buttons will be enabled; if false, they will be disabled.
+    * @param buttons The buttons to toggle. This can accept any number of Button objects.
+    */
+    private void toggleButtons(boolean state, Button... buttons) {
+        for (Button button : buttons) {
+            button.setDisable(!state);  // Set the button's disable property based on the state
+        }
+    }
+
+    /**
     * Initializes and starts the JavaFX application window.
     *
     * @param primaryStage The primary stage for the JavaFX application.
@@ -187,21 +224,21 @@ public class Main extends Application {
             wordInput.setVisible(true);
             resultLabel.setText("");  // Clear previous results
             operation[0] = "add";  // Set operation to "add"
-            toggleButtons(addButton, removeButton, searchButton, false);  // Disable buttons
+            toggleButtons(false, addButton, removeButton, searchButton);  // Disable buttons
         });
 
         removeButton.setOnAction(e -> {
             wordInput.setVisible(true);
             resultLabel.setText("");  // Clear previous results
             operation[0] = "remove";  // Set operation to "remove"
-            toggleButtons(addButton, removeButton, searchButton, false);  // Disable buttons
+            toggleButtons(false, addButton, removeButton, searchButton);  // Disable buttons
         });
 
         searchButton.setOnAction(e -> {
             wordInput.setVisible(true);
             resultLabel.setText("");  // Clear previous results
             operation[0] = "search";  // Set operation to "search"
-            toggleButtons(addButton, removeButton, searchButton, false);  // Disable buttons
+            toggleButtons(false, addButton, removeButton, searchButton);  // Disable buttons
         });
 
         // Word Input Action: Submit word and perform the selected operation
@@ -217,86 +254,25 @@ public class Main extends Application {
                 }
                 wordInput.clear();
                 wordInput.setVisible(false); // Hide text input field
-                toggleButtons(addButton, removeButton, searchButton, true); // Enable buttons
+                toggleButtons(true, addButton, removeButton, searchButton); // Enable buttons
             }
         });
 
         // Main layout setup
-        VBox layout = new VBox(10, addButton, removeButton, searchButton, registerActionButton, wordInput, resultLabel);
-        layout.setAlignment(Pos.CENTER);
+        HBox layout = new HBox(10);
+        VBox leftPanel = new VBox(10, addButton, removeButton, searchButton, registerActionButton);
+        VBox rightPanel = new VBox(10, wordInput, resultLabel);
 
-        // Scene setup
-        Scene scene = new Scene(layout, 400, 200);
-        primaryStage.setTitle("Neo4j Word Operations");
+        layout.getChildren().addAll(leftPanel, rightPanel);
+        Scene scene = new Scene(layout, 500, 300);
+        primaryStage.setTitle("Word Search Application");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
-
     /**
-     * Creates a panel with checkboxes for each tag to allow the user to select tags.
-     * The selected tags can then be used to display associated practices.
-     *
-     * @return A VBox containing checkboxes for each tag and a button to trigger the search.
+     * Main method to launch the application.
      */
-    private VBox createTagSelectionPanel() {
-        List<String> allTags = TagSearch.getAllTags();  // Retrieve all tags from TagSearch
-        VBox vbox = new VBox(10);  // Main container with spacing
-        List<CheckBox> checkBoxList = new ArrayList<>();  // List to keep track of each checkbox
-
-        // Add a checkbox for each tag
-        for (String tag : allTags) {
-            CheckBox checkBox = new CheckBox(tag);
-            checkBoxList.add(checkBox);  // Store checkboxes for later access
-            vbox.getChildren().add(checkBox);  // Add checkbox to VBox
-        }
-
-        // Text area to display results
-        TextArea resultsArea = new TextArea();
-        resultsArea.setEditable(false);
-        resultsArea.setPromptText("Práticas encontradas serão exibidas aqui...");
-
-        // Button to initiate search based on selected tags
-        Button identifyPracticesButton = new Button("Search Key Pratice");
-        identifyPracticesButton.setOnAction(e -> {
-            // Collect tags from selected checkboxes
-            List<String> selectedTags = checkBoxList.stream()
-                    .filter(CheckBox::isSelected)  // Only selected checkboxes
-                    .map(CheckBox::getText)  // Get tag name from each checkbox
-                    .collect(Collectors.toList());
-
-            // Find practices matching selected tags
-            List<Praticas> practices = TagSearch.findPracticesByTags(selectedTags);
-
-            // Display practices or indicate no results
-            if (practices.isEmpty()) {
-                resultsArea.setText("Nenhuma prática encontrada para as tags selecionadas.");
-            } else {
-                resultsArea.setText("Práticas encontradas:\n" + practices.stream()
-                        .map(Praticas::getKeyPractice)  // Adjust to show practice names or details
-                        .collect(Collectors.joining("\n")));
-            }
-        });
-
-        // Add the button and result area to the VBox
-        vbox.getChildren().addAll(identifyPracticesButton, resultsArea);
-        return vbox;
-    }
-
-    /**
-     * Toggles the enable state of the operation buttons.
-     *
-     * @param addButton    The button for adding a word.
-     * @param removeButton The button for removing a word.
-     * @param searchButton The button for searching a word.
-     * @param enable       Boolean flag indicating whether to enable or disable the buttons.
-     */
-    private void toggleButtons(Button addButton, Button removeButton, Button searchButton, boolean enable) {
-        addButton.setDisable(!enable);
-        removeButton.setDisable(!enable);
-        searchButton.setDisable(!enable);
-    }
-
     public static void main(String[] args) {
         launch(args);
     }
