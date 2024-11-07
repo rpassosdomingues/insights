@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import src.Praticas;
+
 /**
  * Main application class for the JavaFX application that interacts with a Neo4j database
  * to add, remove, and search for words. It also allows the user to select tags and display
@@ -145,10 +147,10 @@ public class Main extends Application {
     }
 
     /**
-     * Initializes and starts the JavaFX application window.
-     *
-     * @param primaryStage The primary stage for the JavaFX application.
-     */
+    * Initializes and starts the JavaFX application window.
+    *
+    * @param primaryStage The primary stage for the JavaFX application.
+    */
     @Override
     public void start(Stage primaryStage) {
         // Initialize Neo4j connection
@@ -230,20 +232,54 @@ public class Main extends Application {
         primaryStage.show();
     }
 
+
     /**
      * Creates a panel with checkboxes for each tag to allow the user to select tags.
+     * The selected tags can then be used to display associated practices.
      *
-     * @return A VBox containing checkboxes for each tag.
+     * @return A VBox containing checkboxes for each tag and a button to trigger the search.
      */
     private VBox createTagSelectionPanel() {
-        List<String> allTags = TagSearch.getAllTags();
-        VBox vbox = new VBox(10);
+        List<String> allTags = TagSearch.getAllTags();  // Retrieve all tags from TagSearch
+        VBox vbox = new VBox(10);  // Main container with spacing
+        List<CheckBox> checkBoxList = new ArrayList<>();  // List to keep track of each checkbox
 
+        // Add a checkbox for each tag
         for (String tag : allTags) {
             CheckBox checkBox = new CheckBox(tag);
-            vbox.getChildren().add(checkBox);
+            checkBoxList.add(checkBox);  // Store checkboxes for later access
+            vbox.getChildren().add(checkBox);  // Add checkbox to VBox
         }
 
+        // Text area to display results
+        TextArea resultsArea = new TextArea();
+        resultsArea.setEditable(false);
+        resultsArea.setPromptText("Práticas encontradas serão exibidas aqui...");
+
+        // Button to initiate search based on selected tags
+        Button identifyPracticesButton = new Button("Search Key Pratice");
+        identifyPracticesButton.setOnAction(e -> {
+            // Collect tags from selected checkboxes
+            List<String> selectedTags = checkBoxList.stream()
+                    .filter(CheckBox::isSelected)  // Only selected checkboxes
+                    .map(CheckBox::getText)  // Get tag name from each checkbox
+                    .collect(Collectors.toList());
+
+            // Find practices matching selected tags
+            List<Praticas> practices = TagSearch.findPracticesByTags(selectedTags);
+
+            // Display practices or indicate no results
+            if (practices.isEmpty()) {
+                resultsArea.setText("Nenhuma prática encontrada para as tags selecionadas.");
+            } else {
+                resultsArea.setText("Práticas encontradas:\n" + practices.stream()
+                        .map(Praticas::getKeyPractice)  // Adjust to show practice names or details
+                        .collect(Collectors.joining("\n")));
+            }
+        });
+
+        // Add the button and result area to the VBox
+        vbox.getChildren().addAll(identifyPracticesButton, resultsArea);
         return vbox;
     }
 

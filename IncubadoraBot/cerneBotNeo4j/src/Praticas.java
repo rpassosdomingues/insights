@@ -34,17 +34,17 @@ public enum Praticas {
     INTERNACIONALIZACAO_INCUBADORA("4.1.1 Internacionalização da Incubadora", Arrays.asList("Tag26", "Tag30")),
     INTERNACIONALIZACAO_EMPREENDIMENTOS("4.1.2 Internacionalização dos Empreendimentos", Arrays.asList("Tag27", "Tag31"));
 
-    private final String descricao;
+    private final String practice;
     private final List<String> tags;
 
     // Construtor para associar a prática com as tags
-    Praticas(String descricao, List<String> tags) {
-        this.descricao = descricao;
+    Praticas(String practice, List<String> tags) {
+        this.practice = practice;
         this.tags = tags;
     }
 
-    public String getDescricao() {
-        return descricao;
+    public String getKeyPractice() {
+        return practice;
     }
 
     public List<String> getTags() {
@@ -52,11 +52,11 @@ public enum Praticas {
     }
 
     public static List<String> getAllTags() {
-    // Utiliza o stream para coletar todas as tags de todas as práticas e as adiciona em uma lista
-    return Arrays.stream(Praticas.values())
-                 .flatMap(pratica -> pratica.getTags().stream())  // Achata as listas de tags
-                 .distinct()  // Elimina duplicatas
-                 .toList();  // Converte para uma lista
+        // Utiliza o stream para coletar todas as tags de todas as práticas e as adiciona em uma lista
+        return Arrays.stream(Praticas.values())
+                     .flatMap(pratica -> pratica.getTags().stream())  // Achata as listas de tags
+                     .distinct()  // Elimina duplicatas
+                     .toList();  // Converte para uma lista
     }
 
     // Método que verifica se uma prática possui uma ou mais tags associadas
