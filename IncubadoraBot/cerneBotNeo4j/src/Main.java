@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
@@ -23,6 +24,14 @@ import src.Praticas;
 public class Main extends Application {
     // Declare the 'state' variable at the class level
     private boolean state = true;  // This will enable buttons by default
+
+    // Declare selectedTags como uma variável de classe (para que esteja acessível em toda a classe)
+    private static List<String> selectedTags = new ArrayList<>();
+
+    private List<Praticas> searchKeyPractices(List<String> selectedTags) {
+        // Chama o método findByTags da classe Praticas para encontrar as práticas associadas às tags selecionadas
+        return Praticas.findByTags(selectedTags);
+    }
     /**
      * Neo4j Database Connector Class
      * This class manages the connection to the Neo4j database.
@@ -155,33 +164,46 @@ public class Main extends Application {
      */
     private VBox createTagSelectionPanel() {
         VBox tagPanel = new VBox(10);
-        tagPanel.setAlignment(Pos.CENTER);
+        tagPanel.setAlignment(Pos.TOP_LEFT);
 
-        // Retrieve all tags from Praticas
         List<String> tags = Praticas.getAllTags();
 
-        // Create checkboxes for each tag
-        List<CheckBox> checkBoxes = tags.stream()
-                                        .map(tag -> new CheckBox(tag))
-                                        .collect(Collectors.toList());
+        // GridPane para organizar os checkboxes em colunas
+        GridPane grid = new GridPane();
+        grid.setHgap(10);  // Espaçamento horizontal entre as colunas
+        grid.setVgap(10);  // Espaçamento vertical entre as linhas
 
-        // Add checkboxes to the panel
-        tagPanel.getChildren().addAll(checkBoxes);
+        // Cria os checkboxes e os adiciona ao GridPane
+        int row = 0, col = 0;
+        for (String tag : tags) {
+            CheckBox checkBox = new CheckBox(tag);
+            grid.add(checkBox, col, row);
 
-        // Button to search key practices related to the selected tags
+            // Muda para a próxima coluna após 3 checkboxes
+            col++;
+            if (col > 2) {
+                col = 0;
+                row++;
+            }
+        }
+
+        // Botão para pesquisar as práticas chave associadas às tags selecionadas
         Button searchKeyPracticesButton = new Button("Search Key Practices");
         searchKeyPracticesButton.setOnAction(e -> {
-            List<String> selectedTags = checkBoxes.stream()
-                                                  .filter(CheckBox::isSelected)
-                                                  .map(CheckBox::getText)
-                                                  .collect(Collectors.toList());
+            selectedTags.clear();
+            grid.getChildren().stream()
+                .filter(node -> node instanceof CheckBox && ((CheckBox) node).isSelected())
+                .map(node -> ((CheckBox) node).getText())
+                .forEach(selectedTags::add);
 
-            System.out.println("Selected tags: " + selectedTags);
-            // You can now search for practices associated with the selected tags
+            // Chama o método searchKeyPractices para buscar as práticas chave associadas às tags selecionadas
+            List<Praticas> foundPractices = searchKeyPractices(selectedTags);
+            System.out.println("Key Practices associated with selected tags: " + foundPractices);
+
+            // Aqui você pode exibir as práticas encontradas na interface gráfica, por exemplo
         });
 
-        tagPanel.getChildren().add(searchKeyPracticesButton);
-
+        tagPanel.getChildren().addAll(grid, searchKeyPracticesButton);
         return tagPanel;
     }
 
@@ -200,67 +222,69 @@ public class Main extends Application {
     }
 
     /**
-    * Initializes and starts the JavaFX application window.
-    *
-    * @param primaryStage The primary stage for the JavaFX application.
-    */
+     * Initializes and starts the JavaFX application window.
+     *
+     * @param primaryStage The primary stage for the JavaFX application.
+     */
     @Override
     public void start(Stage primaryStage) {
-        // Initialize Neo4j connection
+        // Criando a conexão com o Neo4j
         Neo4jConnector neo4jConnector = new Neo4jConnector("bolt://localhost:7687", "neo4j");
 
-        // UI Elements
+        // Criando o campo de texto para entrada da palavra
         TextField wordInput = new TextField();
         wordInput.setPromptText("Enter word");
-        wordInput.setVisible(false); // Initially invisible
+        wordInput.setVisible(false);  // Inicialmente invisível
 
+        // Rótulo para exibir os resultados das operações
         Label resultLabel = new Label();
 
+        // Botões para ações de registro, adição, remoção e pesquisa
         Button registerActionButton = new Button("Register Action");
         Button addButton = new Button("Add Word");
         Button removeButton = new Button("Remove Word");
         Button searchButton = new Button("Search Word");
 
-        // Operation control variable
+        // Variável para armazenar a operação atual (add, remove, search)
         final String[] operation = {""};
 
-        // Event Handlers for buttons
+        // Definindo ação para o botão de registro de ação
         registerActionButton.setOnAction(e -> {
-            // Create a new tag selection panel for actions
+            // Exibe o painel de seleção de tags diretamente na mesma janela
             VBox tagSelectionPanel = createTagSelectionPanel();
-            Scene secondaryScene = new Scene(tagSelectionPanel, 400, 300);
-
-            Stage tagSelectionStage = new Stage();
-            tagSelectionStage.setTitle("Select Tags");
-            tagSelectionStage.setScene(secondaryScene);
-            tagSelectionStage.show();
+            Scene tagScene = new Scene(tagSelectionPanel, 400, 400);  // Criando uma nova cena para o painel de tags
+            primaryStage.setScene(tagScene);  // Substitui a cena atual pela nova cena de tags
         });
 
+        // Definindo ação para o botão de adicionar palavra
         addButton.setOnAction(e -> {
-            wordInput.setVisible(true);
-            resultLabel.setText("");  // Clear previous results
-            operation[0] = "add";  // Set operation to "add"
-            toggleButtons(false, addButton, removeButton, searchButton);  // Disable buttons
+            wordInput.setVisible(true);  // Torna o campo de texto visível para a entrada de palavras
+            resultLabel.setText("");     // Limpa o rótulo de resultados
+            operation[0] = "add";       // Define a operação como "add"
+            toggleButtons(false, addButton, removeButton, searchButton);  // Desativa os outros botões
         });
 
+        // Definindo ação para o botão de remover palavra
         removeButton.setOnAction(e -> {
             wordInput.setVisible(true);
-            resultLabel.setText("");  // Clear previous results
-            operation[0] = "remove";  // Set operation to "remove"
-            toggleButtons(false, addButton, removeButton, searchButton);  // Disable buttons
+            resultLabel.setText("");   
+            operation[0] = "remove";
+            toggleButtons(false, addButton, removeButton, searchButton);
         });
 
+        // Definindo ação para o botão de pesquisar palavra
         searchButton.setOnAction(e -> {
             wordInput.setVisible(true);
-            resultLabel.setText("");  // Clear previous results
-            operation[0] = "search";  // Set operation to "search"
-            toggleButtons(false, addButton, removeButton, searchButton);  // Disable buttons
+            resultLabel.setText("");   
+            operation[0] = "search";
+            toggleButtons(false, addButton, removeButton, searchButton);
         });
 
-        // Word Input Action: Submit word and perform the selected operation
+        // Ação para o campo de entrada de texto (quando o usuário pressiona Enter)
         wordInput.setOnAction(e -> {
-            String word = wordInput.getText();
+            String word = wordInput.getText();  // Obtém a palavra digitada
             if (!word.isEmpty()) {
+                // Dependendo da operação selecionada, chama a função correspondente
                 if ("add".equals(operation[0])) {
                     addWord(neo4jConnector, word, resultLabel);
                 } else if ("remove".equals(operation[0])) {
@@ -268,25 +292,30 @@ public class Main extends Application {
                 } else if ("search".equals(operation[0])) {
                     searchWord(neo4jConnector, word, resultLabel);
                 }
-                wordInput.clear();
-                wordInput.setVisible(false); // Hide text input field
-                toggleButtons(true, addButton, removeButton, searchButton); // Enable buttons
+                wordInput.clear();          // Limpa o campo de texto
+                wordInput.setVisible(false); // Torna o campo invisível após a ação
+                toggleButtons(true, addButton, removeButton, searchButton);  // Reativa os botões
             }
         });
 
-        // Main layout setup
-        HBox layout = new HBox(10);
+        // Layout principal: HBox organiza os componentes horizontalmente
+        HBox layout = new HBox(20);  // Espaçamento de 20 entre os elementos
+
+        // Painel à esquerda com os botões de ação
         VBox leftPanel = new VBox(10, addButton, removeButton, searchButton, registerActionButton);
+        leftPanel.setAlignment(Pos.CENTER);  // Centraliza os botões na coluna
+
+        // Painel à direita com o campo de texto e o rótulo de resultados
         VBox rightPanel = new VBox(10, wordInput, resultLabel);
 
-        // Centering buttons in the left panel
-        leftPanel.setAlignment(Pos.CENTER);
-
+        // Adiciona os dois painéis no layout principal (HBox)
         layout.getChildren().addAll(leftPanel, rightPanel);
-        Scene scene = new Scene(layout, 700, 400);
-        primaryStage.setTitle("Word Search Application");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+
+        // Criando a cena com o layout e configurando o palco
+        Scene scene = new Scene(layout, 900, 600);  // Tamanho da janela maior
+        primaryStage.setTitle("Word Search Application");  // Título da janela
+        primaryStage.setScene(scene);  // Configura a cena para o palco principal
+        primaryStage.show();  // Exibe a janela
     }
 
     /**
