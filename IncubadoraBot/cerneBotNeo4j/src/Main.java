@@ -154,19 +154,35 @@ public class Main extends Application {
      * @return A VBox containing the tag selection controls.
      */
     private VBox createTagSelectionPanel() {
-        ComboBox<String> tagComboBox = new ComboBox<>();
-        tagComboBox.getItems().addAll("Tag1", "Tag2", "Tag3");
-        Button searchKeyPracticesButton = new Button("Search Key Practices");
+        VBox tagPanel = new VBox(10);
+        tagPanel.setAlignment(Pos.CENTER);
 
+        // Retrieve all tags from Praticas
+        List<String> tags = Praticas.getAllTags();
+
+        // Create checkboxes for each tag
+        List<CheckBox> checkBoxes = tags.stream()
+                                        .map(tag -> new CheckBox(tag))
+                                        .collect(Collectors.toList());
+
+        // Add checkboxes to the panel
+        tagPanel.getChildren().addAll(checkBoxes);
+
+        // Button to search key practices related to the selected tags
+        Button searchKeyPracticesButton = new Button("Search Key Practices");
         searchKeyPracticesButton.setOnAction(e -> {
-            String selectedTag = tagComboBox.getValue();
-            if (selectedTag != null) {
-                // Here you can add logic to search for key practices based on the selected tag
-                System.out.println("Searching for key practices related to tag: " + selectedTag);
-            }
+            List<String> selectedTags = checkBoxes.stream()
+                                                  .filter(CheckBox::isSelected)
+                                                  .map(CheckBox::getText)
+                                                  .collect(Collectors.toList());
+
+            System.out.println("Selected tags: " + selectedTags);
+            // You can now search for practices associated with the selected tags
         });
 
-        return new VBox(10, tagComboBox, searchKeyPracticesButton);
+        tagPanel.getChildren().add(searchKeyPracticesButton);
+
+        return tagPanel;
     }
 
     /**
@@ -263,8 +279,11 @@ public class Main extends Application {
         VBox leftPanel = new VBox(10, addButton, removeButton, searchButton, registerActionButton);
         VBox rightPanel = new VBox(10, wordInput, resultLabel);
 
+        // Centering buttons in the left panel
+        leftPanel.setAlignment(Pos.CENTER);
+
         layout.getChildren().addAll(leftPanel, rightPanel);
-        Scene scene = new Scene(layout, 500, 300);
+        Scene scene = new Scene(layout, 700, 400);
         primaryStage.setTitle("Word Search Application");
         primaryStage.setScene(scene);
         primaryStage.show();
