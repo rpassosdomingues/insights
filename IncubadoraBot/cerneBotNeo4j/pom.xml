@@ -32,7 +32,7 @@
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.5</version>
+                <version>0.0.8</version>
                 <executions>
                     <execution>
                         <goals>
@@ -45,7 +45,7 @@
                     <jvmArgs>
                         <!-- Configura o caminho correto para as dependências JavaFX -->
                         <arg>--module-path</arg>
-                        <arg>/opt/javafx-21/lib</arg>
+                        <arg>${JAVAFX_PATH}</arg>
                         <arg>--add-modules</arg>
                         <arg>javafx.controls,javafx.fxml</arg>
                     </jvmArgs>

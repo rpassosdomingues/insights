@@ -1,18 +1,17 @@
 package src;
 
 import org.neo4j.driver.*;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
+import java.util.stream.Collectors;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import src.Praticas;
 
@@ -231,6 +230,12 @@ public class Main extends Application {
         // Criando a conexão com o Neo4j
         Neo4jConnector neo4jConnector = new Neo4jConnector("bolt://localhost:7687", "neo4j");
 
+        // Criando os botões de ação
+        Button registerActionButton = new Button("Register Action");
+        Button addButton = new Button("Add Word");
+        Button removeButton = new Button("Remove Word");
+        Button searchButton = new Button("Search Word");
+
         // Criando o campo de texto para entrada da palavra
         TextField wordInput = new TextField();
         wordInput.setPromptText("Enter word");
@@ -239,11 +244,16 @@ public class Main extends Application {
         // Rótulo para exibir os resultados das operações
         Label resultLabel = new Label();
 
-        // Botões para ações de registro, adição, remoção e pesquisa
-        Button registerActionButton = new Button("Register Action");
-        Button addButton = new Button("Add Word");
-        Button removeButton = new Button("Remove Word");
-        Button searchButton = new Button("Search Word");
+        // Layout principal: HBox organiza os componentes horizontalmente
+        HBox layout = new HBox(20);  // Espaçamento de 20 entre os elementos
+
+        // Painel à esquerda com os botões de ação
+        VBox leftPanel = new VBox(10, addButton, removeButton, searchButton, registerActionButton);
+        leftPanel.setAlignment(Pos.CENTER);  // Centraliza os botões na coluna
+
+        // Painel à direita com o campo de texto e o rótulo de resultados
+        VBox rightPanel = new VBox(10, wordInput, resultLabel);  // Add the word input field and result label here
+        rightPanel.setAlignment(Pos.CENTER);  // Center the input field and label vertically
 
         // Variável para armazenar a operação atual (add, remove, search)
         final String[] operation = {""};
@@ -252,8 +262,10 @@ public class Main extends Application {
         registerActionButton.setOnAction(e -> {
             // Exibe o painel de seleção de tags diretamente na mesma janela
             VBox tagSelectionPanel = createTagSelectionPanel();
-            Scene tagScene = new Scene(tagSelectionPanel, 400, 400);  // Criando uma nova cena para o painel de tags
-            primaryStage.setScene(tagScene);  // Substitui a cena atual pela nova cena de tags
+            // Limpa o painel direito antes de adicionar o novo conteúdo
+            rightPanel.getChildren().clear();  // `rightPanel` é o painel onde o conteúdo será exibido
+            // Adiciona o painel de seleção de tags ao painel direito
+            rightPanel.getChildren().add(tagSelectionPanel);
         });
 
         // Definindo ação para o botão de adicionar palavra
@@ -298,24 +310,17 @@ public class Main extends Application {
             }
         });
 
-        // Layout principal: HBox organiza os componentes horizontalmente
-        HBox layout = new HBox(20);  // Espaçamento de 20 entre os elementos
+        // Usando SplitPane para dividir a janela
+        SplitPane splitPane = new SplitPane();
+        // Definindo a posição do divisor (0.35 significa 35% da largura para controlPanel)
+        splitPane.setDividerPositions(0.35);
 
-        // Painel à esquerda com os botões de ação
-        VBox leftPanel = new VBox(10, addButton, removeButton, searchButton, registerActionButton);
-        leftPanel.setAlignment(Pos.CENTER);  // Centraliza os botões na coluna
+        splitPane.getItems().addAll(leftPanel, rightPanel);
 
-        // Painel à direita com o campo de texto e o rótulo de resultados
-        VBox rightPanel = new VBox(10, wordInput, resultLabel);
-
-        // Adiciona os dois painéis no layout principal (HBox)
-        layout.getChildren().addAll(leftPanel, rightPanel);
-
-        // Criando a cena com o layout e configurando o palco
-        Scene scene = new Scene(layout, 900, 600);  // Tamanho da janela maior
-        primaryStage.setTitle("Word Search Application");  // Título da janela
-        primaryStage.setScene(scene);  // Configura a cena para o palco principal
-        primaryStage.show();  // Exibe a janela
+        // Adicionando o SplitPane à cena
+        Scene scene = new Scene(splitPane, 1000, 700); // Defina o tamanho da janela conforme necessário
+        primaryStage.setScene(scene);
+        primaryStage.show(); // Mostra a janela
     }
 
     /**
