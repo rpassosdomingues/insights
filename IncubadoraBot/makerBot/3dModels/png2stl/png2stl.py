@@ -4,7 +4,7 @@ from tqdm import tqdm
 from bpy_extras.io_utils import ExportHelper
 from PIL import Image, ImageOps
 
-def preprocess_image(input_path, output_path, brightness_threshold=200):
+def preprocess_image(input_path, output_path, brightness_threshold=50):
     """
     Preprocesses an image to ensure the background is black and contours are white.
     
@@ -26,7 +26,7 @@ def preprocess_image(input_path, output_path, brightness_threshold=200):
     binary_image.save(output_path)
     print(f"Processed image saved at: {output_path}")
 
-def write_stl(self, filepath):
+def write_stl(filepath):
     """Exporta todos os objetos de malha para um arquivo STL."""
     meshes = [obj for obj in bpy.context.scene.objects if obj.type == 'MESH']
     
@@ -40,36 +40,39 @@ def write_stl(self, filepath):
         progress_bar = tqdm(total=len(meshes), desc="Exporting STL", unit="mesh")
 
         for mesh in meshes:
-            mesh_data = mesh.to_mesh()
-            mesh_data.calc_loop_triangles()
+            # Verifique se o objeto está na cena antes de tentar acessá-lo
+            if mesh in bpy.context.scene.objects:
+                mesh_data = mesh.to_mesh()
+                mesh_data.calc_loop_triangles()
 
-            for triangle in mesh_data.loop_triangles:
-                normal = triangle.normal
-                f.write(f"  facet normal {normal.x} {normal.y} {normal.z}\n")
-                f.write("    outer loop\n")
-                
-                for index in triangle.vertices:
-                    vertex = mesh_data.vertices[index].co
-                    f.write(f"      vertex {vertex.x} {vertex.y} {vertex.z}\n")
+                for triangle in mesh_data.loop_triangles:
+                    normal = triangle.normal
+                    f.write(f"  facet normal {normal.x} {normal.y} {normal.z}\n")
+                    f.write("    outer loop\n")
+                    
+                    for index in triangle.vertices:
+                        vertex = mesh_data.vertices[index].co
+                        f.write(f"      vertex {vertex.x} {vertex.y} {vertex.z}\n")
 
-                f.write("    endloop\n")
-                f.write("  endfacet\n")
+                    f.write("    endloop\n")
+                    f.write("  endfacet\n")
 
-            progress_bar.update(1)
+                progress_bar.update(1)
 
-            # Limpa a malha temporária após o uso
-            bpy.data.meshes.remove(mesh_data)
+                # Limpeza do mesh após exportação
+                bpy.context.view_layer.objects.active = mesh
+                bpy.ops.object.select_all(action='DESELECT')
+                mesh.select_set(True)
+                bpy.ops.object.delete()  # Remover o objeto da cena
+
+                # Remover mesh temporário da base de dados do Blender (somente se ele ainda estiver lá)
+                if mesh_data.is_loaded:
+                    bpy.data.meshes.remove(mesh_data)
 
         progress_bar.close()
         f.write("endsolid BlenderSTL\n")
 
     print(f"Model successfully exported to: {filepath}")
-    
-    # Deleta os objetos de malha após a exportação
-    bpy.ops.object.select_all(action='DESELECT')
-    for mesh in meshes:
-        mesh.select_set(True)
-    bpy.ops.object.delete()
 
 def generate_cube_grid(image_path, cube_size, cube_height, resolution_scale):
     """
@@ -175,8 +178,8 @@ def main(original_image_path, processed_image_path, cube_size, cube_height, reso
 
 # Example usage
 if __name__ == "__main__":
-    original_image_path = "images/odin.png"  # Path to the original PNG
-    processed_image_path = "images/processed_image.png"  # Path for the preprocessed image
+    original_image_path = "images/thor.png"  # Path to the original PNG
+    processed_image_path = "images/thor_processed_image.png"  # Path for the preprocessed image
     cube_size = 1.0                                  # Size of each cube
     cube_height = 1.0                                # Height of each cube
     resolution_scale = 0.1                           # Resolution scale factor
