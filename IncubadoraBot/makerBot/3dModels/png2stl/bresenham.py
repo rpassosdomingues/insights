@@ -223,8 +223,8 @@ def main(original_image_path, processed_image_path, cube_size, cube_height, reso
     write_stl(stl_filepath)
 
 # Example usage
-original_image_path = "images/thor.png"
-processed_image_path = "images/thor_processed_image.png"
+original_image_path = "images/odin.png"
+processed_image_path = "images/odin_processed_image.png"
 cube_size = 0.1
 cube_height = 0.1
 resolution_scale = 0.5
