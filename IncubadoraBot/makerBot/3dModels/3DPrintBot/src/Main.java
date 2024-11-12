@@ -52,17 +52,17 @@ public class Main extends Application {
         uploadButton.setOnAction(e -> uploadImage(primaryStage));
 
         // Ação do botão de gerar superfície 3D
-        //generateButton.setOnAction(e -> {
-        //    displacementMapping.applyDisplacementMapping(createSampleMesh());
-        //    update3DView();
-        //});
-
         generateButton.setOnAction(e -> {
-        // Verifica se a imagem foi carregada corretamente
-        if (originalImage != null) {
-            // Aplica o mapeamento de deslocamento com a imagem carregada
-            displacementMapping.applyDisplacementMapping(originalImage);
-            update3DView();  // Atualiza a visualização 3D com a nova malha
+            if (originalImage != null) {
+                System.out.println("Imagem carregada, iniciando mapeamento de deslocamento.");
+                displacementMapping.applyDisplacementMapping(originalImage);
+        
+                if (displacementMapping.getSurfaceMesh() != null) {
+                    System.out.println("Mapeamento de deslocamento aplicado, atualizando visualização 3D.");
+                    update3DView();  // Atualiza a visualização 3D com a nova malha
+                } else {
+                    System.out.println("Falha ao gerar a malha. Verifique o método applyDisplacementMapping.");
+                }
             } else {
                 System.out.println("Nenhuma imagem carregada para o mapeamento de deslocamento.");
             }
