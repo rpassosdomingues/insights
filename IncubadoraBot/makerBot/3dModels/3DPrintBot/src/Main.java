@@ -14,113 +14,150 @@ import javafx.stage.Stage;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.Box;
+import javafx.scene.shape.MeshView;
+import javafx.scene.shape.TriangleMesh;
 import javafx.scene.transform.Rotate;
-
+import java.io.IOException;
 import java.io.File;
 
 public class Main extends Application {
-    private ImageView imageView; // Exibe a imagem carregada
-    private Image originalImage; // Armazena a imagem original
-    private ProgressBar progressBar; // Barra de progresso para geração de cubos
-    private ProgressBar exportProgressBar; // Barra de progresso para exportação STL
-    private CubeGenerator cubeGenerator; // Gerador de cubos
-    private ExportToSTL stlExporter; // Exportador para STL
-
-    // Camera and SubScene for 3D visualization
-    private PerspectiveCamera camera;
-    private SubScene subScene;
+    private ImageView imageView; // Displays the loaded image
+    private Image originalImage; // The original image loaded by the user
+    private ProgressBar progressBar; // Progress bar for displacement mapping
+    private ProgressBar exportProgressBar; // Progress bar for STL export
+    private DisplacementMapping displacementMapping; // Handles the displacement mapping for creating the 3D surface
+    private ExportToSTL stlExporter; // Responsible for exporting the model to STL
+    private PerspectiveCamera camera; // 3D camera for viewing the model
+    private SubScene subScene; // SubScene to display the 3D model
 
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) throws IOException {
         primaryStage.setTitle("3D Print Bot");
 
+        // Inicializando os elementos gráficos
         imageView = new ImageView();
         imageView.setFitWidth(300);
         imageView.setFitHeight(300);
         imageView.setPreserveRatio(true);
 
         Button uploadButton = new Button("Upload PNG Image");
-        Button generateButton = new Button("Generate Cubes");
+        Button generateButton = new Button("Generate Displaced Surface");
         Button exportSTLButton = new Button("Export to STL");
 
-        // Use the class-level variable
-        cubeGenerator = new CubeGenerator(this::update3DView); // Correção na inicialização
+        // Instanciando objetos para mapeamento de deslocamento e exportação
+        displacementMapping = new DisplacementMapping(null, 0, 0);
         stlExporter = new ExportToSTL();
 
+        // Ação do botão de upload
         uploadButton.setOnAction(e -> uploadImage(primaryStage));
 
+        // Ação do botão de gerar superfície 3D
+        //generateButton.setOnAction(e -> {
+        //    displacementMapping.applyDisplacementMapping(createSampleMesh());
+        //    update3DView();
+        //});
+
         generateButton.setOnAction(e -> {
-            cubeGenerator.generateCubes(originalImage, progressBar);
+        // Verifica se a imagem foi carregada corretamente
+        if (originalImage != null) {
+            // Aplica o mapeamento de deslocamento com a imagem carregada
+            displacementMapping.applyDisplacementMapping(originalImage);
+            update3DView();  // Atualiza a visualização 3D com a nova malha
+            } else {
+                System.out.println("Nenhuma imagem carregada para o mapeamento de deslocamento.");
+            }
         });
 
-        exportSTLButton.setOnAction(e -> stlExporter.exportToSTL(cubeGenerator.getCubeGrid(), exportProgressBar));
+        // Ação do botão de exportar para STL
+        exportSTLButton.setOnAction(e -> {
+            // Exporta para STL com progresso
+            exportToSTLWithProgress(); // No need for try-catch here if exportToSTL handles IOException
+        });
 
+        // Barra de progresso
         progressBar = new ProgressBar(0);
         progressBar.setPrefWidth(150);
 
         exportProgressBar = new ProgressBar(0);
         exportProgressBar.setPrefWidth(150);
 
+        // Caixa de controles com botões
         VBox controlsBox = new VBox(generateButton, progressBar, exportProgressBar);
         controlsBox.setSpacing(10);
         controlsBox.setAlignment(Pos.CENTER);
 
+        // Caixa com os botões de upload e exportação
         HBox bottomButtons = new HBox(uploadButton, exportSTLButton);
         bottomButtons.setSpacing(10);
         bottomButtons.setAlignment(Pos.CENTER);
 
+        // Layout principal
         BorderPane root = new BorderPane();
         root.setLeft(controlsBox);
         root.setCenter(imageView);
         root.setBottom(bottomButtons);
 
-        // Configurando a visualização 3D
-        setup3DView();
-        root.setRight(subScene); // Adiciona a subscena 3D ao layout
+        // Configura a visualização 3D
+        setup3DView();  // Chama antes de adicionar a rotação de mouse
+        root.setRight(subScene);
 
+        // Cria a cena e exibe a janela
         Scene scene = new Scene(root, 850, 325);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
+    // Set up the 3D view with camera and SubScene
     private void setup3DView() {
         Group root3D = new Group();
         camera = new PerspectiveCamera(true);
-        camera.setTranslateZ(1); // Define a distância da câmera
+        camera.setTranslateZ(1); // Set the camera distance from the model
 
-        // Criar SubScene com tamanho especificado
         subScene = new SubScene(root3D, 300, 300, true, SceneAntialiasing.BALANCED);
-        subScene.setFill(Color.LIGHTGRAY);
+        subScene.setFill(Color.LIGHTGRAY); // Set the background color of the SubScene
         subScene.setCamera(camera);
 
-        // Centralizar a câmera verticalmente
-        camera.setTranslateY(-150); // Ajuste para centralizar verticalmente
+        camera.setTranslateY(-150); // Adjust camera vertical position
 
-        // Permitir controle do mouse
-        subScene.setOnMouseDragged(event -> {
-            double deltaX = event.getSceneX() - (subScene.getWidth() / 2); // Centro da cena
-            double deltaY = event.getSceneY() - (subScene.getHeight() / 2); // Centro da cena
-
-            // Ajustar a rotação da câmera com base no movimento do mouse
-            camera.setRotationAxis(Rotate.Y_AXIS);
-            camera.setRotate(camera.getRotate() - deltaX * 0.1);
-            camera.setRotationAxis(Rotate.X_AXIS);
-            camera.setRotate(camera.getRotate() + deltaY * 0.1);
-        });
+        // Set up mouse rotation interaction after initializing subScene
+        setupMouseRotation();
     }
 
     private void update3DView() {
         Group root3D = (Group) subScene.getRoot();
 
-        // Adiciona cubos à visualização 3D
-        for (Node cube : cubeGenerator.getCubeGrid().getChildren()) {
-            Box box = (Box) cube;
-            box.setMaterial(new PhongMaterial(Color.BLUE)); // Define material para visualização
-            root3D.getChildren().add(box);
-        }
+        // Cria uma nova visualização da malha
+        MeshView meshView = new MeshView(displacementMapping.getSurfaceMesh());
+        meshView.setMaterial(new PhongMaterial(Color.BLUE)); // Define o material da superfície
+
+        // Limpa a cena 3D antes de adicionar a nova malha
+        root3D.getChildren().clear();
+
+        // Adiciona a nova malha
+        root3D.getChildren().add(meshView);
     }
 
+    // Configura a interação do mouse para rotação da cena 3D
+    private void setupMouseRotation() {
+        subScene.setOnMouseDragged(event -> {
+            double deltaX = event.getSceneX() - (subScene.getWidth() / 2);
+            double deltaY = event.getSceneY() - (subScene.getHeight() / 2);
+
+            // Limitação da rotação da câmera para evitar exageros
+            double maxRotation = 90.0; 
+            double rotationSpeed = 0.1;
+
+            camera.setRotationAxis(Rotate.Y_AXIS);
+            double newRotationY = camera.getRotate() - deltaX * rotationSpeed;
+            camera.setRotate(Math.min(Math.max(newRotationY, -maxRotation), maxRotation)); // Limita a rotação no eixo Y
+
+            camera.setRotationAxis(Rotate.X_AXIS);
+            double newRotationX = camera.getRotate() + deltaY * rotationSpeed;
+            camera.setRotate(Math.min(Math.max(newRotationX, -maxRotation), maxRotation)); // Limita a rotação no eixo X
+        });
+    }
+
+    // Load an image and configure displacement mapping
     private void uploadImage(Stage stage) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG Images", "*.png"));
@@ -128,8 +165,46 @@ public class Main extends Application {
         if (selectedFile != null) {
             originalImage = new Image(selectedFile.toURI().toString());
             imageView.setImage(originalImage);
-            cubeGenerator.clearCubes(); // Limpa os cubos ao carregar uma nova imagem
+
+            displacementMapping = new DisplacementMapping(originalImage.getPixelReader(), (int) originalImage.getWidth(), (int) originalImage.getHeight());
+            displacementMapping.clearSurface(); // Clear any previous surface data
         }
+    }
+
+    // Function to create a simple test mesh
+    private TriangleMesh createSampleMesh() {
+        TriangleMesh mesh = new TriangleMesh();
+        mesh.getPoints().addAll(
+            0, 0, 0, 
+            1, 0, 0, 
+            0, 1, 0
+        );
+        mesh.getFaces().addAll(
+            0, 0, 1, 1, 2, 2
+        );
+        return mesh;
+    }
+
+    // Export the model to STL and update the progress bar
+    private void exportToSTLWithProgress() {
+        // Create a new thread to simulate progress while exporting
+        new Thread(() -> {
+            for (double i = 0; i <= 1; i += 0.1) {
+                try {
+                    Thread.sleep(500); // Simulate export progress
+                    final double progress = i;
+                    javafx.application.Platform.runLater(() -> exportProgressBar.setProgress(progress));
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            try {
+                // Call actual export after simulated progress
+                stlExporter.exportToSTL(displacementMapping.getSurfaceMesh(), exportProgressBar);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }).start();
     }
 
     public static void main(String[] args) {

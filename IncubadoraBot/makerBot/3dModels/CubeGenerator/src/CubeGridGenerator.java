@@ -120,8 +120,8 @@ public class CubeGridGenerator extends Application {
         int width = (int) originalImage.getWidth(); // Largura da imagem
         int height = (int) originalImage.getHeight(); // Altura da imagem
 
-        double resolution = 0.1; // Resolução (tamanho de cada cubo)
-        double maxHeight = 1.0; // Altura máxima de um cubo
+        double resolution = 0.5; // Resolução (tamanho de cada cubo)
+        double maxHeight = 3.0; // Altura máxima de um cubo
 
         // Criar uma tarefa para processar a geração de cubos em uma thread separada
         Task<Void> cubeGenerationTask = new Task<>() {
@@ -210,16 +210,59 @@ public class CubeGridGenerator extends Application {
     private void writeCubeToSTL(OutputStreamWriter writer, double x, double y, double z) throws IOException {
         // Definindo as 8 vértices de um cubo
         double halfSize = 0.5; // Metade do tamanho do cubo
-        writer.write("  facet normal 0 0 0\n"); // Normal do cubo (simplificado)
+        double[][] vertices = {
+            {x - halfSize, y - halfSize, z - halfSize}, // Vértice 0
+            {x + halfSize, y - halfSize, z - halfSize}, // Vértice 1
+            {x + halfSize, y + halfSize, z - halfSize}, // Vértice 2
+            {x - halfSize, y + halfSize, z - halfSize}, // Vértice 3
+            {x - halfSize, y - halfSize, z + halfSize}, // Vértice 4
+            {x + halfSize, y - halfSize, z + halfSize}, // Vértice 5
+            {x + halfSize, y + halfSize, z + halfSize}, // Vértice 6
+            {x - halfSize, y + halfSize, z + halfSize}  // Vértice 7
+        };
+
+        // Escrevendo as 6 faces do cubo
+        writeFaceToSTL(writer, vertices[0], vertices[1], vertices[2], vertices[3]); // Face inferior
+        writeFaceToSTL(writer, vertices[4], vertices[5], vertices[6], vertices[7]); // Face superior
+        writeFaceToSTL(writer, vertices[0], vertices[1], vertices[5], vertices[4]); // Face frente
+        writeFaceToSTL(writer, vertices[2], vertices[3], vertices[7], vertices[6]); // Face trás
+        writeFaceToSTL(writer, vertices[0], vertices[3], vertices[7], vertices[4]); // Face esquerda
+        writeFaceToSTL(writer, vertices[1], vertices[2], vertices[6], vertices[5]); // Face direita
+    }
+
+    // Método para escrever uma face no formato STL
+    private void writeFaceToSTL(OutputStreamWriter writer, double[] v0, double[] v1, double[] v2, double[] v3) throws IOException {
+        // Calculando o vetor normal da face (aproximadamente)
+        double[] normal = calculateNormal(v0, v1, v2);
+        writer.write("  facet normal " + normal[0] + " " + normal[1] + " " + normal[2] + "\n");
         writer.write("    outer loop\n");
-        writer.write(String.format("      vertex %.5f %.5f %.5f\n", x - halfSize, y - halfSize, z - halfSize));
-        writer.write(String.format("      vertex %.5f %.5f %.5f\n", x + halfSize, y - halfSize, z - halfSize));
-        writer.write(String.format("      vertex %.5f %.5f %.5f\n", x + halfSize, y + halfSize, z - halfSize));
+        writer.write(String.format("      vertex %.5f %.5f %.5f\n", v0[0], v0[1], v0[2]));
+        writer.write(String.format("      vertex %.5f %.5f %.5f\n", v1[0], v1[1], v1[2]));
+        writer.write(String.format("      vertex %.5f %.5f %.5f\n", v2[0], v2[1], v2[2]));
         writer.write("    endloop\n");
         writer.write("  endfacet\n");
 
-        // Adicione mais facetas aqui conforme necessário para completar o cubo
-        // Isso inclui facetas para as outras 5 faces do cubo.
+        writer.write("  facet normal " + normal[0] + " " + normal[1] + " " + normal[2] + "\n");
+        writer.write("    outer loop\n");
+        writer.write(String.format("      vertex %.5f %.5f %.5f\n", v0[0], v0[1], v0[2]));
+        writer.write(String.format("      vertex %.5f %.5f %.5f\n", v2[0], v2[1], v2[2]));
+        writer.write(String.format("      vertex %.5f %.5f %.5f\n", v3[0], v3[1], v3[2]));
+        writer.write("    endloop\n");
+        writer.write("  endfacet\n");
+    }
+
+    // Método para calcular o vetor normal de uma face a partir de três vértices
+    private double[] calculateNormal(double[] v0, double[] v1, double[] v2) {
+        double[] vector1 = {v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2]};
+        double[] vector2 = {v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2]};
+        double[] normal = {
+            vector1[1] * vector2[2] - vector1[2] * vector2[1],
+            vector1[2] * vector2[0] - vector1[0] * vector2[2],
+            vector1[0] * vector2[1] - vector1[1] * vector2[0]
+        };
+        double length = Math.sqrt(normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]);
+        // Normalizando o vetor normal
+        return new double[]{normal[0] / length, normal[1] / length, normal[2] / length};
     }
 
     // Método principal para executar a aplicação
