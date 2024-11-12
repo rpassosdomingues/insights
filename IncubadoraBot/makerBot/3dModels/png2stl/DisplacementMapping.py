@@ -4,8 +4,19 @@ import numpy as np
 from PIL import Image, ImageOps, ImageFilter
 from tqdm import tqdm  # Progress bar library
 
-# Activates the STL export addon to ensure the export feature is available
-bpy.ops.preferences.addon_enable(module="io_mesh_stl")
+# Verifica se o add-on 'io_mesh_stl' está disponível
+addon_name = "io_mesh_stl"
+
+if addon_name not in bpy.context.preferences.addons:
+    # Verifica se o add-on está instalado no diretório de add-ons
+    addon_path = os.path.join(bpy.utils.script_path_user(), 'addons', addon_name)
+    
+    if not os.path.exists(addon_path):
+        print(f"Addon {addon_name} not found in Blender add-ons directory. Please install it.")
+        exit(1)
+
+    # Tenta ativar o add-on
+    bpy.ops.preferences.addon_enable(module=addon_name)
 
 
 # ImageProcessor class for loading and processing image data
