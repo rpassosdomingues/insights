@@ -1,6 +1,6 @@
 # Caminho para o executável do Blender e para o script Python
 BLENDER_PATH = /opt/blender-4.2/blender
-SCRIPT_PATH = bresenham.py
+SCRIPT_PATH = DisplacementMapping.py
 
 # Alvo principal para rodar o script
 run:
