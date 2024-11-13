@@ -120,8 +120,8 @@ public class CubeGridGenerator extends Application {
         int width = (int) originalImage.getWidth(); // Largura da imagem
         int height = (int) originalImage.getHeight(); // Altura da imagem
 
-        double resolution = 0.5; // Resolução (tamanho de cada cubo)
-        double maxHeight = 3.0; // Altura máxima de um cubo
+        double resolution = 0.1; // Resolução (tamanho de cada cubo)
+        double maxHeight = 5.0; // Altura máxima de um cubo
 
         // Criar uma tarefa para processar a geração de cubos em uma thread separada
         Task<Void> cubeGenerationTask = new Task<>() {
