@@ -3,7 +3,7 @@
  * com cache de memória para acompanhar o status de criação dos eventos.
  *
  * Autor: Rafael Passos Domingues
- * Última atualização: 2024-11-15
+ * Última atualização: 2024-11-14
  */
 
 var SHEET_NAME = 'EVENTOS'; 
@@ -67,7 +67,7 @@ function atualizaAgenda(matrizDados, aba, indiceProjeto, indiceEvento, indiceLoc
   for (var i = 0; i < matrizDados.length; i++) {
     var linha = matrizDados[i];
     var projeto = linha[indiceProjeto];
-    var acao = linha[indiceEvento];
+    var evento = linha[indiceEvento];
     var local = linha[indiceLocal];
     var data = linha[indiceData];
     var horarioInicio = linha[indiceHorarioInicio];
@@ -77,11 +77,11 @@ function atualizaAgenda(matrizDados, aba, indiceProjeto, indiceEvento, indiceLoc
     // Verificar se o evento já existe no Google Calendar antes de criar
     var inicio = new Date(data + " " + horarioInicio);
     var termino = new Date(data + " " + horarioTermino);
-    var eventosExistentes = calendar.getEvents(inicio, termino, {location: local, search: acao});
+    var eventosExistentes = calendar.getEvents(inicio, termino, {location: local, search: evento});
 
     if (status === "Evento Confirmado" && eventosExistentes.length === 0) {
       // Se não há eventos com o mesmo intervalo e local, cria o evento
-      var idEventoCriado = criaEventoAgenda(calendar, projeto, acao, local, data, horarioInicio, horarioTermino);
+      var idEventoCriado = criaEventoAgenda(calendar, projeto, evento, local, data, horarioInicio, horarioTermino);
       
       if (idEventoCriado.startsWith("Erro")) {
         Logger.log("Erro ao criar evento: " + idEventoCriado);
@@ -91,7 +91,7 @@ function atualizaAgenda(matrizDados, aba, indiceProjeto, indiceEvento, indiceLoc
       }
     } else if (status === "Evento Cancelado" && eventosExistentes.length > 0) {
       // Se o evento foi cancelado e existe, remove o evento
-      removeEventoAgenda(calendar, projeto, acao, local, data, horarioInicio, horarioTermino, planilha, linha);
+      removeEventoAgenda(calendar, projeto, evento, local, data, horarioInicio, horarioTermino, planilha, linha);
     }
   }
 }
@@ -100,14 +100,14 @@ function atualizaAgenda(matrizDados, aba, indiceProjeto, indiceEvento, indiceLoc
  * Função para criar um evento no Google Calendar e atualizar o status na planilha.
  * @param {CalendarApp} calendar - O objeto do calendário do Google.
  * @param {String} projeto - Nome do projeto relacionado ao evento.
- * @param {String} acao - Descrição da ação do evento.
+ * @param {String} evento - Descrição da ação do evento.
  * @param {String} local - Local onde o evento ocorrerá.
  * @param {Date} data - Data do evento.
  * @param {Date} horarioInicio - Hora de início do evento.
  * @param {Date} horarioTermino - Hora de término do evento.
  * @returns {String} - Retorna o ID do Evento Confirmado ou uma mensagem de erro.
  */
-function criaEventoAgenda(calendar, projeto, acao, local, data, horarioInicio, horarioTermino) {
+function criaEventoAgenda(calendar, projeto, evento, local, data, horarioInicio, horarioTermino) {
   // Encapsula data e horários para compatibilidade com Google Agenda
   var dataInicio = converteParaData(data, horarioInicio);
   var dataFim = converteParaData(data, horarioTermino);
@@ -120,16 +120,16 @@ function criaEventoAgenda(calendar, projeto, acao, local, data, horarioInicio, h
 
   // Cria o evento no Google Calendar
   try {
-    var evento = calendar.createEvent(`[${acao}] ${projeto}`,
+    var evento = calendar.createEvent(`[${evento}] ${projeto}`,
       dataInicio,
       dataFim,
       {
-        description: `O evento: ${acao} acontece no(a) ${local}, dia ${dataInicio}.`,
+        description: `O evento: ${evento} acontece no(a) ${local}, dia ${dataInicio}.`,
         location: local
       }
     );
 
-    Logger.log(`Evento criado no Google Agenda: A ação: ${acao}, do projeto: ${projeto} acontece no(a) ${local}, dia ${dataInicio}`);
+    Logger.log(`Evento criado no Google Agenda: A ação: ${evento}, do projeto: ${projeto} acontece no(a) ${local}, dia ${dataInicio}`);
 
     return evento.getId();  // Retorna o ID do evento para referência futura
   } catch (e) {
