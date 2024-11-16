@@ -40,6 +40,8 @@ function geraListaInscricao() {
 
         // Criar estrutura e formulário
         const pastaEvento = criarPastaEvento(pastaEventos, evento);
+        // Adiciona um delay de 60 segundos para garantir que a pasta seja criada antes de adicionar o formulário
+        Utilities.sleep(60000); // Delay de 60.000 milissegundos (60 segundos)
         criaFormulario(pastaEvento, legenda, evento);
 
         // Atualizar status para "Publicado"
@@ -85,8 +87,9 @@ function criarPastaEvento(pastaRaiz, nomeEvento) {
  * @param {string} nomeEvento - Nome do evento.
  */
 function criaFormulario(pastaEvento, legenda, nomeEvento) {
-  // Criando o formulário com o nome ajustado
-  const formulario = FormApp.create(`[Lista de Inscrição] ${nomeEvento}`).setDescription(legenda);
+  // Criando o formulário com o nome ajustado diretamente na pasta do evento
+  const formulario = FormApp.create(`[Lista de Inscrição] ${nomeEvento}`)
+    .setDescription(legenda);
 
   // Pergunta de múltipla escolha para aceitar os termos
   formulario.addMultipleChoiceItem()
@@ -111,10 +114,9 @@ function criaFormulario(pastaEvento, legenda, nomeEvento) {
       FormApp.createChoice("Indicação")
     ]);
 
-  // Adiciona o formulário à pasta do evento
+  // Adiciona o formulário à pasta do evento diretamente
   const arquivoFormulario = DriveApp.getFileById(formulario.getId());
   pastaEvento.addFile(arquivoFormulario);
-  DriveApp.getRootFolder().removeFile(arquivoFormulario); // Remove o formulário da pasta raiz.
 }
 
 /**
