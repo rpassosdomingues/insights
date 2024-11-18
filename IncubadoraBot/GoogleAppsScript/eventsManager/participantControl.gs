@@ -2,11 +2,11 @@
  * Este script automatiza a gestão de inscrições em eventos:
  * - Gerencia status de publicações;
  * - Cria pastas organizadas por evento e subpastas de evidências;
- * - Gera automaticamente um formulário Google associado ao evento;
+ * - Gera automaticamente um formulário Google da Lista de Inscrição associada ao evento;
  * - Registra URLs de evidências na planilha.
  *
  * Autor: Rafael Passos Domingues
- * Última atualização: 2024-11-15
+ * Última atualização: 2024-11-18
  */
 
 /**
@@ -27,28 +27,44 @@ var abaParticipantes = planilha.getSheetByName("PARTICIPANTES");
 function geraListaInscricao() {
   try {
     const pastaEventos = DriveApp.getFolderById(PASTA_EVENTOS_ID);
+    const ultimaLinha = abaArtes.getLastRow();
 
-    // Obter dados das colunas B, C e E (Evento, Legenda e Status da Publicação)
-    const dadosArtes = abaArtes.getRange(7, 2, abaArtes.getLastRow() - 6, 3).getValues();
+    // Buscar índices das colunas dinamicamente na linha 7
+    const cabecalhos = abaArtes.getRange(7, 1, 1, abaArtes.getLastColumn()).getValues()[0];
+    const indiceEvento = cabecalhos.indexOf("Evento") + 1;
+    const indiceLegenda = cabecalhos.indexOf("Legenda") + 1;
+    const indiceStatusPublicacao = cabecalhos.indexOf("Status da Publicação") + 1;
 
-    // Iterar sobre as linhas para verificar o status "Aprovado"
+    if (indiceEvento === 0 || indiceLegenda === 0 || indiceStatusPublicacao === 0) {
+      throw new Error("Não foi possível encontrar todos os cabeçalhos necessários na linha 7.");
+    }
+
+    // Obter dados das colunas relevantes
+    const dadosArtes = abaArtes.getRange(8, 1, ultimaLinha - 7, abaArtes.getLastColumn()).getValues();
+
     dadosArtes.forEach((linha, index) => {
-      const [evento, legenda, statusArte , statusPublicacao, enderecoDrive] = linha;
+      const evento = linha[indiceEvento - 1]; // Ajusta para índice base 0
+      const legenda = linha[indiceLegenda - 1];
+      const statusPublicacao = linha[indiceStatusPublicacao - 1];
 
-      if (statusPublicacao === "Aprovado" && legenda && evento) {
-        const linhaAtual = index + 7; // Ajusta para a linha real na planilha
+      const linhaAtual = index + 8; // Ajusta para a linha real na planilha
 
-        // Criar estrutura e formulário
-        const pastaEvento = criarPastaEvento(pastaEventos, evento);
-        // Adiciona um delay de 60 segundos para garantir que a pasta seja criada antes de adicionar o formulário
-        Utilities.sleep(60000); // Delay de 60.000 milissegundos (60 segundos)
-        criaFormulario(pastaEvento, legenda, evento);
+      if (statusPublicacao === "Aprovado" && evento && legenda) {
+        try {
+          Logger.log(`Processando evento: ${evento}, linha: ${linhaAtual}`);
+          const pastaEvento = criarPastaEvento(pastaEventos, evento);
 
-        // Atualizar status para "Publicado"
-        abaArtes.getRange(linhaAtual, 4).setValue("Publicado");
+          criaFormulario(pastaEvento, legenda, evento);
 
-        // Registrar evidência
-        registrarEvidencia(linhaAtual, pastaEvento.getUrl());
+          // Atualizar status para "Publicado"
+          abaArtes.getRange(linhaAtual, indiceStatusPublicacao).setValue("Publicado");
+
+          // Registrar URL da pasta como evidência
+          registraEvidencia(linhaAtual, pastaEvento.getUrl());
+          Logger.log(`URL da pasta registrada: ${pastaEvento.getUrl()}`);
+        } catch (erroInterno) {
+          Logger.log(`Erro ao processar a linha ${linhaAtual}: ${erroInterno.message}`);
+        }
       }
     });
   } catch (error) {
@@ -93,39 +109,51 @@ function criaFormulario(pastaEvento, legenda, nomeEvento) {
 
   // Pergunta de múltipla escolha para aceitar os termos
   formulario.addMultipleChoiceItem()
-    .setTitle("Os dados pessoais envolvidos na inscrição e afins, relacionados à execução de quaisquer atividades ligadas a Agência de Inovação e Empreendedorismo - I9/Unifal e  Incubadora de Empresas de Base Tecnológica - NidusTec serão tratados única e exclusivamente para cumprir com a finalidade a que se destinam e em respeito a toda a legislação aplicável sobre segurança da informação, privacidade e proteção de dados, inclusive, mas não se limitando à Lei Geral de Proteção de Dados (Lei Federal n. 13.709/2018).")
-    .setChoices([
-      FormApp.createChoice("Eu aceito os termos acima")
-    ]);
+    .setTitle("Os dados pessoais envolvidos na inscrição e afins, relacionados à execução de quaisquer atividades ligadas à Agência de Inovação e Empreendedorismo - I9/Unifal e Incubadora de Empresas de Base Tecnológica - NidusTec serão tratados única e exclusivamente para cumprir com a finalidade a que se destinam e em respeito a toda a legislação aplicável sobre segurança da informação, privacidade e proteção de dados, inclusive, mas não se limitando à Lei Geral de Proteção de Dados (Lei Federal n. 13.709/2018).")
+    .setChoiceValues(["Eu aceito os termos acima"]);
 
   // Perguntas do formulário
   formulario.addTextItem().setTitle("Nome Completo");
   formulario.addTextItem().setTitle("CPF");
-  formulario.addTextItem().setTitle("e-mail");
+  formulario.addTextItem().setTitle("E-mail");
   formulario.addTextItem().setTitle("WhatsApp");
   formulario.addTextItem().setTitle("Curso/Instituição");
 
   // Pergunta de múltipla escolha para saber como ficou sabendo do evento
   formulario.addMultipleChoiceItem()
     .setTitle("Como ficou sabendo do evento?")
-    .setChoices([
-      FormApp.createChoice("Redes Sociais"),
-      FormApp.createChoice("e-mail"),
-      FormApp.createChoice("Indicação")
-    ]);
+    .setChoiceValues(["Redes Sociais", "E-mail", "Indicação"]);
 
   // Adiciona o formulário à pasta do evento diretamente
   const arquivoFormulario = DriveApp.getFileById(formulario.getId());
   pastaEvento.addFile(arquivoFormulario);
+  DriveApp.getRootFolder().removeFile(arquivoFormulario); // Remove da pasta raiz
 }
 
 /**
- * Registra a URL da pasta criada na aba "ARTES".
+ * Registra a URL da pasta criada na primeira linha vazia da coluna "Evidência" (coluna H).
  *
  * @param {number} linha - Índice da linha para registro.
  * @param {string} urlPasta - URL da pasta criada.
  */
-function registrarEvidencia(linha, urlPasta) {
+function registraEvidencia(linha, urlPasta) {
   const colunaEvidencia = 8; // Coluna "Evidência" (coluna H)
-  abaParticipantes.getRange(linha, colunaEvidencia).setValue(urlPasta);
+  
+  // Obter a última linha preenchida na aba PARTICIPANTES
+  const ultimaLinha = abaParticipantes.getLastRow();
+  
+  // Verificar se a célula da linha indicada já possui um valor
+  let linhaDisponivel = linha;
+
+  // Percorrer a coluna H para encontrar a primeira linha vazia
+  for (let i = linha; i <= ultimaLinha; i++) {
+    const valorAtual = abaParticipantes.getRange(i, colunaEvidencia).getValue();
+    if (!valorAtual) {
+      linhaDisponivel = i;
+      break; // Encontrou a primeira linha vazia, sai do loop
+    }
+  }
+
+  // Registrar a URL na primeira linha vazia encontrada
+  abaParticipantes.getRange(linhaDisponivel, colunaEvidencia).setValue(urlPasta);
 }
