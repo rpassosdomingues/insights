@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🔍 Buscador de Assuntos em Atas PDF</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /*
+      CSS (Cascading Style Sheets) rules to define the presentation of the HTML document.
+    */
+
+    /* CSS Variables for Theming */
+    :root {
+      /* Default Light Theme Variables */
+      --bg: #ffffff; /* Background color */
+      --text: #111111; /* Text color */
+      --card: #f1f1f1; /* Card background color */
+      --highlight: #ffeb3b; /* Text highlight color */
+      --accent: #6200ea; /* Accent color for buttons and interactive elements */
+      --shadow: rgba(0, 0, 0, 0.1); /* Shadow color */
+    }
+
+    /* Dark Theme Variables */
+    body.dark {
+      --bg: #121212;
+      --text: #eeeeee;
+      --card: #1e1e1e;
+      --highlight: #ffe082; /* Adjusted highlight for dark mode */
+      --accent: #bb86fc; /* Adjusted accent for dark mode */
+      --shadow: rgba(0, 0, 0, 0.5); /* Adjusted shadow for dark mode */
+    }
+
+    /* General Body Styles */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif; /* Primary font */
+      transition: background 0.3s, color 0.3s; /* Smooth theme transition */
+      line-height: 1.6; /* Improved readability */
+    }
+
+    /* Main Container Styles */
+    .container {
+      max-width: 900px; /* Maximum width of the content area */
+      margin: 2rem auto; /* Centering the container with top/bottom margin */
+      padding: 0 1rem; /* Padding on the sides */
+    }
+
+    /* Heading Styles */
+    h1 {
+      text-align: center; /* Center-aligns the main heading */
+      font-weight: 600; /* Medium font weight for the heading */
+      margin-bottom: 2rem; /* Space below the heading */
+    }
+
+    /* Controls Section Styles (inputs and button) */
+    .controls {
+      display: flex; /* Enables flexbox layout */
+      flex-wrap: wrap; /* Allows items to wrap to the next line on smaller screens */
+      gap: 1rem; /* Space between control items */
+      justify-content: center; /* Centers control items */
+      margin: 1rem 0 2rem; /* Margins around the controls section */
+    }
+
+    /* Input Fields (File and Text) Styles */
+    input[type="file"],
+    input[type="text"] {
+      padding: 0.8rem;
+      font-size: 1rem;
+      border-radius: 8px; /* Rounded corners */
+      border: 1px solid #ccc; /* Default border */
+      flex: 1; /* Allows input fields to grow and fill available space */
+      min-width: 250px; /* Minimum width for input fields */
+      transition: border-color 0.3s; /* Smooth transition for border color on focus */
+      background-color: var(--bg); /* Use theme background */
+      color: var(--text); /* Use theme text color */
+    }
+
+    input[type="file"]:focus,
+    input[type="text"]:focus {
+      outline: none; /* Removes default focus outline */
+      border-color: var(--accent); /* Changes border color to accent color on focus */
+    }
+
+    /* Button Styles */
+    button {
+      background: var(--accent);
+      color: white;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      padding: 0.9rem 1.6rem; /* Padding inside the button */
+      font-weight: 600;
+      font-size: 1rem;
+      transition: background 0.3s, transform 0.2s; /* Smooth transitions for hover effects */
+    }
+
+    button:hover:not(:disabled) {
+      /* Hover effect for enabled buttons */
+      background: #3700b3; /* Darker accent color on hover for light theme */
+      transform: scale(1.05); /* Slightly enlarges the button on hover */
+    }
+    body.dark button:hover:not(:disabled) {
+      background: #9d4edd; /* Lighter accent for dark theme hover */
+    }
+
+
+    button:disabled {
+      /* Styles for disabled buttons */
+      background: #aaa;
+      cursor: not-allowed; /* Indicates the button is not interactive */
+      transform: none; /* No hover transform for disabled buttons */
+    }
+
+    /* Result Card Styles */
+    .card {
+      background-color: var(--card);
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1.5rem; /* Space below each card */
+      box-shadow: 0 4px 12px var(--shadow); /* Subtle shadow for depth */
+      transition: transform 0.3s ease; /* Smooth transition for hover effect */
+    }
+
+    .card:hover {
+      transform: scale(1.02); /* Slightly enlarges card on hover */
+    }
+
+    .card h3 {
+      /* Styles for titles within cards (file names) */
+      margin-top: 0;
+      font-weight: 600;
+      font-size: 1.2rem;
+      color: var(--accent); /* Use accent color for card titles */
+    }
+
+    /* Result Text Styles (text snippets) */
+    .result-text {
+      margin: 0.75rem 0;
+      line-height: 1.5; /* Improved readability for text snippets */
+      white-space: pre-wrap; /* Preserves whitespace and wraps text */
+    }
+
+    /* Highlighted Text Styles */
+    mark {
+      background-color: var(--highlight);
+      padding: 0 3px; /* Padding around highlighted text */
+      border-radius: 3px;
+      color: #000000; /* Ensure highlighted text is readable */
+    }
+    body.dark mark {
+        color: #111111; /* Ensure readability on dark theme highlight */
+    }
+
+
+    /* Dark Mode Toggle Button Styles */
+    .toggle-dark {
+      position: fixed; /* Keeps the button in place during scroll */
+      top: 1rem;
+      right: 1rem;
+      background: none; /* Transparent background */
+      border: 2px solid var(--accent);
+      color: var(--accent);
+      border-radius: 6px;
+      padding: 0.5rem 0.9rem;
+      cursor: pointer;
+      font-weight: 700;
+      user-select: none; /* Prevents text selection of the button's content */
+      transition: background 0.3s, color 0.3s;
+      z-index: 1000; /* Ensures the button stays on top of other content */
+    }
+
+    .toggle-dark:hover {
+      background: var(--accent);
+      color: white; /* Text color changes to white for better contrast on hover */
+    }
+
+    /* Styles for "No Results" Message */
+    #resultados p.no-results {
+      text-align: center;
+      font-style: italic;
+      color: #888; /* Muted color for the message */
+      margin-top: 2rem;
+      font-size: 1.1rem; /* Slightly larger font for emphasis */
+    }
+
+    /* Responsive Design: Adjustments for smaller screens */
+    @media (max-width: 600px) {
+      .controls {
+        flex-direction: column; /* Stacks control items vertically */
+        align-items: stretch; /* Stretches items to fill container width */
+      }
+      button {
+        width: 100%; /* Makes buttons take full width in stacked layout */
+      }
+      h1 {
+        font-size: 1.5rem; /* Slightly smaller heading on mobile */
+      }
+    }
+  </style>
+</head>
+<body>
+  <button id="theme-toggle-btn" class="toggle-dark" aria-pressed="false" aria-label="Alternar modo escuro">🌓</button>
+  <div class="container" role="main">
+    <h1>🔍 Buscador de Assuntos em Atas PDF</h1>
+    <div class="controls">
+      <input type="file" id="upload-input" multiple accept="application/pdf" aria-label="Selecionar arquivos PDF" />
+      <input type="text" id="search-input" placeholder="Digite o assunto a buscar..." aria-label="Campo de busca" />
+      <button id="search-btn">Buscar</button>
+      </div>
+
+    <section id="results-container" aria-live="polite" aria-relevant="additions">
+    </section>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+  <script>
+    /***************************************************************************************************
+     * PDF Search Application Script
+     *
+     * This script handles the client-side logic for a PDF search tool. It allows users to:
+     * - Upload one or more PDF files.
+     * - Enter a search term.
+     * - Search for the term within the text content of the uploaded PDFs.
+     * - View contextual snippets of the search term found in the PDFs.
+     * - Toggle between light and dark visual themes.
+     *
+     * Core functionalities include:
+     * - PDF text extraction using PDF.js.
+     * - Contextual snippet generation.
+     * - Dynamic rendering of search results.
+     * - Theme switching.
+     * - User feedback (loading states, error messages, sound cues).
+     ***************************************************************************************************/
+
+    /**
+     * PDFSearchApp Object
+     * Encapsulates all the logic for the PDF search application.
+     * This approach helps in organizing the code and avoiding pollution of the global namespace.
+     */
+    const PDFSearchApp = {
+      /**
+       * Configuration settings for the application.
+       */
+      config: {
+        CONTEXT_CHARS: 350, // Number of characters before and after the search term for context snippets.
+        PDF_JS_WORKER_SRC: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js' // Path to PDF.js worker script.
+      },
+
+      /**
+       * UI elements cache.
+       * Storing references to frequently accessed DOM elements improves performance.
+       */
+      ui: {
+        uploadInput: null,
+        searchInput: null,
+        searchButton: null,
+        resultsContainer: null,
+        themeToggleButton: null,
+        body: null
+      },
+
+      /**
+       * Application state variables.
+       */
+      state: {
+        isSearching: false // Flag to prevent multiple simultaneous searches.
+      },
+
+      /**
+       * Audio elements for user feedback.
+       */
+      audioFeedback: {
+        ok: null,
+        fail: null
+      },
+
+      /**
+       * Initializes the application.
+       * This method should be called once the DOM is fully loaded.
+       * It caches DOM elements, sets up PDF.js worker, initializes audio, and attaches event listeners.
+       */
+      init: function() {
+        // Cache DOM elements
+        this.ui.uploadInput = document.getElementById('upload-input');
+        this.ui.searchInput = document.getElementById('search-input');
+        this.ui.searchButton = document.getElementById('search-btn');
+        this.ui.resultsContainer = document.getElementById('results-container');
+        this.ui.themeToggleButton = document.getElementById('theme-toggle-btn');
+        this.ui.body = document.body;
+
+        // Configure PDF.js worker. This is crucial for performance and to avoid issues with PDF parsing.
+        if (window.pdfjsLib) {
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc = this.config.PDF_JS_WORKER_SRC;
+        } else {
+          console.error("PDF.js library is not loaded.");
+          // Optionally, display an error to the user.
+          this.displayMessage("Erro ao carregar o leitor de PDF. Por favor, recarregue a página.", true);
+          return; // Stop initialization if PDF.js is not available
+        }
+
+        // Initialize audio feedback objects
+        this.audioFeedback.ok = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
+        this.audioFeedback.fail = new Audio('https://actions.google.com/sounds/v1/cartoon/concussive_hit_guitar_boing.ogg');
+
+        // Attach event listeners
+        this.ui.searchButton.addEventListener('click', () => this.handleSearch());
+        this.ui.themeToggleButton.addEventListener('click', () => this.toggleTheme());
+
+        // Check local storage for saved theme preference
+        this.loadThemePreference();
+      },
+
+      /**
+       * Toggles the visual theme between light and dark mode.
+       * Updates the body class and the ARIA state of the toggle button.
+       * Saves the preference to localStorage.
+       */
+      toggleTheme: function() {
+        this.ui.body.classList.toggle('dark');
+        const isDark = this.ui.body.classList.contains('dark');
+        this.ui.themeToggleButton.setAttribute('aria-pressed', isDark);
+        localStorage.setItem('theme', isDark ? 'dark' : 'light'); // Save preference
+      },
+
+      /**
+       * Loads and applies the theme preference from localStorage.
+       */
+      loadThemePreference: function() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+          this.ui.body.classList.add('dark');
+          this.ui.themeToggleButton.setAttribute('aria-pressed', 'true');
+        } else {
+          this.ui.body.classList.remove('dark');
+          this.ui.themeToggleButton.setAttribute('aria-pressed', 'false');
+        }
+      },
+
+      /**
+       * Asynchronously extracts all text content from a given PDF file.
+       * @param {File} file - The PDF file object to process.
+       * @returns {Promise<string>} A promise that resolves with the extracted text, including page numbers.
+       * Resolves with an empty string if an error occurs.
+       */
+      extractPDFText: async function(file) {
+        try {
+          const arrayBuffer = await file.arrayBuffer();
+          const pdfDocument = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          let fullText = '';
+          for (let i = 1; i <= pdfDocument.numPages; i++) {
+            const page = await pdfDocument.getPage(i);
+            const textContent = await page.getTextContent();
+            // Join text items, ensuring spaces between them, then trim.
+            const pageText = textContent.items.map(item => item.str).join(' ').trim();
+            if (pageText) { // Only add page marker if there's text on the page
+                fullText += `\n\n[Página ${i}]\n${pageText}`;
+            }
+          }
+          return fullText.trim();
+        } catch (error) {
+          console.error(`Erro ao extrair texto do PDF "${file.name}":`, error);
+          this.displayMessage(`Falha ao processar o arquivo: ${file.name}. O arquivo pode estar corrompido ou protegido.`, true, true);
+          return ""; // Return empty string on error to allow processing of other files
+        }
+      },
+
+      /**
+       * Highlights all occurrences of a search term within a given text string.
+       * Uses the <mark> HTML element for highlighting.
+       * @param {string} text - The text in which to highlight the term.
+       * @param {string} term - The search term to highlight.
+       * @returns {string} The text with all occurrences of the term highlighted.
+       */
+      highlightTerm: function(text, term) {
+        if (!term) return text;
+        // Escape special characters in the term for use in a regular expression.
+        const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(escapedTerm, 'gi'); // 'g' for global, 'i' for case-insensitive.
+        return text.replace(regex, match => `<mark>${match}</mark>`);
+      },
+
+      /**
+       * Finds and returns contextual snippets of text surrounding each occurrence of a search term.
+       * @param {string} text - The full text to search within.
+       * @param {string} term - The search term.
+       * @returns {string[]} An array of text snippets, each containing an occurrence of the term with surrounding context.
+       */
+      findContextSnippets: function(text, term) {
+        if (!term || !text) return [];
+        const snippets = [];
+        const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(escapedTerm, 'gi');
+        let match;
+
+        while ((match = regex.exec(text)) !== null) {
+          const startIndex = Math.max(0, match.index - this.config.CONTEXT_CHARS);
+          const endIndex = Math.min(text.length, regex.lastIndex + this.config.CONTEXT_CHARS);
+          let snippet = text.slice(startIndex, endIndex);
+
+          // Add ellipses if the snippet doesn't start/end at the beginning/end of a "paragraph" (or a larger chunk of text)
+          if (startIndex > 0 && snippet.length > 0 && !snippet.match(/^\s*\[Página \d+\]/)) {
+            // Check if previous char before snippet was not a line break or start of page marker
+            const charBeforeSnippet = text.charAt(startIndex -1);
+            if (charBeforeSnippet && charBeforeSnippet !== '\n') {
+                 snippet = "... " + snippet;
+            }
+          }
+          if (endIndex < text.length && snippet.length > 0) {
+            // Check if next char after snippet is not a line break
+            const charAfterSnippet = text.charAt(endIndex);
+            if (charAfterSnippet && charAfterSnippet !== '\n') {
+                snippet = snippet + " ...";
+            }
+          }
+          snippets.push(snippet);
+        }
+        return snippets;
+      },
+
+      /**
+       * Creates an HTML card element to display search results for a single file.
+       * @param {File} file - The PDF file object.
+       * @param {string[]} snippets - An array of text snippets found in the file.
+       * @param {string} term - The search term used.
+       * @returns {HTMLElement} The created HTML article element (card).
+       */
+      createResultCard: function(file, snippets, term) {
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.tabIndex = 0; // Make card focusable
+        card.setAttribute('aria-label', `Resultados para arquivo ${file.name}`);
+
+        const title = document.createElement('h3');
+        title.textContent = `📘 ${file.name}`;
+        card.appendChild(title);
+
+        if (snippets.length === 0) {
+          const p = document.createElement('p');
+          p.className = 'no-results';
+          p.textContent = 'Nenhum resultado encontrado neste arquivo.';
+          card.appendChild(p);
+        } else {
+          snippets.forEach((snippet) => {
+            const p = document.createElement('p');
+            p.className = 'result-text';
+            p.innerHTML = this.highlightTerm(snippet, term); // Highlight term within the snippet
+            card.appendChild(p);
+          });
+        }
+        return card;
+      },
+
+     /**
+       * Displays a message in the results container.
+       * Typically used for "no results" or error messages.
+       * @param {string} message - The message text to display.
+       * @param {boolean} [isGlobalMessage=false] - If true, this message applies to the entire search, not just one file.
+       * @param {boolean} [append=false] - If true, appends the message instead of clearing the container.
+       */
+      displayMessage: function(message, isGlobalMessage = false, append = false) {
+        if (!append) {
+            this.ui.resultsContainer.innerHTML = ''; // Clear previous results or messages
+        }
+        const p = document.createElement('p');
+        p.className = 'no-results'; // Use 'no-results' for consistent styling
+        p.textContent = message;
+        this.ui.resultsContainer.appendChild(p);
+
+        if (isGlobalMessage && !append) { // Only play fail sound for a global, non-appended "no results" type message.
+            this.audioFeedback.fail.play().catch(e => console.warn("Audio playback failed:", e));
+        }
+      },
+
+      /**
+       * Handles the search process when the search button is clicked.
+       * Validates inputs, extracts text from PDFs, searches for the term, and displays results.
+       */
+      handleSearch: async function() {
+        if (this.state.isSearching) return; // Prevent multiple searches
+
+        const files = this.ui.uploadInput.files;
+        const searchTerm = this.ui.searchInput.value.trim();
+
+        // --- Input Validation ---
+        if (!searchTerm) {
+          alert('Por favor, informe um termo para busca.');
+          return;
+        }
+        if (files.length === 0) {
+          alert('Por favor, selecione ao menos um arquivo PDF.');
+          return;
+        }
+
+        // --- UI Updates for Search Start ---
+        this.state.isSearching = true;
+        this.ui.searchButton.disabled = true;
+        this.ui.searchButton.textContent = 'Buscando...';
+        this.ui.resultsContainer.innerHTML = '<p class="no-results">Processando arquivos...</p>'; // Initial feedback
+
+        let overallResultsFound = false;
+        const resultCards = [];
+
+        // --- Process Each File ---
+        for (const file of files) {
+          // Update progress message
+          this.ui.resultsContainer.innerHTML = `<p class="no-results">Analisando: ${file.name}...</p>`;
+          const pdfText = await this.extractPDFText(file);
+
+          if (pdfText) { // Only search if text extraction was successful
+            const snippets = this.findContextSnippets(pdfText, searchTerm);
+            const card = this.createResultCard(file, snippets, searchTerm);
+            resultCards.push(card);
+            if (snippets.length > 0) {
+              overallResultsFound = true;
+            }
+          }
+          // If extractPDFText returned empty (e.g., due to error), a message would have been shown already by it.
+        }
+
+        // --- Display Results ---
+        this.ui.resultsContainer.innerHTML = ''; // Clear "Analisando..." message
+        if (resultCards.length > 0) {
+            resultCards.forEach(card => this.ui.resultsContainer.appendChild(card));
+        }
+
+
+        if (overallResultsFound) {
+          this.audioFeedback.ok.play().catch(e => console.warn("Audio playback failed:", e));
+        } else {
+          // Check if there were any cards at all (some might be "no results in this file")
+          // If resultCards is empty, it means all files failed to process before search.
+          // If resultCards exist but overallResultsFound is false, it means all files processed but no term found.
+          if (this.ui.resultsContainer.childElementCount === 0) { // No cards were appended (likely all pdfText extractions failed or were empty)
+             this.displayMessage('Nenhum resultado encontrado ou falha ao processar todos os arquivos.', true);
+          } else if (!this.ui.resultsContainer.querySelector('.result-text')) { // Cards exist, but none have actual results.
+             this.displayMessage('Nenhum resultado encontrado para o termo buscado em nenhum dos arquivos processados.', true);
+          }
+          // If individual file errors were shown, this global message might be redundant unless specifically for no term found.
+        }
+
+
+        // --- UI Updates for Search End ---
+        this.ui.searchButton.disabled = false;
+        this.ui.searchButton.textContent = 'Buscar';
+        this.state.isSearching = false;
+      }
+    };
+
+    /**
+     * Initialize the application when the DOM is fully loaded.
+     * This ensures all HTML elements are available before the script tries to access them.
+     */
+    window.addEventListener('DOMContentLoaded', () => {
+      PDFSearchApp.init();
+    });
+
+  </script>
+</body>
+</html>
