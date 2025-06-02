@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BuscaCEP Fácil</title>
+
+<style>
+/* Variáveis CSS para cores e temas */
+:root {
+  --primary: #2c3e50;
+  --secondary: #3498db;
+  --error: #e74c3c;
+  --success: #27ae60;
+  --background: #f8f9fa;
+  --text: #333;
+}
+
+/* Tema escuro - altera cores para tons escuros */
+body.dark {
+  --background: #1e1e1e;
+  --text: #ddd;
+  --primary: #ecf0f1;
+  --secondary: #3498db;
+}
+
+/* Tema de alto contraste para melhor acessibilidade */
+body.high-contrast {
+  --background: #000;
+  --text: #fff;
+  --primary: #fff;
+  --secondary: #ff0;
+}
+
+/* Reset básico e fonte padrão */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Estilo geral do body - usa grid para centralizar o conteúdo */
+body {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: var(--background);
+  color: var(--text);
+  padding: 1rem;
+  transition: background 0.3s ease, color 0.3s ease;
+  font-size: var(--font-size, 16px);
+}
+
+/* Container centralizado com fundo branco e sombra */
+.container {
+  width: 100%;
+  max-width: 600px;
+  background: white;
+  color: var(--text);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Ajustes para temas escuro e alto contraste no container */
+body.dark .container { background: #2c2c2c; }
+body.high-contrast .container { background: #000; }
+
+/* Título centralizado */
+h1 {
+  text-align: center;
+  margin-bottom: 1rem;
+  color: var(--primary);
+}
+
+/* Botões para alternar modos e acessibilidade com espaçamento */
+.toggle-buttons, .accessibility {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Estilo básico dos botões */
+.toggle-buttons button, .accessibility button {
+  flex: 1;
+  padding: 0.5rem;
+  border: 2px solid var(--secondary);
+  background: white;
+  color: var(--primary);
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+/* Ajustes dos botões para tema escuro */
+body.dark .toggle-buttons button, 
+body.dark .accessibility button {
+  background: #444;
+  color: #fff;
+}
+
+/* Botão ativo recebe cor de fundo secundária e texto branco */
+.toggle-buttons button.active {
+  background: var(--secondary);
+  color: white;
+}
+
+/* Formulário usa grid para espaçamento entre campos */
+.search-form {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Grupo de inputs com label e input verticalizados */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Label com destaque de cor */
+label {
+  font-weight: 600;
+  color: var(--primary);
+}
+
+/* Inputs com padding, borda e arredondamento */
+input {
+  padding: 0.8rem;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+/* Quando focado, borda muda para cor secundária */
+input:focus {
+  outline: none;
+  border-color: var(--secondary);
+}
+
+/* Botão de submit estilizado */
+button[type="submit"] {
+  background: var(--secondary);
+  color: white;
+  border: none;
+  padding: 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: background 0.3s ease;
+}
+
+/* Efeito hover para o botão submit */
+button[type="submit"]:hover {
+  background: #2980b9;
+}
+
+/* Mensagens de loading, erro e sucesso escondidas inicialmente */
+.loading, .error, .success {
+  text-align: center;
+  padding: 0.8rem;
+  margin-top: 1rem;
+  border-radius: 6px;
+  display: none;
+}
+
+/* Cores específicas para cada tipo de mensagem */
+.loading { color: var(--primary); }
+.error { color: var(--error); background: #fdecea; }
+.success { color: var(--success); background: #eafaf1; }
+
+/* Container para resultados da busca */
+.results {
+  margin-top: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Ajustes de fundo para temas escuro e alto contraste */
+body.dark .results { background: #333; }
+body.high-contrast .results { background: #000; }
+
+/* Cada resultado individual com padding e borda inferior */
+.result-item {
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+  transition: background 0.3s ease;
+}
+
+/* Efeito hover nos itens do resultado */
+.result-item:hover {
+  background: #fff;
+}
+
+/* Ajustes de hover para temas escuro e alto contraste */
+body.dark .result-item:hover { background: #444; }
+body.high-contrast .result-item:hover { background: #222; }
+
+/* Destaque para o CEP */
+.cep {
+  color: var(--secondary);
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+/* Ajuste responsivo para telas pequenas */
+@media (max-width: 480px) {
+  .container { padding: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🔍 BuscaCEP Fácil</h1>
+
+  <!-- Botões para alternar o modo de busca: por logradouro ou por CEP -->
+  <div class="toggle-buttons">
+    <button id="modeLogradouro" class="active">Por Logradouro</button>
+    <button id="modeCep">Por CEP</button>
+  </div>
+
+  <!-- Formulário de busca -->
+  <form class="search-form" id="searchForm">
+
+    <!-- Formulário para busca por logradouro -->
+    <div id="formLogradouro">
+      <div class="input-group">
+        <label for="logradouro">Logradouro (Rua/Avenida):</label>
+        <input type="text" id="logradouro" placeholder="Ex: Avenida Paulista">
+      </div>
+      <div class="input-group">
+        <label for="cidade">Cidade:</label>
+        <input type="text" id="cidade" placeholder="Ex: São Paulo">
+      </div>
+      <div class="input-group">
+        <label for="uf">UF (Estado):</label>
+        <input type="text" id="uf" placeholder="Ex: SP" maxlength="2">
+      </div>
+    </div>
+
+    <!-- Formulário para busca por CEP - inicialmente escondido -->
+    <div id="formCep" style="display: none;">
+      <div class="input-group">
+        <label for="cep">CEP:</label>
+        <input type="text" id="cep" placeholder="Ex: 01001-000">
+      </div>
+    </div>
+
+    <button type="submit">Buscar</button>
+  </form>
+
+  <!-- Botões de acessibilidade: modo escuro, alto contraste, fonte maior, leitura em voz alta -->
+  <div class="accessibility">
+    <button id="darkModeToggle">🌙</button>
+    <button id="contrastToggle">🔳</button>
+    <button id="fontSizeToggle">🔠 A+</button>
+    <button id="speakResults">🔊 Ler</button>
+  </div>
+
+  <!-- Mensagens de status da busca -->
+    <div class="loading" id="loading">⌛ Buscando informações...</div>
+    <div class="error" id="error"></div>
+    <div class="success" id="success"></div>
+
+   <!-- Container dos resultados e botão juntos -->
+    <div id="resultContainer" style="display: none; flex-direction: column; gap: 8px;">
+    <!-- Local onde os resultados da busca são exibidos -->
+    <div class="results" id="results"></div>
+
+    <!-- Botão copiar resultados -->
+    <button id="btnCopiarResultados" title="Copiar resultados" aria-label="Copiar resultados" 
+          style="cursor:pointer; display:flex; align-items:center; gap:6px; padding:6px 12px; font-size:14px; width: fit-content;">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" 
+         width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+    </svg>
+</button>
+<div id="copyFeedback" style="color: green; margin-top: 6px; font-weight: bold; display:none;"></div>
+
+<script>
+/*
+  Variáveis que armazenam referências a elementos HTML importantes para o script,
+  para facilitar manipulação e leitura do código.
+*/
+const form = document.getElementById('searchForm');
+const modeLogradouro = document.getElementById('modeLogradouro');
+const modeCep = document.getElementById('modeCep');
+const formLogradouro = document.getElementById('formLogradouro');
+const formCep = document.getElementById('formCep');
+const loading = document.getElementById('loading');
+const errorDiv = document.getElementById('error');
+const successDiv = document.getElementById('success');
+const results = document.getElementById('results');
+
+const darkModeToggle = document.getElementById('darkModeToggle');
+const contrastToggle = document.getElementById('contrastToggle');
+const fontSizeToggle = document.getElementById('fontSizeToggle');
+const speakResults = document.getElementById('speakResults');
+
+const btnCopiar = document.getElementById('btnCopiarResultados');
+
+/* 
+  Variável que indica qual modo de busca está ativo:
+  'logradouro' ou 'cep'. Inicialmente é 'logradouro'.
+*/
+let currentMode = 'logradouro';
+
+/*
+  Índice para controlar tamanho da fonte para acessibilidade:
+  0 = pequeno, 1 = médio (default), 2 = grande
+*/
+let fontSizeIndex = 1;
+const fontSizes = ['14px', '16px', '20px'];
+
+/* Alterna o modo de busca entre logradouro e CEP */
+function toggleMode(mode) {
+  currentMode = mode;
+  if (mode === 'logradouro') {
+    formLogradouro.style.display = 'block';
+    formCep.style.display = 'none';
+    modeLogradouro.classList.add('active');
+    modeCep.classList.remove('active');
+  } else {
+    formLogradouro.style.display = 'none';
+    formCep.style.display = 'block';
+    modeLogradouro.classList.remove('active');
+    modeCep.classList.add('active');
+  }
+  clearMessages();
+  clearResults();
+}
+
+/* Limpa mensagens de erro, loading e sucesso */
+function clearMessages() {
+  loading.style.display = 'none';
+  errorDiv.style.display = 'none';
+  errorDiv.textContent = '';
+  successDiv.style.display = 'none';
+  successDiv.textContent = '';
+}
+
+/* Limpa os resultados exibidos */
+function clearResults() {
+  results.innerHTML = '';
+  document.getElementById('resultContainer').style.display = 'none';
+}
+
+/* Função que valida os campos de acordo com o modo */
+function validateInputs() {
+  clearMessages();
+  if (currentMode === 'logradouro') {
+    const logradouro = document.getElementById('logradouro').value.trim();
+    const cidade = document.getElementById('cidade').value.trim();
+    const uf = document.getElementById('uf').value.trim().toUpperCase();
+
+    if (!logradouro) {
+      showError('Por favor, informe o logradouro.');
+      return false;
+    }
+    if (!cidade) {
+      showError('Por favor, informe a cidade.');
+      return false;
+    }
+    if (!uf || uf.length !== 2) {
+      showError('Por favor, informe uma UF válida com 2 letras.');
+      return false;
+    }
+    return true;
+  } else {
+    const cep = document.getElementById('cep').value.trim();
+    const cepPattern = /^\d{5}-?\d{3}$/; // Formato 00000-000 ou 00000000
+    if (!cep) {
+      showError('Por favor, informe o CEP.');
+      return false;
+    }
+    if (!cepPattern.test(cep)) {
+      showError('Formato de CEP inválido. Use 00000-000 ou 00000000.');
+      return false;
+    }
+    return true;
+  }
+}
+
+/* Exibe mensagem de erro na tela */
+function showError(message) {
+  errorDiv.textContent = message;
+  errorDiv.style.display = 'block';
+  loading.style.display = 'none';
+  successDiv.style.display = 'none';
+  // Esconder resultados e botão quando erro
+  document.getElementById('resultContainer').style.display = 'none';
+}
+
+/* Exibe mensagem de sucesso na tela */
+function showSuccess(message) {
+  successDiv.textContent = message;
+  successDiv.style.display = 'block';
+  loading.style.display = 'none';
+  errorDiv.style.display = 'none';
+}
+
+/* Exibe loading */
+function showLoading() {
+  loading.style.display = 'block';
+  errorDiv.style.display = 'none';
+  successDiv.style.display = 'none';
+}
+
+/* Realiza a requisição para a API ViaCEP para busca por CEP */
+async function buscarPorCep(cep) {
+  try {
+    showLoading();
+    // Remove o hífen para garantir o formato correto
+    const cepFormatado = cep.replace('-', '');
+    const response = await fetch(`https://viacep.com.br/ws/${cepFormatado}/json/`);
+    if (!response.ok) {
+      throw new Error('Erro na requisição do CEP');
+    }
+    const data = await response.json();
+    if (data.erro) {
+      showError('CEP não encontrado.');
+      return;
+    }
+    mostrarResultados([data]);
+    showSuccess('CEP encontrado com sucesso!');
+    document.getElementById('resultContainer').style.display = 'flex';
+  } catch (error) {
+    showError('Erro ao buscar o CEP. Tente novamente.');
+  }
+}
+
+/* Realiza a requisição para a API ViaCEP para busca por logradouro */
+async function buscarPorLogradouro(logradouro, cidade, uf) {
+  try {
+    showLoading();
+    // Monta a URL com os parâmetros encodeURI para evitar erros
+    const url = `https://viacep.com.br/ws/${encodeURIComponent(uf)}/${encodeURIComponent(cidade)}/${encodeURIComponent(logradouro)}/json/`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Erro na requisição do logradouro');
+    }
+    const data = await response.json();
+    if (data.length === 0) {
+      showError('Nenhum endereço encontrado para os dados informados.');
+      return;
+    }
+    mostrarResultados(data);
+    showSuccess(`${data.length} endereço(s) encontrado(s).`);
+  } catch (error) {
+    showError('Erro ao buscar o logradouro. Tente novamente.');
+  }
+}
+
+/* Exibe os resultados na tela */
+function mostrarResultados(dados) {
+  clearResults();
+
+  dados.forEach(item => {
+    // Criar div para cada resultado
+    const div = document.createElement('div');
+    div.classList.add('result-item');
+
+    // Texto formatado do endereço
+    const textoEndereco = `
+      <p><span class="cep">CEP:</span> ${item.cep}</p>
+      <p><strong>Logradouro:</strong> ${item.logradouro || 'N/A'}</p>
+      <p><strong>Bairro:</strong> ${item.bairro || 'N/A'}</p>
+      <p><strong>Cidade:</strong> ${item.localidade || 'N/A'}</p>
+      <p><strong>UF:</strong> ${item.uf || 'N/A'}</p>
+      <p><strong>Complemento:</strong> ${item.complemento || 'N/A'}</p>
+    `;
+
+    div.innerHTML = textoEndereco;
+    results.appendChild(div);
+  });
+}
+
+/* Função para copiar os resultados exibidos para a área de transferência */
+function copiarResultados() {
+  const feedback = document.getElementById('copyFeedback');
+
+  if (results.children.length === 0) {
+    feedback.style.color = 'red';
+    feedback.textContent = 'Não há resultados para copiar.';
+    feedback.style.display = 'block';
+    setTimeout(() => { feedback.style.display = 'none'; }, 3000);
+    return;
+  }
+
+  let textoParaCopiar = '';
+  const itens = document.querySelectorAll('.result-item');
+
+  itens.forEach(div => {
+    textoParaCopiar += div.innerText.trim() + '\n\n';
+  });
+
+  // Criar textarea temporário
+  const textarea = document.createElement('textarea');
+  textarea.value = textoParaCopiar;
+  document.body.appendChild(textarea);
+  textarea.select();
+
+  try {
+    const sucesso = document.execCommand('copy');
+    if (sucesso) {
+      feedback.style.color = 'green';
+      feedback.textContent = 'Resultados copiados para a área de transferência!';
+    } else {
+      feedback.style.color = 'red';
+      feedback.textContent = 'Não foi possível copiar os resultados.';
+    }
+  } catch (err) {
+    feedback.style.color = 'red';
+    feedback.textContent = 'Erro ao copiar os resultados.';
+  }
+
+  document.body.removeChild(textarea);
+  feedback.style.display = 'block';
+  setTimeout(() => { feedback.style.display = 'none'; }, 3000);
+}
+
+/* Função para ativar/desativar modo escuro */
+function toggleDarkMode() {
+  document.body.classList.toggle('dark');
+}
+
+/* Função para ativar/desativar modo alto contraste */
+function toggleHighContrast() {
+  document.body.classList.toggle('high-contrast');
+}
+
+/* Função para alterar o tamanho da fonte em passos */
+function toggleFontSize() {
+  fontSizeIndex = (fontSizeIndex + 1) % fontSizes.length;
+  document.body.style.fontSize = fontSizes[fontSizeIndex];
+}
+
+/* Função para ler em voz alta os resultados exibidos */
+function speakText(text) {
+  if (!('speechSynthesis' in window)) {
+    alert('Desculpe, seu navegador não suporta a leitura em voz alta.');
+    return;
+  }
+  const utterance = new SpeechSynthesisUtterance(text);
+  speechSynthesis.speak(utterance);
+}
+
+/* Extrai o texto dos resultados para leitura em voz alta */
+function lerResultados() {
+  if (results.children.length === 0) {
+    alert('Não há resultados para ler.');
+    return;
+  }
+  let texto = '';
+  for (const item of results.children) {
+    texto += item.innerText + '\n';
+  }
+  speakText(texto);
+}
+
+/* Eventos para troca de modo */
+modeLogradouro.addEventListener('click', () => toggleMode('logradouro'));
+modeCep.addEventListener('click', () => toggleMode('cep'));
+
+/* Evento de submit do formulário */
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  if (!validateInputs()) return;
+
+  if (currentMode === 'logradouro') {
+    const logradouro = document.getElementById('logradouro').value.trim();
+    const cidade = document.getElementById('cidade').value.trim();
+    const uf = document.getElementById('uf').value.trim().toUpperCase();
+    buscarPorLogradouro(logradouro, cidade, uf);
+  } else {
+    const cep = document.getElementById('cep').value.trim();
+    buscarPorCep(cep);
+  }
+});
+
+/* Eventos dos botões de acessibilidade */
+darkModeToggle.addEventListener('click', toggleDarkMode);
+contrastToggle.addEventListener('click', toggleHighContrast);
+fontSizeToggle.addEventListener('click', toggleFontSize);
+speakResults.addEventListener('click', lerResultados);
+
+/* Evento para copiar resultados */
+btnCopiar.addEventListener('click', copiarResultados);
+
+/* Inicialização */
+toggleMode('logradouro');
+document.body.style.fontSize = fontSizes[fontSizeIndex];
+</script>
+
+</body>
+</html>
