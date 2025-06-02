@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PlantAI</title>
+
+<!-- Leaflet CSS para mapa -->
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-sA+U9+ap54F0bTTDkTp8uuJtYt1fvfQj9H5DQkZTZ/k="
+  crossorigin=""
+/>
+
+<style>
+  /* Reset básico */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0; 
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: #f7fafc;
+    color: #2d3748;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem;
+    min-height: 100vh;
+  }
+  h1 {
+    color: #2f855a;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+  }
+  #status {
+    font-style: italic;
+    margin-bottom: 1rem;
+    color: #718096;
+  }
+  #weatherInfo {
+    background: white;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.1);
+    border-radius: 12px;
+    padding: 1rem 2rem;
+    width: 100%;
+    max-width: 380px;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+  }
+  label, select {
+    font-weight: 600;
+  }
+  select {
+    margin: 0.5rem 0 1rem;
+    padding: 0.5rem 0.8rem;
+    border: 2px solid #cbd5e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    width: 100%;
+    max-width: 380px;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+  }
+  select:focus {
+    outline: none;
+    border-color: #38a169;
+    box-shadow: 0 0 5px #38a169aa;
+  }
+  #tips {
+    max-width: 380px;
+    background: white;
+    padding: 1.3rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.1);
+    text-align: left;
+    line-height: 1.4;
+    font-size: 1rem;
+    min-height: 170px;
+    transition: opacity 0.4s ease;
+  }
+  #map {
+    margin-top: 1.5rem;
+    width: 100%;
+    max-width: 380px;
+    height: 240px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+    transition: transform 0.3s ease;
+  }
+  #map:hover {
+    transform: scale(1.03);
+  }
+</style>
+</head>
+<body>
+  <h1>PlantAI</h1>
+  <p id="status">Detectando localização e clima...</p>
+  <div id="weatherInfo">Carregando dados do clima...</div>
+
+  <label for="crop">Selecione a cultura:</label>
+  <select id="crop" aria-label="Selecione a cultura">
+    <option value="">-- Escolha uma cultura --</option>
+    <option value="cafe">Café</option>
+    <option value="milho">Milho</option>
+    <option value="feijao">Feijão</option>
+    <option value="mandioca">Mandioca</option>
+    <option value="hortalicas">Hortaliças</option>
+    <option value="frutiferas">Frutíferas</option>
+  </select>
+
+  <div id="tips">Selecione uma cultura para ver as dicas.</div>
+
+  <div id="map"></div>
+
+  <!-- Leaflet JS para mapa -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-oMwvGO9Rx2vJs1lBzR6qIF9oN0x34BYh1h2i7IxkLZ0="
+    crossorigin=""
+  ></script>
+
+  <script>
+    const statusElem = document.getElementById("status");
+    const weatherElem = document.getElementById("weatherInfo");
+    const cropSelect = document.getElementById("crop");
+    const tipsDiv = document.getElementById("tips");
+
+    const cropNames = {
+      cafe: "Café",
+      milho: "Milho",
+      feijao: "Feijão",
+      mandioca: "Mandioca",
+      hortalicas: "Hortaliças",
+      frutiferas: "Frutíferas",
+    };
+
+    let weatherData = null;
+    let isOffline = false;
+
+    /* Função para atualizar dicas (mantive simplificado, pode ajustar depois) */
+    function updateTips() {
+      const crop = cropSelect.value;
+      if (!crop) {
+        tipsDiv.textContent = "Selecione uma cultura para ver as dicas.";
+        return;
+      }
+      const cropName = cropNames[crop] || crop;
+      let plantar = "",
+        solo = "",
+        irrigacao = "",
+        pragas = "";
+
+      const month = new Date().getMonth() + 1;
+      const rainySeason = month >= 10 || month <= 4;
+
+      switch (crop) {
+        case "cafe":
+          plantar = "Início da estação das chuvas (outubro/novembro).";
+          solo = "Solo profundo, bem drenado e rico em matéria orgânica.";
+          break;
+        case "milho":
+          plantar = "Início das chuvas para safra de verão; ou janeiro para safrinha.";
+          solo = "Solo bem preparado, com rotação de culturas e cobertura morta.";
+          break;
+        case "feijao":
+          plantar = "No começo das chuvas (out a dez) ou retorno em fev/mar.";
+          solo = "Solo leve, rico em matéria orgânica; adubação fosfatada.";
+          break;
+        case "mandioca":
+          plantar = "Preferencialmente início do período chuvoso (set/out).";
+          solo = "Solo solto, arenoso, com matéria orgânica; evitar encharcamentos.";
+          break;
+        case "hortalicas":
+          plantar = "Após pico de chuvas para evitar excesso de umidade.";
+          solo = "Solo fértil, bem drenado, enriquecido com composto orgânico.";
+          break;
+        case "frutiferas":
+          plantar =
+            "Varia conforme espécie, geralmente próximo ao início das chuvas.";
+          solo = "Solo profundo e drenado; preparar covas com composto orgânico.";
+          break;
+        default:
+          plantar = "Confira recomendações locais de plantio.";
+          solo = "Preparar o solo adequadamente conforme a cultura.";
+      }
+
+      if (isOffline) {
+        irrigacao = rainySeason
+          ? "Estamos em período chuvoso; irrigue somente se necessário."
+          : "Período seco; irrigue regularmente se não houver chuva.";
+      } else {
+        if (weatherData) {
+          const curr = weatherData.current_weather;
+          const idx = weatherData.hourly.time.indexOf(curr.time);
+          let rainSum = 0;
+          for (
+            let i = idx + 1;
+            i <= idx + 3 && i < weatherData.hourly.precipitation.length;
+            i++
+          ) {
+            rainSum += weatherData.hourly.precipitation[i];
+          }
+          irrigacao =
+            rainSum > 1
+              ? "Chuva prevista; considere adiar irrigação."
+              : "Sem chuva prevista; verifique umidade do solo e irrigue se precisar.";
+        } else {
+          irrigacao = "Monitore umidade do solo para irrigação adequada.";
+        }
+      }
+
+      if (isOffline) {
+        pragas = rainySeason
+          ? "Clima úmido favorece fungos e doenças; inspecione o cultivo."
+          : "Clima seco favorece pragas; fique atento a insetos e nematoides.";
+      } else {
+        if (weatherData) {
+          const curr = weatherData.current_weather;
+          const idx = weatherData.hourly.time.indexOf(curr.time);
+          let humidity = weatherData.hourly.relativehumidity_2m[idx];
+          let rainNext = 0;
+          for (
+            let i = idx + 1;
+            i <= idx + 3 && i < weatherData.hourly.precipitation.length;
+            i++
+          ) {
+            rainNext += weatherData.hourly.precipitation[i];
+          }
+          if (humidity >= 80 || rainNext > 10) {
+            pragas =
+              "Alta umidade ou chuva intensa: risco de fungos e doenças foliares.";
+          } else if (!rainySeason && humidity < 40) {
+            pragas =
+              "Clima seco atual: atenção a pragas que proliferam com estresse hídrico.";
+          } else {
+            pragas = "Mantenha monitoramento preventivo e manejo integrado.";
+          }
+        } else {
+          pragas = "Sem dados climáticos atuais; mantenha manejo preventivo.";
+        }
+      }
+
+      tipsDiv.innerHTML = `
+        <h3>Época Ideal de Plantio (${cropName}):</h3>
+        <p>${plantar}</p>
+        <h3>Preparo do Solo:</h3>
+        <p>${solo}</p>
+        <h3>Irrigação:</h3>
+        <p>${irrigacao}</p>
+        <h3>Alerta de Pragas:</h3>
+        <p>${pragas}</p>
+      `;
+    }
+
+    /* Função para buscar clima usando Open-Meteo API */
+    async function fetchWeather(lat, lon) {
+      // API endpoint com parâmetros essenciais para clima atual e precipitação horária
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=precipitation,relativehumidity_2m&timezone=auto`;
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Erro ao acessar a API");
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error("Erro fetchWeather:", error);
+        statusElem.textContent =
+          "Erro ao obter dados do clima. Verifique sua conexão ou tente novamente.";
+        weatherElem.textContent = "";
+        isOffline = true;
+        return null;
+      }
+    }
+
+    /* Função para inicializar mapa com Leaflet */
+    function initMap(lat, lon) {
+      const map = L.map("map").setView([lat, lon], 12);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution:
+          '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      }).addTo(map);
+      L.marker([lat, lon]).addTo(map).bindPopup("Você está aqui!").openPopup();
+    }
+
+    /* Função principal de inicialização */
+    async function init() {
+      if (!navigator.geolocation) {
+        statusElem.textContent =
+          "Geolocalização não suportada pelo navegador.";
+        weatherElem.textContent = "";
+        isOffline = true;
+        updateTips();
+        return;
+      }
+
+      statusElem.textContent = "Detectando sua localização...";
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude.toFixed(5);
+          const lon = position.coords.longitude.toFixed(5);
+
+          statusElem.textContent = `Localização detectada: (${lat}, ${lon}). Buscando clima...`;
+          weatherData = await fetchWeather(lat, lon);
+
+          if (weatherData && weatherData.current_weather) {
+            const cw = weatherData.current_weather;
+            weatherElem.innerHTML = `
+              <strong>Temperatura atual:</strong> ${cw.temperature}°C<br />
+              <strong>Velocidade do vento:</strong> ${cw.windspeed} km/h<br />
+              <strong>Direção do vento:</strong> ${cw.winddirection}°<br />
+              <strong>Hora da medição:</strong> ${new Date(cw.time).toLocaleString()}
+            `;
+            statusElem.textContent = "Dados do clima atualizados.";
+            isOffline = false;
+          } else {
+            weatherElem.textContent = "Dados do clima não disponíveis.";
+            isOffline = true;
+          }
+          updateTips();
+          initMap(lat, lon);
+        },
+        (error) => {
+          statusElem.textContent = `Erro ao obter localização: ${error.message}`;
+          weatherElem.textContent = "";
+          isOffline = true;
+          updateTips();
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+      );
+    }
+
+    // Atualiza dicas ao mudar cultura
+    cropSelect.addEventListener("change", updateTips);
+
+    // Chama a inicialização quando a página carregar
+    window.onload = init;
+  </script>
+</body>
+</html>

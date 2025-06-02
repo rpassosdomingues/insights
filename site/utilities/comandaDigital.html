@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Comanda Digital - Espetinho</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+  :root {
+    --primary: #2c3e50;
+    --primary-light: #34495e;
+    --secondary: #e74c3c;
+    --secondary-light: #ff6b6b;
+    --accent: #f39c12;
+    --light-bg: #f5f6fa;
+    --light-text: #ecf0f1;
+    --dark-text: #2c3e50;
+    --white: #ffffff;
+    --shadow-light: rgba(0, 0, 0, 0.1);
+    --shadow-medium: rgba(0, 0, 0, 0.2);
+    --success: #27ae60;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    margin: 0;
+    background: var(--light-bg);
+    font-family: 'Montserrat', sans-serif;
+    color: var(--dark-text);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  header {
+    background: var(--primary);
+    color: var(--light-text);
+    padding: 1.5rem 1rem;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.8rem;
+    letter-spacing: 0.05em;
+    box-shadow: 0 4px 12px var(--shadow-medium);
+    position: relative;
+    z-index: 10;
+  }
+
+  main {
+    flex: 1;
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  @media (max-width: 768px) {
+    main {
+      grid-template-columns: 1fr;
+      margin: 1rem auto;
+      gap: 1.5rem;
+    }
+  }
+
+  section {
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px var(--shadow-light);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px var(--shadow-medium);
+  }
+
+  h2 {
+    margin: 0 0 1.5rem 0;
+    font-weight: 600;
+    font-size: 1.5rem;
+    color: var(--primary);
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-light);
+  }
+
+  .menu-categories {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .category {
+    margin-bottom: 1rem;
+  }
+
+  .category-title {
+    font-weight: 600;
+    color: var(--secondary);
+    margin-bottom: 0.8rem;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .category-title::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--secondary-light);
+    margin-left: 0.8rem;
+  }
+
+  .item-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .item-row {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed #eee;
+  }
+
+  .item-info {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .item-label {
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .item-price {
+    font-weight: 600;
+    color: var(--primary);
+    min-width: 60px;
+    text-align: right;
+  }
+
+  .quantity-control {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .quantity-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+
+  .quantity-btn:hover {
+    background: var(--primary-light);
+  }
+
+  .quantity-btn:active {
+    transform: scale(0.95);
+  }
+
+  .quantity-input {
+    width: 40px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 0.3rem;
+    font-weight: 600;
+  }
+
+  .summary {
+    position: relative;
+  }
+
+  .summary-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .summary-list {
+    flex-grow: 1;
+    margin: 1rem 0;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 1rem;
+    background: var(--white);
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .summary-empty {
+    color: #999;
+    text-align: center;
+    padding: 2rem 0;
+    font-style: italic;
+  }
+
+  .summary-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .summary-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+
+  .summary-total {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--primary);
+    font-weight: 700;
+    font-size: 1.3rem;
+    text-align: right;
+    color: var(--primary);
+  }
+
+  .action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .btn {
+    padding: 0.8rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-light);
+    transform: translateY(-2px);
+  }
+
+  .btn-secondary {
+    background: var(--secondary);
+    color: white;
+  }
+
+  .btn-secondary:hover {
+    background: var(--secondary-light);
+    transform: translateY(-2px);
+  }
+
+  .btn-success {
+    background: var(--success);
+    color: white;
+  }
+
+  .btn-success:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+  }
+
+  .btn:active {
+    transform: translateY(0);
+  }
+
+  .btn-icon {
+    font-size: 1.2rem;
+  }
+
+  /* Custom scrollbar */
+  .summary-list::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .summary-list::-webkit-scrollbar-thumb {
+    background-color: var(--primary-light);
+    border-radius: 6px;
+  }
+
+  .summary-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  /* Notification */
+  .notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--success);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 1000;
+  }
+
+  .notification.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 480px) {
+    .action-buttons {
+      grid-template-columns: 1fr;
+    }
+    
+    .item-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    
+    .item-info {
+      width: 100%;
+    }
+    
+    .quantity-control {
+      margin-left: auto;
+    }
+  }
+</style>
+</head>
+<body>
+<header>Comanda Digital</header>
+<main>
+  <section aria-labelledby="menu-section">
+    <h2 id="menu-section">Cardápio</h2>
+    <div class="menu-categories">
+      <!-- Carnes -->
+      <div class="category">
+        <h3 class="category-title">Carnes</h3>
+        <div class="item-list">
+          <div class="item-row">
+            <div class="item-info">
+              <label class="item-label">
+                <input type="checkbox" class="item-checkbox" data-item="picanha" data-price="25">
+                Picanha
+              </label>
+              <span class="item-price">R$ 25,00</span>
+            </div>
+            <div class="quantity-control">
+              <button class="quantity-btn minus" data-item="picanha">-</button>
+              <input type="number" class="quantity-input" data-item="picanha" value="0" min="0" disabled>
+              <button class="quantity-btn plus" data-item="picanha">+</button>
+            </div>
+          </div>
+          
+          <div class="item-row">
+            <div class="item-info">
+              <label class="item-label">
+                <input type="checkbox" class="item-checkbox" data-item="costela" data-price="22">
+                Costela
+              </label>
+              <span class="item-price">R$ 22,00</span>
+            </div>
+            <div class="quantity-control">
+              <button class="quantity-btn minus" data-item="costela">-</button>
+              <input type="number" class="quantity-input" data-item="costela" value="0" min="0" disabled>
+              <button class="quantity-btn plus" data-item="costela">+</button>
+            </div>
+          </div>
+          
+          <div class="item-row">
+            <div class="item-info">
+              <label class="item-label">
+                <input type="checkbox" class="item-checkbox" data-item="alcatra" data-price="20">
+                Alcatra
+              </label>
+              <span class="item-price">R$ 20,00</span>
+            </div>
+            <div class="quantity-control">
+              <button class="quantity-btn minus" data-item="alcatra">-</button>
+              <input type="number" class="quantity-input" data-item="alcatra" value="0" min="0" disabled>
+              <button class="quantity-btn plus" data-item="alcatra">+</button>
+            </div>
+          </div>
+          
+          <div class="item-row">
+            <div class="item-info">
+              <label class="item-label">
+                <input type="checkbox" class="item-checkbox" data-item="frango" data-price="18">
+                Frango
+              </label>
+              <span class="item-price">R$ 18,00</span>
+            </div>
+            <div class="quantity-control">
+              <button class="quantity-btn minus" data-item="frango">-</button>
+              <input type="number" class="quantity-input" data-item="frango" value="0" min="0" disabled>
+              <button class="quantity-btn plus" data-item="frango">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Acompanhamentos -->
+      <div class="category">
+        <h3 class="category-title">Acompanhamentos</h3>
+        <div class="item-list">
+          <div class="item-row">
+            <div class="item-info">
+              <label class="item-label">
+                <input type="checkbox" class="item-checkbox" data-item="farofa" data-price="8">
+                Farofa
+              </label>
+              <span class="item-price">R$ 8,00</span>
+            </div>
+            <div class="quantity-control">
+              <button class="quantity-btn minus" data-item="farofa">-</button>
+              <input type="number" class="quantity-input" data-item="farofa" value="0" min="0" disabled>
+              <button class="quantity-btn plus" data-item="farofa">+</button>
+            </div>
+          </div>
+          
+          <div class="item-row">
+            <div class="item-info">
+              <label class="item-label">
+                <input type="checkbox" class="item-checkbox" data-item="vinagrete" data-price="6">
+                Vinagrete
+              </label>
+              <span class="item-price">R$ 6,00</span>
+            </div>
+            <div class="quantity-control">
+              <button class="quantity-btn minus" data-item="vinagrete">-</button>
+              <input type="number" class="quantity-input" data-item="vinagrete" value="0" min="0" disabled>
+              <button class="quantity-btn plus" data-item="vinagrete">+</button>
+            </div>
+          </div>
+          
+          <div class="item-row">
+            <div class="item-info">
+              <label class="item-label">
+                <input type="checkbox" class="item-checkbox" data-item="pao" data-price="5">
+                Pão de Alho
+              </label>
+              <span class="item-price">R$ 5,00</span>
+            </div>
+            <div class="quantity-control">
+              <button class="quantity-btn minus" data-item="pao">-</button>
+              <input type="number" class="quantity-input" data-item="pao" value="0" min="0" disabled>
+              <button class="quantity-btn plus" data-item="pao">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Bebidas -->
+      <div class="category">
+        <h3 class="category-title">Bebidas</h3>
+        <div class="item-list">
+          <div class="item-row">
+            <div class="item-info">
+              <label class="item-label">
+                <input type="checkbox" class="item-checkbox" data-item="cerveja" data-price="10">
+                Cerveja (600ml)
+              </label>
+              <span class="item-price">R$ 10,00</span>
+            </div>
+            <div class="quantity-control">
+              <button class="quantity-btn minus" data-item="cerveja">-</button>
+              <input type="number" class="quantity-input" data-item="cerveja" value="0" min="0" disabled>
+              <button class="quantity-btn plus" data-item="cerveja">+</button>
+            </div>
+          </div>
+          
+          <div class="item-row">
+            <div class="item-info">
+              <label class="item-label">
+                <input type="checkbox" class="item-checkbox" data-item="refri" data-price="7">
+                Refrigerante (lata)
+              </label>
+              <span class="item-price">R$ 7,00</span>
+            </div>
+            <div class="quantity-control">
+              <button class="quantity-btn minus" data-item="refri">-</button>
+              <input type="number" class="quantity-input" data-item="refri" value="0" min="0" disabled>
+              <button class="quantity-btn plus" data-item="refri">+</button>
+            </div>
+          </div>
+          
+          <div class="item-row">
+            <div class="item-info">
+              <label class="item-label">
+                <input type="checkbox" class="item-checkbox" data-item="agua" data-price="4">
+                Água (500ml)
+              </label>
+              <span class="item-price">R$ 4,00</span>
+            </div>
+            <div class="quantity-control">
+              <button class="quantity-btn minus" data-item="agua">-</button>
+              <input type="number" class="quantity-input" data-item="agua" value="0" min="0" disabled>
+              <button class="quantity-btn plus" data-item="agua">+</button>
+            </div>
+          </div>
+          
+          <div class="item-row">
+            <div class="item-info">
+              <label class="item-label">
+                <input type="checkbox" class="item-checkbox" data-item="suco" data-price="8">
+                Suco Natural (500ml)
+              </label>
+              <span class="item-price">R$ 8,00</span>
+            </div>
+            <div class="quantity-control">
+              <button class="quantity-btn minus" data-item="suco">-</button>
+              <input type="number" class="quantity-input" data-item="suco" value="0" min="0" disabled>
+              <button class="quantity-btn plus" data-item="suco">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="summary-section" class="summary">
+    <h2 id="summary-section">Resumo do Pedido</h2>
+    <div class="summary-content">
+      <div class="summary-list" id="summary-list">
+        <div class="summary-empty">Selecione os itens do cardápio</div>
+      </div>
+      <div class="summary-total" id="total-price">Total: R$ 0,00</div>
+    </div>
+    <div class="action-buttons">
+      <button class="btn btn-primary" id="clear-btn">
+        <span class="btn-icon">🗑️</span> Limpar
+      </button>
+      <button class="btn btn-secondary" id="whatsapp-btn">
+        <span class="btn-icon">📱</span> WhatsApp
+      </button>
+      <button class="btn btn-success" id="print-btn">
+        <span class="btn-icon">🖨️</span> Imprimir
+      </button>
+    </div>
+  </section>
+</main>
+
+<div class="notification" id="notification">Pedido copiado para o WhatsApp!</div>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+  /**
+   * Sistema de Comanda Digital para Churrascaria
+   * 
+   * Funcionalidades:
+   * - Seleção de itens com controle de quantidade
+   * - Atualização em tempo real do valor total
+   * - Compartilhamento via WhatsApp
+   * - Exportação para impressão
+   * - Design responsivo e moderno
+   */
+
+  // Dados dos itens do menu
+  const menuItems = {
+    picanha: { name: "Picanha", price: 25 },
+    costela: { name: "Costela", price: 22 },
+    alcatra: { name: "Alcatra", price: 20 },
+    frango: { name: "Frango", price: 18 },
+    farofa: { name: "Farofa", price: 8 },
+    vinagrete: { name: "Vinagrete", price: 6 },
+    pao: { name: "Pão de Alho", price: 5 },
+    cerveja: { name: "Cerveja (600ml)", price: 10 },
+    refri: { name: "Refrigerante (lata)", price: 7 },
+    agua: { name: "Água (500ml)", price: 4 },
+    suco: { name: "Suco Natural (500ml)", price: 8 }
+  };
+
+  // Elementos DOM
+  const summaryList = document.getElementById('summary-list');
+  const totalPriceElem = document.getElementById('total-price');
+  const clearBtn = document.getElementById('clear-btn');
+  const whatsappBtn = document.getElementById('whatsapp-btn');
+  const printBtn = document.getElementById('print-btn');
+  const notification = document.getElementById('notification');
+
+  // Estado do pedido
+  let order = {};
+
+  // Inicialização
+  document.addEventListener('DOMContentLoaded', () => {
+    setupEventListeners();
+  });
+
+  /**
+   * Configura todos os event listeners
+   */
+  function setupEventListeners() {
+    // Checkboxes dos itens
+    document.querySelectorAll('.item-checkbox').forEach(checkbox => {
+      checkbox.addEventListener('change', handleCheckboxChange);
+    });
+
+    // Botões de quantidade
+    document.querySelectorAll('.quantity-btn').forEach(btn => {
+      btn.addEventListener('click', handleQuantityButton);
+    });
+
+    // Inputs de quantidade
+    document.querySelectorAll('.quantity-input').forEach(input => {
+      input.addEventListener('change', handleQuantityInput);
+      input.addEventListener('input', handleQuantityInput);
+    });
+
+    // Botão limpar
+    clearBtn.addEventListener('click', clearOrder);
+
+    // Botão WhatsApp
+    whatsappBtn.addEventListener('click', shareOnWhatsApp);
+
+    // Botão imprimir
+    printBtn.addEventListener('click', printOrder);
+  }
+
+  /**
+   * Manipula mudanças nos checkboxes dos itens
+   */
+  function handleCheckboxChange(e) {
+    const checkbox = e.target;
+    const itemId = checkbox.dataset.item;
+    const quantityInput = document.querySelector(`.quantity-input[data-item="${itemId}"]`);
+
+    if (checkbox.checked) {
+      quantityInput.disabled = false;
+      quantityInput.value = 1;
+      addItemToOrder(itemId, 1);
+    } else {
+      quantityInput.disabled = true;
+      quantityInput.value = 0;
+      removeItemFromOrder(itemId);
+    }
+
+    updateOrderSummary();
+  }
+
+  /**
+   * Manipula cliques nos botões de quantidade (+/-)
+   */
+  function handleQuantityButton(e) {
+    const btn = e.target;
+    const isPlus = btn.classList.contains('plus');
+    const itemId = btn.dataset.item;
+    const quantityInput = document.querySelector(`.quantity-input[data-item="${itemId}"]`);
+    const checkbox = document.querySelector(`.item-checkbox[data-item="${itemId}"]`);
+
+    let newValue = parseInt(quantityInput.value) || 0;
+    
+    if (isPlus) {
+      newValue++;
+    } else {
+      newValue = Math.max(0, newValue - 1);
+    }
+
+    quantityInput.value = newValue;
+    
+    if (newValue > 0) {
+      checkbox.checked = true;
+      quantityInput.disabled = false;
+      addItemToOrder(itemId, newValue);
+    } else {
+      checkbox.checked = false;
+      quantityInput.disabled = true;
+      removeItemFromOrder(itemId);
+    }
+
+    updateOrderSummary();
+  }
+
+  /**
+   * Manipula mudanças nos inputs de quantidade
+   */
+  function handleQuantityInput(e) {
+    const input = e.target;
+    const itemId = input.dataset.item;
+    const checkbox = document.querySelector(`.item-checkbox[data-item="${itemId}"]`);
+    let value = parseInt(input.value) || 0;
+
+    // Garante que o valor não seja negativo
+    if (value < 0) {
+      value = 0;
+      input.value = 0;
+    }
+
+    if (value > 0) {
+      checkbox.checked = true;
+      input.disabled = false;
+      addItemToOrder(itemId, value);
+    } else {
+      checkbox.checked = false;
+      input.disabled = true;
+      removeItemFromOrder(itemId);
+    }
+
+    updateOrderSummary();
+  }
+
+  /**
+   * Adiciona um item ao pedido
+   */
+  function addItemToOrder(itemId, quantity) {
+    order[itemId] = {
+      name: menuItems[itemId].name,
+      price: menuItems[itemId].price,
+      quantity: quantity
+    };
+  }
+
+  /**
+   * Remove um item do pedido
+   */
+  function removeItemFromOrder(itemId) {
+    delete order[itemId];
+  }
+
+  /**
+   * Atualiza o resumo do pedido e o total
+   */
+  function updateOrderSummary() {
+    // Limpa o resumo
+    summaryList.innerHTML = '';
+
+    // Se não há itens, mostra mensagem
+    if (Object.keys(order).length === 0) {
+      summaryList.innerHTML = '<div class="summary-empty">Selecione os itens do cardápio</div>';
+      totalPriceElem.textContent = 'Total: R$ 0,00';
+      return;
+    }
+
+    let total = 0;
+
+    // Adiciona cada item ao resumo
+    for (const itemId in order) {
+      const item = order[itemId];
+      const subtotal = item.price * item.quantity;
+      total += subtotal;
+
+      const itemElement = document.createElement('div');
+      itemElement.className = 'summary-item';
+      itemElement.innerHTML = `
+        <span>${item.name} x${item.quantity}</span>
+        <span>${formatCurrency(subtotal)}</span>
+      `;
+      summaryList.appendChild(itemElement);
+    }
+
+    // Atualiza o total
+    totalPriceElem.textContent = `Total: ${formatCurrency(total)}`;
+  }
+
+  /**
+   * Limpa todo o pedido
+   */
+  function clearOrder() {
+    // Reseta todos os inputs
+    document.querySelectorAll('.item-checkbox').forEach(checkbox => {
+      checkbox.checked = false;
+    });
+
+    document.querySelectorAll('.quantity-input').forEach(input => {
+      input.value = 0;
+      input.disabled = true;
+    });
+
+    // Limpa o estado do pedido
+    order = {};
+    updateOrderSummary();
+  }
+
+  /**
+   * Compartilha o pedido via WhatsApp
+   */
+  function shareOnWhatsApp() {
+    if (Object.keys(order).length === 0) {
+      showNotification('Adicione itens ao pedido primeiro');
+      return;
+    }
+
+    let message = "📋 *Resumo do Pedido* 📋\n\n";
+    let total = 0;
+
+    for (const itemId in order) {
+      const item = order[itemId];
+      const subtotal = item.price * item.quantity;
+      total += subtotal;
+      message += `➡ ${item.name} x${item.quantity} - ${formatCurrency(subtotal)}\n`;
+    }
+
+    message += `\n💰 *Total: ${formatCurrency(total)}* 💰\n\n`;
+    message += "Obrigado pelo seu pedido!";
+
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+
+    // Abre em nova aba
+    window.open(whatsappUrl, '_blank');
+
+    showNotification('Pedido copiado para o WhatsApp!');
+  }
+
+  /**
+   * Exporta o pedido como imagem para impressão
+   */
+  function printOrder() {
+    if (Object.keys(order).length === 0) {
+      showNotification('Adicione itens ao pedido primeiro');
+      return;
+    }
+
+    const summarySection = document.querySelector('.summary-content');
+    
+    html2canvas(summarySection).then(canvas => {
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Comanda Digital</title>
+            <style>
+              body { font-family: Arial, sans-serif; padding: 20px; }
+              h1 { color: #2c3e50; text-align: center; }
+              .order-item { display: flex; justify-content: space-between; margin-bottom: 10px; }
+              .order-total { font-weight: bold; font-size: 1.2em; margin-top: 20px; text-align: right; }
+              hr { border: 0; border-top: 1px dashed #ccc; margin: 20px 0; }
+            </style>
+          </head>
+          <body>
+            <h1>Comanda Digital</h1>
+            <hr>
+            <img src="${canvas.toDataURL('image/png')}" style="width: 100%;">
+            <hr>
+            <p style="text-align: center;">Obrigado pela preferência!</p>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.focus();
+      
+      // Espera o conteúdo carregar antes de imprimir
+      setTimeout(() => {
+        printWindow.print();
+      }, 500);
+    });
+  }
+
+  /**
+   * Mostra uma notificação temporária
+   */
+  function showNotification(text) {
+    notification.textContent = text;
+    notification.classList.add('show');
+    
+    setTimeout(() => {
+      notification.classList.remove('show');
+    }, 3000);
+  }
+
+  /**
+   * Formata valores como moeda brasileira
+   */
+  function formatCurrency(value) {
+    return value.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    });
+  }
+</script>
+</body>
+</html>
