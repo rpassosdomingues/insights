@@ -1,159 +1,40 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Utilities Suite - Índice de Aplicativos</title>
+  <meta charset="UTF-8">
+  <title>Utilitários do Site</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    /* Reset rápido */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-                   Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-      background-color: #fafafa;
-      color: #222;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      padding: 1rem;
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
-    header {
-      text-align: center;
-      margin-bottom: 1.5rem;
-    }
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 0.5rem;
-    }
-    p.subtitle {
-      color: #555;
-      font-size: 1rem;
-      margin-bottom: 1rem;
-    }
-    #darkModeToggle {
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
-      background: none;
-      border: 2px solid #555;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 1.5rem;
-      line-height: 1;
-      cursor: pointer;
-      color: #555;
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
-    #darkModeToggle:focus {
-      outline: 3px solid #1976d2;
-      outline-offset: 2px;
-    }
-    main {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 1rem;
-      flex-grow: 1;
-      max-width: 1000px;
-      margin: 0 auto;
-      padding-bottom: 2rem;
-    }
-    a.card {
-      display: flex;
-      flex-direction: column;
-      background-color: #fff;
-      padding: 1rem;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      text-decoration: none;
-      color: inherit;
-      transition: background-color 0.3s ease, box-shadow 0.3s ease;
-      user-select: none;
-    }
-    a.card:hover,
-    a.card:focus {
-      background-color: #e8ebff;
-      box-shadow: 0 6px 14px rgba(29,78,216,0.4);
-      outline: none;
-    }
-    .card-icon {
-      font-size: 3rem;
-      margin-bottom: 0.6rem;
-      user-select: none;
-    }
-    .card-title {
-      font-weight: 700;
-      font-size: 1.25rem;
-      margin-bottom: 0.4rem;
-      text-align: center;
-    }
-    .card-desc {
-      font-size: 0.95rem;
-      color: #555;
-      text-align: center;
-      flex-grow: 1;
-    }
-    /* Dark Mode */
-    body.dark {
-      background-color: #121212;
-      color: #eee;
-    }
-    body.dark a.card {
-      background-color: #222;
-      color: #eee;
-      box-shadow: 0 2px 8px rgba(255,255,255,0.1);
-    }
-    body.dark a.card:hover,
-    body.dark a.card:focus {
-      background-color: #333;
-      box-shadow: 0 6px 14px rgba(100,149,237,0.7);
-    }
-    body.dark #darkModeToggle {
-      border-color: #bbb;
-      color: #eee;
-    }
+    body { font-family: sans-serif; background: #f0f0f0; margin: 2em; }
+    h1 { text-align: center; }
+    ul { list-style: none; padding: 0; }
+    li { background: #fff; margin: 0.5em 0; padding: 1em; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    li a { text-decoration: none; color: #333; font-weight: bold; }
+    .desc { color: #666; font-size: 0.9em; margin-top: 0.2em; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Utilities Suite</h1>
-    <p class="subtitle">Índice de todos os arquivos HTML em <code>utilities/</code></p>
-    <button id="darkModeToggle" aria-pressed="false" aria-label="Ativar modo escuro">🌙</button>
-  </header>
-  <main>
-    <a class="card" href="site/utilities/buscaContextoPDFs.html" target="_blank" rel="noopener" aria-label="🕵️‍♂️ Caçador de Contexto PDF – abre em nova aba">
-      <div class="card-icon" aria-hidden="true">🔍</div>
-      <div class="card-title">🕵️‍♂️ Caçador de Contexto PDF</div>
-      <div class="card-desc">Clique para abrir.</div>
-    </a>
-    <a class="card" href="site/utilities/meetMotions.html" target="_blank" rel="noopener" aria-label="Copiloto de Evento Online - Modular – abre em nova aba">
-      <div class="card-icon" aria-hidden="true">🛠️</div>
-      <div class="card-title">Copiloto de Evento Online - Modular</div>
-      <div class="card-desc">Clique para abrir.</div>
-    </a>
-    <a class="card" href="site/utilities/qrCodeGenerator.html" target="_blank" rel="noopener" aria-label="Gerador Automático de QR Code – abre em nova aba">
-      <div class="card-icon" aria-hidden="true">💻</div>
-      <div class="card-title">Gerador Automático de QR Code</div>
-      <div class="card-desc">Clique para abrir.</div>
-    </a>
-  </main>
-  <script>
-    const toggleBtn = document.getElementById('darkModeToggle');
-    // Aplica preferência salva no localStorage
-    const darkPref = localStorage.getItem('darkMode');
-    if (darkPref === 'true') {
-      document.body.classList.add('dark');
-      toggleBtn.setAttribute('aria-pressed', 'true');
-      toggleBtn.textContent = '☀️';
-    }
-    toggleBtn.addEventListener('click', () => {
-      document.body.classList.toggle('dark');
-      const isDark = document.body.classList.contains('dark');
-      toggleBtn.setAttribute('aria-pressed', isDark.toString());
-      toggleBtn.textContent = isDark ? '☀️' : '🌙';
-      localStorage.setItem('darkMode', isDark);
-    });
-  </script>
+  <h1>🔗 Lista de Utilitários</h1>
+  <ul>
+    <li>
+      <a href="buscaContextoPDFs.html">📄 🕵️‍♂️ Caçador de Contexto PDF</a>
+      <div class="desc">Sem descrição disponível.</div>
+    </li>
+    <li>
+      <a href="qrCodeGenerator.html">🛠️ Gerador Automático de QR Code</a>
+      <div class="desc">Sem descrição disponível.</div>
+    </li>
+    <li>
+      <a href="main.html">🛠️ Utilitários do Site</a>
+      <div class="desc">Sem descrição disponível.</div>
+    </li>
+    <li>
+      <a href="meetMotions.html">🛠️ Copiloto de Evento Online - Modular</a>
+      <div class="desc">Sem descrição disponível.</div>
+    </li>
+  </ul>
+  <footer style="text-align:center; margin-top:2em; font-size:0.8em; color:#999;">
+    Atualizado em: 2025-06-01 23:42
+  </footer>
 </body>
 </html>
