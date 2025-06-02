@@ -26,7 +26,7 @@
     <div class="card-desc"></div>
   </a>
   <a href="qrCodeGenerator.html" target="_blank" class="card" title="Open Gerador Automático de QR Code" tabindex="0">
-    <div class="card-icon" aria-hidden="true">🛠️</div>
+    <div class="card-icon" aria-hidden="true">💻</div>
     <div class="card-title">Gerador Automático de QR Code</div>
     <div class="card-desc"></div>
   </a>
@@ -78,106 +78,6 @@
   toggleBtn.addEventListener('click', toggleTheme);
   initTheme();
 })();
-</script>
-
-</body>
-</html>
-  <a href="buscaContextoPDFs.html" target="_blank" class="card" title="Open 🕵️‍♂️ Caçador de Contexto PDF" tabindex="0">
-    <div class="card-icon" aria-hidden="true">📄</div>
-    <div class="card-title">🕵️‍♂️ Caçador de Contexto PDF</div>
-    <div class="card-desc"></div>
-  </a>
-  <a href="meetMotions.html" target="_blank" class="card" title="Open Copiloto de Evento Online - Modular" tabindex="0">
-    <div class="card-icon" aria-hidden="true">🛠️</div>
-    <div class="card-title">Copiloto de Evento Online - Modular</div>
-    <div class="card-desc"></div>
-  </a>
-  <a href="qrCodeGenerator.html" target="_blank" class="card" title="Open Gerador Automático de QR Code" tabindex="0">
-    <div class="card-icon" aria-hidden="true">🛠️</div>
-    <div class="card-title">Gerador Automático de QR Code</div>
-    <div class="card-desc"></div>
-  </a>
-</main>
-
-<script>
-/**
- * DARK MODE TOGGLE SCRIPT
- *
- * Adds an accessible toggle button to switch between light and dark themes.
- * Saves user preference in localStorage to persist across sessions.
- * Defaults to system preference if no stored preference exists.
- */
-(() => {
-  const toggleBtn = document.getElementById('darkModeToggle');
-  const body = document.body;
-  const darkClass = 'dark-theme';
-  const storageKey = 'utilitiesSuiteDarkMode';
-
-  // Initialize theme on page load
-  function initTheme() {
-    const savedTheme = localStorage.getItem(storageKey);
-    if (savedTheme === 'dark') {
-      body.classList.add(darkClass);
-      toggleBtn.textContent = '☀️';
-      toggleBtn.setAttribute('aria-label', 'Switch to light mode');
-    } else if (savedTheme === 'light') {
-      body.classList.remove(darkClass);
-      toggleBtn.textContent = '🌙';
-      toggleBtn.setAttribute('aria-label', 'Switch to dark mode');
-    } else {
-      // No saved preference, respect system preference
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        body.classList.add(darkClass);
-        toggleBtn.textContent = '☀️';
-        toggleBtn.setAttribute('aria-label', 'Switch to light mode');
-      } else {
-        body.classList.remove(darkClass);
-        toggleBtn.textContent = '🌙';
-        toggleBtn.setAttribute('aria-label', 'Switch to dark mode');
-      }
-    }
-  }
-
-  // Toggle theme and save preference
-  function toggleTheme() {
-    const isDark = body.classList.toggle(darkClass);
-    if (isDark) {
-      toggleBtn.textContent = '☀️';
-      toggleBtn.setAttribute('aria-label', 'Switch to light mode');
-      localStorage.setItem(storageKey, 'dark');
-    } else {
-      toggleBtn.textContent = '🌙';
-      toggleBtn.setAttribute('aria-label', 'Switch to dark mode');
-      localStorage.setItem(storageKey, 'light');
-    }
-  }
-
-  toggleBtn.addEventListener('click', toggleTheme);
-  initTheme();
-})();
-</script>
-
-</body>
-</html>
-  <a href="buscaContextoPDFs.html" target="_blank" class="card" title="Open 🕵️‍♂️ Caçador de Contexto PDF" tabindex="0">
-    <div class="card-icon" aria-hidden="true">📄</div>
-    <div class="card-title">🕵️‍♂️ Caçador de Contexto PDF</div>
-    <div class="card-desc"></div>
-  </a>
-  <a href="meetMotions.html" target="_blank" class="card" title="Open Copiloto de Evento Online - Modular" tabindex="0">
-    <div class="card-icon" aria-hidden="true">🛠️</div>
-    <div class="card-title">Copiloto de Evento Online - Modular</div>
-    <div class="card-desc"></div>
-  </a>
-  <a href="qrCodeGenerator.html" target="_blank" class="card" title="Open Gerador Automático de QR Code" tabindex="0">
-    <div class="card-icon" aria-hidden="true">🛠️</div>
-    <div class="card-title">Gerador Automático de QR Code</div>
-    <div class="card-desc"></div>
-  </a>
-</main>
-
-<script>
-... (script dark mode mantido)
 </script>
 
 </body>
