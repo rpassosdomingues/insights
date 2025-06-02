@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gerador de QR Code</title>
+
+<style>
+/* -------------------------------------------------
+   🎨 Variáveis e estilos básicos
+---------------------------------------------------*/
+:root {
+  --bg-color: #f2f2f2;
+  --text-color: #1c1c1c;
+  --primary-color: #002244;       /* Azul escuro */
+  --secondary-color: #fff9db;     /* Amarelo clarinho */
+  --accent-color: #ffe066;        /* Amarelo para hover */
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* -------------------------------------------------
+   🎯 Cabeçalho
+---------------------------------------------------*/
+header {
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
+  padding: 1rem;
+  text-align: center;
+  width: 100%;
+  position: relative; /* Para posicionar o botão de Dark Mode */
+}
+
+/* -------------------------------------------------
+   🌙 Botão de alternar Dark Mode no canto superior direito
+---------------------------------------------------*/
+#darkModeBtn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--secondary-color);
+  transition: transform 0.2s;
+}
+
+#darkModeBtn:hover {
+  transform: scale(1.1);
+}
+
+/* -------------------------------------------------
+   🖊️ Conteúdo principal
+---------------------------------------------------*/
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 2rem;
+  width: 90%;
+  max-width: 500px;
+}
+
+label {
+  margin-top: 1rem;
+  width: 100%;
+  font-weight: bold;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  border: 2px solid var(--primary-color);
+  border-radius: 6px;
+  background-color: white;
+  color: var(--text-color);
+}
+
+/* -------------------------------------------------
+   🟡 Botões
+---------------------------------------------------*/
+button {
+  background-color: var(--secondary-color);
+  color: var(--primary-color);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  margin: 0.5rem;
+  cursor: pointer;
+  border-radius: 4px;
+  font-weight: bold;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+button:hover {
+  background-color: var(--accent-color);
+  transform: scale(1.05);
+}
+
+/* -------------------------------------------------
+   🎨 Botão de download animado
+---------------------------------------------------*/
+#downloadBtn {
+  display: none;
+  margin-top: 1rem;
+  animation: fadeInScale 0.5s ease-out forwards;
+}
+
+#downloadBtn.show {
+  display: inline-block;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* -------------------------------------------------
+   🖼️ Canvas do QR Code
+---------------------------------------------------*/
+canvas {
+  margin-top: 1rem;
+  background-color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  transition: transform 0.3s;
+}
+
+canvas:hover {
+  transform: scale(1.02);
+}
+
+/* -------------------------------------------------
+   ⚡ Rodapé
+---------------------------------------------------*/
+footer {
+  text-align: center;
+  padding: 1rem;
+  background-color: var(--primary-color);
+  color: var(--secondary-color);
+  width: 100%;
+  margin-top: 2rem;
+}
+
+/* -------------------------------------------------
+   🌙 Dark Mode minimalista
+---------------------------------------------------*/
+body.dark-mode {
+  --bg-color: #121212;
+  --text-color: #e0e0e0;
+  --secondary-color: #444;
+  --accent-color: #666;
+}
+
+body.dark-mode input[type="text"] {
+  background-color: #1c1c1c;
+  color: #e0e0e0;
+}
+
+body.dark-mode canvas {
+  background-color: #333;
+}
+</style>
+</head>
+
+<body>
+  <header>
+    <h1>Gerador de QR Code</h1>
+    <!-- 🌙 Botão Dark Mode no canto superior direito -->
+    <button id="darkModeBtn" onclick="toggleDarkMode()">🌓</button>
+  </header>
+
+  <main>
+    <!-- 🔤 Campo de entrada -->
+    <label for="qrInput">Digite um texto ou link:</label>
+    <input type="text" id="qrInput" placeholder="Ex: https://exemplo.com" />
+
+    <!-- ⚡ Botão para gerar QR Code -->
+    <button onclick="generateQRCode()">🎨 Gerar QR Code</button>
+
+    <!-- 🖼️ QR Code e botão de download agrupados -->
+    <div id="qrcodeContainer" style="display: flex; flex-direction: column; align-items: center;">
+      <div id="qrcode"></div>
+      <!-- 📥 Botão de download abaixo do QR Code -->
+      <button id="downloadBtn">⬇️ Baixar QR Code</button>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 Rafael Passos Domingues
+  </footer>
+
+  <!-- 📦 Script do gerador de QR Code (lib externa) -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+
+  <script>
+  /**
+   * 🎨 Gera o QR Code a partir do texto ou link fornecido
+   * ✅ O botão de download agora aparece abaixo do QR Code gerado
+   */
+  function generateQRCode() {
+    const text = document.getElementById('qrInput').value.trim();
+    if (!text) {
+      alert('Por favor, insira um texto ou link.');
+      return;
+    }
+
+    const qrcodeContainer = document.getElementById('qrcode');
+    qrcodeContainer.innerHTML = ''; // Limpa o QR Code anterior
+
+    // Gera o QR Code usando a biblioteca QRCode.js
+    QRCode.toCanvas(text, {
+      errorCorrectionLevel: 'H',
+      width: 250,
+      margin: 2,
+      color: { dark: "#000", light: "#FFF" }
+    }, function (err, canvas) {
+      if (err) {
+        console.error(err);
+        alert('Erro ao gerar o QR Code.');
+        return;
+      }
+      qrcodeContainer.appendChild(canvas);
+
+      // 🔖 Cria nome do arquivo para download
+      let fileName = 'qrcode';
+      try {
+        const url = new URL(text);
+        let host = url.hostname.replace(/\./g, '_'); // troca . por _
+        fileName = 'qrcode_' + host;
+      } catch {
+        fileName = 'qrcode_' + text.substring(0, 10).replace(/[^a-zA-Z0-9]/g, '_');
+      }
+
+      // 📥 Mostra botão de download abaixo do QR Code
+      const downloadBtn = document.getElementById('downloadBtn');
+      downloadBtn.classList.add('show');
+      downloadBtn.onclick = function() {
+        const link = document.createElement('a');
+        link.download = fileName + '.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      };
+    });
+  }
+
+  /**
+   * 🌙 Alterna o tema Dark Mode
+   */
+  function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+  }
+  </script>
+</body>
+</html>
