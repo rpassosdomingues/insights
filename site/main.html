@@ -3,156 +3,680 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Utilities Suite - Índice de Aplicativos</title>
+  <meta name="description" content="Coleção de utilitários e projetos HTML interativos" />
+  <meta name="keywords" content="utilitários, ferramentas, projetos, HTML, JavaScript" />
+  <meta name="author" content="Rafael Passos Domingues" />
+  <meta name="theme-color" content="#1976d2" />
+  <title>Utilities Suite - Índice de Projetos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    /* Reset rápido */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    /* Reset e variáveis */
+    :root {
+      --color-primary: #1976d2;
+      --color-primary-dark: #0d47a1;
+      --color-primary-light: #bbdefb;
+      --color-text: #333;
+      --color-text-secondary: #555;
+      --color-background: #f5f7fa;
+      --color-card: #fff;
+      --color-card-hover: #e8f0fe;
+      --color-border: #e0e0e0;
+      --shadow-sm: 0 2px 6px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.12);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.15);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --transition: 0.3s ease;
+      --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
                    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-      background-color: #fafafa;
-      color: #222;
+    }
+    
+    /* Dark mode variables */
+    [data-theme="dark"] {
+      --color-primary: #90caf9;
+      --color-primary-dark: #64b5f6;
+      --color-primary-light: #1e3a5f;
+      --color-text: #e0e0e0;
+      --color-text-secondary: #aaa;
+      --color-background: #121212;
+      --color-card: #1e1e1e;
+      --color-card-hover: #2c2c2c;
+      --color-border: #333;
+      --shadow-sm: 0 2px 6px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+    }
+    
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+    }
+    
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    body {
+      font-family: var(--font-family);
+      background-color: var(--color-background);
+      color: var(--color-text);
       display: flex;
       flex-direction: column;
       min-height: 100vh;
-      padding: 1rem;
-      transition: background-color 0.3s ease, color 0.3s ease;
+      padding: 0;
+      transition: background-color var(--transition), color var(--transition);
+      line-height: 1.6;
     }
+    
+    /* Header e navegação */
     header {
+      background-color: var(--color-primary);
+      color: white;
+      padding: 1.5rem 1rem;
       text-align: center;
-      margin-bottom: 1.5rem;
+      position: relative;
+      box-shadow: var(--shadow-sm);
     }
+    
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+    }
+    
     h1 {
       font-size: 2.5rem;
       margin-bottom: 0.5rem;
+      font-weight: 700;
     }
+    
     p.subtitle {
-      color: #555;
-      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1.1rem;
       margin-bottom: 1rem;
+      font-weight: 400;
     }
+    
+    /* Controles */
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+      background-color: var(--color-card);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      margin-top: -1.5rem;
+      position: relative;
+      z-index: 10;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    
+    .search-container {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+    }
+    
+    #searchInput {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      background-color: var(--color-card);
+      color: var(--color-text);
+      transition: all var(--transition);
+    }
+    
+    #searchInput:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-light);
+    }
+    
+    .search-icon {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-text-secondary);
+      pointer-events: none;
+    }
+    
+    .filter-container {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    
+    #categoryFilter {
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      background-color: var(--color-card);
+      color: var(--color-text);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    
+    #categoryFilter:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+    
     #darkModeToggle {
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
       background: none;
-      border: 2px solid #555;
-      border-radius: 50%;
+      border: none;
       width: 40px;
       height: 40px;
       font-size: 1.5rem;
       line-height: 1;
       cursor: pointer;
-      color: #555;
-      transition: background-color 0.3s ease, color 0.3s ease;
+      color: var(--color-text);
+      transition: all var(--transition);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
+    
+    #darkModeToggle:hover {
+      background-color: rgba(0,0,0,0.1);
+    }
+    
     #darkModeToggle:focus {
-      outline: 3px solid #1976d2;
+      outline: 3px solid var(--color-primary-light);
       outline-offset: 2px;
     }
-    main {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 1rem;
-      flex-grow: 1;
-      max-width: 1000px;
+    
+    /* Conteúdo principal */
+    .container {
+      max-width: 1200px;
       margin: 0 auto;
-      padding-bottom: 2rem;
+      padding: 2rem 1rem;
+      width: 100%;
+      flex-grow: 1;
     }
-    a.card {
+    
+    .category-title {
+      margin: 2rem 0 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--color-primary);
+      color: var(--color-text);
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    
+    .category-title:first-of-type {
+      margin-top: 0;
+    }
+    
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .card {
       display: flex;
       flex-direction: column;
-      background-color: #fff;
-      padding: 1rem;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      background-color: var(--color-card);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
       text-decoration: none;
-      color: inherit;
-      transition: background-color 0.3s ease, box-shadow 0.3s ease;
-      user-select: none;
+      color: var(--color-text);
+      transition: all var(--transition);
+      overflow: hidden;
+      height: 100%;
+      border: 1px solid var(--color-border);
     }
-    a.card:hover,
-    a.card:focus {
-      background-color: #e8ebff;
-      box-shadow: 0 6px 14px rgba(29,78,216,0.4);
+    
+    .card:hover,
+    .card:focus {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--color-primary);
       outline: none;
     }
+    
+    .card:focus-visible {
+      outline: 3px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+    
+    .card-header {
+      padding: 1.25rem 1.25rem 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
     .card-icon {
-      font-size: 3rem;
-      margin-bottom: 0.6rem;
+      font-size: 2.5rem;
       user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
+    
     .card-title {
-      font-weight: 700;
-      font-size: 1.25rem;
-      margin-bottom: 0.4rem;
-      text-align: center;
-    }
-    .card-desc {
-      font-size: 0.95rem;
-      color: #555;
-      text-align: center;
+      font-weight: 600;
+      font-size: 1.2rem;
+      color: var(--color-text);
       flex-grow: 1;
     }
-    /* Dark Mode */
-    body.dark {
-      background-color: #121212;
-      color: #eee;
+    
+    .card-body {
+      padding: 0 1.25rem 1.25rem;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
     }
-    body.dark a.card {
-      background-color: #222;
-      color: #eee;
-      box-shadow: 0 2px 8px rgba(255,255,255,0.1);
+    
+    .card-desc {
+      font-size: 0.95rem;
+      color: var(--color-text-secondary);
+      margin-bottom: 1rem;
+      flex-grow: 1;
     }
-    body.dark a.card:hover,
-    body.dark a.card:focus {
-      background-color: #333;
-      box-shadow: 0 6px 14px rgba(100,149,237,0.7);
+    
+    .card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: var(--color-text-secondary);
     }
-    body.dark #darkModeToggle {
-      border-color: #bbb;
-      color: #eee;
+    
+    .card-category {
+      background-color: var(--color-primary-light);
+      color: var(--color-primary-dark);
+      padding: 0.25rem 0.5rem;
+      border-radius: var(--radius-sm);
+      font-weight: 500;
+    }
+    
+    [data-theme="dark"] .card-category {
+      background-color: var(--color-primary-dark);
+      color: var(--color-primary-light);
+    }
+    
+    /* Rodapé */
+    footer {
+      background-color: var(--color-card);
+      color: var(--color-text-secondary);
+      text-align: center;
+      padding: 1.5rem;
+      margin-top: auto;
+      border-top: 1px solid var(--color-border);
+    }
+    
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    /* Mensagem de nenhum resultado */
+    .no-results {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--color-text-secondary);
+      font-size: 1.2rem;
+    }
+    
+    /* Animações */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .card {
+      animation: fadeIn 0.3s ease-out;
+    }
+    
+    /* Responsividade */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .filter-container {
+        justify-content: space-between;
+      }
+      
+      .cards-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      }
+    }
+    
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.75rem;
+      }
+      
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .card-header {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .card-title {
+        margin-top: 0.5rem;
+      }
+    }
+    
+    /* Acessibilidade */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+    
+    /* Botão de voltar ao topo */
+    #backToTop {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: var(--color-primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: var(--shadow-md);
+      opacity: 0;
+      visibility: hidden;
+      transition: all var(--transition);
+      border: none;
+    }
+    
+    #backToTop.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    #backToTop:hover {
+      background-color: var(--color-primary-dark);
+      transform: translateY(-4px);
+    }
+    
+    /* Skeleton loading */
+    .skeleton {
+      background: linear-gradient(90deg, var(--color-card) 25%, var(--color-card-hover) 50%, var(--color-card) 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+      border-radius: var(--radius-sm);
+    }
+    
+    @keyframes loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Utilities Suite</h1>
-    <p class="subtitle">Índice de todos os arquivos HTML em <code>utilities/</code></p>
-    <button id="darkModeToggle" aria-pressed="false" aria-label="Ativar modo escuro">🌙</button>
+    <div class="header-content">
+      <h1>Utilities Suite</h1>
+      <p class="subtitle">Coleção de projetos e ferramentas interativas</p>
+    </div>
   </header>
-  <main>
-    <a class="card" href="site/utilities/buscaContextoPDFs.html" target="_blank" rel="noopener" aria-label="🕵️‍♂️ Caçador de Contexto PDF – abre em nova aba">
-      <div class="card-icon" aria-hidden="true">🔍</div>
-      <div class="card-title">🕵️‍♂️ Caçador de Contexto PDF</div>
-      <div class="card-desc">Clique para abrir.</div>
-    </a>
-    <a class="card" href="site/utilities/meetMotions.html" target="_blank" rel="noopener" aria-label="Copiloto de Evento Online - Modular – abre em nova aba">
-      <div class="card-icon" aria-hidden="true">🛠️</div>
-      <div class="card-title">Copiloto de Evento Online - Modular</div>
-      <div class="card-desc">Clique para abrir.</div>
-    </a>
-    <a class="card" href="site/utilities/qrCodeGenerator.html" target="_blank" rel="noopener" aria-label="Gerador Automático de QR Code – abre em nova aba">
-      <div class="card-icon" aria-hidden="true">💻</div>
-      <div class="card-title">Gerador Automático de QR Code</div>
-      <div class="card-desc">Clique para abrir.</div>
-    </a>
-  </main>
+  
+  <div class="container">
+    <div class="controls">
+      <div class="search-container">
+        <span class="search-icon" aria-hidden="true">🔍</span>
+        <input type="text" id="searchInput" placeholder="Buscar projetos..." aria-label="Buscar projetos">
+      </div>
+      <div class="filter-container">
+        <label for="categoryFilter" class="sr-only">Filtrar por categoria</label>
+        <select id="categoryFilter" aria-label="Filtrar por categoria">
+          <option value="all">Todas as categorias</option>
+          <!-- Categorias serão adicionadas via JavaScript -->
+        </select>
+        <button id="darkModeToggle" aria-pressed="false" aria-label="Alternar modo escuro">🌙</button>
+      </div>
+    </div>
+    
+    <div id="projectsContainer">
+      <!-- Conteúdo será gerado dinamicamente -->
+    </div>
+  </div>
+  
+  <footer>
+    <div class="footer-content">
+      <p>&copy; 2025 Rafael Passos Domingues. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+  
+  <button id="backToTop" aria-label="Voltar ao topo" title="Voltar ao topo">↑</button>
+  
   <script>
-    const toggleBtn = document.getElementById('darkModeToggle');
-    // Aplica preferência salva de darkMode
-    const darkPref = localStorage.getItem('darkMode');
-    if (darkPref === 'true') {
-      document.body.classList.add('dark');
-      toggleBtn.setAttribute('aria-pressed', 'true');
-      toggleBtn.textContent = '☀️';
+    // Dados dos projetos
+    const projects = [
+      {
+        id: "buscaContextoPDFs",
+        title: "🕵️‍♂️ Caçador de Contexto PDF",
+        description: "Clique para visualizar este projeto.",
+        icon: "📄",
+        category: "Outros",
+        path: "site/utilities/buscaContextoPDFs.html",
+        lastModified: "2025-06-01"
+      },
+      {
+        id: "meetMotions",
+        title: "Copiloto de Evento Online - Modular",
+        description: "Um copiloto para moderadores de eventos online",
+        icon: "🛠️",
+        category: "Outros",
+        path: "site/utilities/meetMotions.html",
+        lastModified: "2025-06-01"
+      },
+      {
+        id: "qrCodeGenerator",
+        title: "Gerador Avançado de QR Code PIX",
+        description: "Identifica automaticamente chaves PIX, links e outros dados",
+        icon: "💻",
+        category: "Outros",
+        path: "site/utilities/qrCodeGenerator.html",
+        lastModified: "2025-06-02"
+      },
+    ];
+    
+    // Função para aplicar tema escuro/claro
+    function applyTheme() {
+      const darkPref = localStorage.getItem('darkMode') === 'true';
+      document.body.setAttribute('data-theme', darkPref ? 'dark' : 'light');
+      const toggleBtn = document.getElementById('darkModeToggle');
+      toggleBtn.setAttribute('aria-pressed', darkPref.toString());
+      toggleBtn.textContent = darkPref ? '☀️' : '🌙';
     }
-    toggleBtn.addEventListener('click', () => {
-      document.body.classList.toggle('dark');
-      const isDark = document.body.classList.contains('dark');
-      toggleBtn.setAttribute('aria-pressed', isDark.toString());
-      toggleBtn.textContent = isDark ? '☀️' : '🌙';
-      localStorage.setItem('darkMode', isDark);
+    
+    // Aplicar tema inicial
+    applyTheme();
+    
+    // Função para organizar projetos por categoria
+    function organizeByCategory(projects) {
+      const categories = {};
+      
+      // Agrupar projetos por categoria
+      projects.forEach(project => {
+        if (!categories[project.category]) {
+          categories[project.category] = [];
+        }
+        categories[project.category].push(project);
+      });
+      
+      return categories;
+    }
+    
+    // Função para renderizar projetos
+    function renderProjects(filteredProjects) {
+      const container = document.getElementById('projectsContainer');
+      container.innerHTML = '';
+      
+      if (filteredProjects.length === 0) {
+        container.innerHTML = `
+          <div class="no-results">
+            <h2>Nenhum projeto encontrado</h2>
+            <p>Tente ajustar sua busca ou filtro.</p>
+          </div>
+        `;
+        return;
+      }
+      
+      // Organizar por categoria
+      const organizedProjects = organizeByCategory(filteredProjects);
+      
+      // Renderizar cada categoria
+      Object.keys(organizedProjects).sort().forEach(category => {
+        const categoryProjects = organizedProjects[category];
+        
+        const categorySection = document.createElement('section');
+        categorySection.innerHTML = `
+          <h2 class="category-title">${category}</h2>
+          <div class="cards-grid" id="category-${category.toLowerCase().replace(/\s+/g, '-')}"></div>
+        `;
+        container.appendChild(categorySection);
+        
+        const categoryGrid = categorySection.querySelector('.cards-grid');
+        
+        // Renderizar projetos desta categoria
+        categoryProjects.forEach(project => {
+          const card = document.createElement('a');
+          card.className = 'card';
+          card.href = project.path;
+          card.setAttribute('target', '_blank');
+          card.setAttribute('rel', 'noopener');
+          card.setAttribute('aria-label', `${project.title} – abre em nova aba`);
+          card.setAttribute('data-category', project.category);
+          card.setAttribute('data-id', project.id);
+          
+          card.innerHTML = `
+            <div class="card-header">
+              <div class="card-icon" aria-hidden="true">${project.icon}</div>
+              <div class="card-title">${project.title}</div>
+            </div>
+            <div class="card-body">
+              <div class="card-desc">${project.description}</div>
+              <div class="card-meta">
+                <span class="card-category">${project.category}</span>
+                <span class="card-date">${project.lastModified}</span>
+              </div>
+            </div>
+          `;
+          
+          categoryGrid.appendChild(card);
+        });
+      });
+    }
+    
+    // Função para popular o filtro de categorias
+    function populateCategoryFilter(projects) {
+      const categories = [...new Set(projects.map(project => project.category))].sort();
+      const select = document.getElementById('categoryFilter');
+      
+      categories.forEach(category => {
+        const option = document.createElement('option');
+        option.value = category;
+        option.textContent = category;
+        select.appendChild(option);
+      });
+    }
+    
+    // Função para filtrar projetos
+    function filterProjects() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const categoryFilter = document.getElementById('categoryFilter').value;
+      
+      let filtered = projects;
+      
+      // Filtrar por categoria
+      if (categoryFilter !== 'all') {
+        filtered = filtered.filter(project => project.category === categoryFilter);
+      }
+      
+      // Filtrar por termo de busca
+      if (searchTerm) {
+        filtered = filtered.filter(project => 
+          project.title.toLowerCase().includes(searchTerm) || 
+          project.description.toLowerCase().includes(searchTerm) ||
+          project.category.toLowerCase().includes(searchTerm)
+        );
+      }
+      
+      renderProjects(filtered);
+    }
+    
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', () => {
+      // Renderizar todos os projetos inicialmente
+      renderProjects(projects);
+      
+      // Popular filtro de categorias
+      populateCategoryFilter(projects);
+      
+      // Configurar eventos de filtro
+      document.getElementById('searchInput').addEventListener('input', filterProjects);
+      document.getElementById('categoryFilter').addEventListener('change', filterProjects);
+      
+      // Configurar toggle de tema escuro
+      const toggleBtn = document.getElementById('darkModeToggle');
+      toggleBtn.addEventListener('click', () => {
+        const isDark = localStorage.getItem('darkMode') === 'true';
+        localStorage.setItem('darkMode', (!isDark).toString());
+        applyTheme();
+      });
+      
+      // Botão voltar ao topo
+      const backToTopBtn = document.getElementById('backToTop');
+      
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+          backToTopBtn.classList.add('visible');
+        } else {
+          backToTopBtn.classList.remove('visible');
+        }
+      });
+      
+      backToTopBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+      
+      // Verificar preferência de tema do sistema
+      if (!localStorage.getItem('darkMode')) {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        localStorage.setItem('darkMode', prefersDark.toString());
+        applyTheme();
+      }
     });
   </script>
 </body>

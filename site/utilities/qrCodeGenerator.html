@@ -1,223 +1,1418 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Gerador Automático de QR Code</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerador Avançado de QR Code PIX</title>
 
-<style>
-:root {
-  --bg-color: #f2f2f2;
-  --text-color: #1c1c1c;
-  --primary-color: #002244;
-  --secondary-color: #fff9db;
-  --accent-color: #ffe066;
-}
+  <style>
+    /* ============================================================
+       SISTEMA DE DESIGN E VARIÁVEIS DE TEMA
+       - Esquema de cores adaptativo
+       - Suporte a modo escuro
+       - Variáveis CSS para consistência visual
+    ============================================================ */
+    :root {
+      --bg-color: #f5f7fa;
+      --text-color: #1c1c1c;
+      --primary-color: #002244;
+      --secondary-color: #fff9db;
+      --accent-color: #ffe066;
+      --error-color: #d9534f;
+      --success-color: #5cb85c;
+      --warning-color: #f0ad4e;
+      --info-color: #5bc0de;
+      --card-bg: #ffffff;
+      --card-shadow: rgba(0, 0, 0, 0.1);
+      --border-radius: 8px;
+      --transition-speed: 0.3s;
+      --font-main: 'Segoe UI', Arial, sans-serif;
+    }
 
-body {
-  font-family: Arial, sans-serif;
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+    /* ============================================================
+       RESET E ESTILOS BASE
+       - Normalização de estilos entre navegadores
+       - Configurações de acessibilidade
+    ============================================================ */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-header {
-  background-color: var(--primary-color);
-  color: var(--secondary-color);
-  padding: 1rem;
-  text-align: center;
-  width: 100%;
-  position: relative;
-}
+    body {
+      font-family: var(--font-main);
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      transition: background-color var(--transition-speed) ease, 
+                  color var(--transition-speed) ease;
+      line-height: 1.6;
+    }
 
-#darkModeBtn {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: transparent;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: var(--secondary-color);
-}
+    /* ============================================================
+       CABEÇALHO E NAVEGAÇÃO
+       - Layout responsivo
+       - Controle de tema (claro/escuro)
+    ============================================================ */
+    header {
+      background-color: var(--primary-color);
+      color: var(--secondary-color);
+      padding: 1.25rem;
+      text-align: center;
+      width: 100%;
+      position: relative;
+      box-shadow: 0 2px 8px var(--card-shadow);
+    }
 
-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 2rem;
-  width: 90%;
-  max-width: 500px;
-}
+    #darkModeBtn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--secondary-color);
+      transition: transform 0.2s;
+    }
 
-label {
-  margin-top: 1rem;
-  width: 100%;
-  font-weight: bold;
-}
+    #darkModeBtn:hover {
+      transform: scale(1.1);
+    }
 
-input[type="text"] {
-  width: 100%;
-  padding: 0.75rem;
-  margin-top: 0.5rem;
-  border: 2px solid var(--primary-color);
-  border-radius: 6px;
-  background-color: white;
-  color: var(--text-color);
-}
+    header h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.5rem;
+    }
 
-#dataType {
-  margin-top: 0.5rem;
-  font-style: italic;
-  color: #666;
-  align-self: flex-start;
-}
+    header p {
+      font-size: 1rem;
+      opacity: 0.9;
+    }
 
-#downloadBtn {
-  display: none;
-  margin-top: 1rem;
-}
+    /* ============================================================
+       LAYOUT PRINCIPAL E FORMULÁRIOS
+       - Design responsivo
+       - Acessibilidade aprimorada
+       - Feedback visual para interações
+    ============================================================ */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 2rem 0;
+      width: 90%;
+      max-width: 600px;
+    }
 
-canvas {
-  margin-top: 1rem;
-  background-color: white;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-  transition: transform 0.3s;
-}
+    .input-group {
+      width: 100%;
+      margin-bottom: 1.5rem;
+    }
 
-canvas:hover {
-  transform: scale(1.02);
-}
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      width: 100%;
+      font-weight: bold;
+      font-size: 1rem;
+    }
 
-footer {
-  text-align: center;
-  padding: 1rem;
-  background-color: var(--primary-color);
-  color: var(--secondary-color);
-  width: 100%;
-  margin-top: 2rem;
-}
+    input[type="text"] {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid var(--primary-color);
+      border-radius: var(--border-radius);
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      font-size: 1rem;
+      transition: border-color var(--transition-speed), 
+                  box-shadow var(--transition-speed),
+                  background-color var(--transition-speed), 
+                  color var(--transition-speed);
+    }
 
-body.dark-mode {
-  --bg-color: #121212;
-  --text-color: #e0e0e0;
-  --secondary-color: #444;
-  --accent-color: #666;
-}
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 5px var(--accent-color);
+    }
 
-body.dark-mode input[type="text"] {
-  background-color: #1c1c1c;
-  color: #e0e0e0;
-}
+    /* ============================================================
+       COMPONENTES DE INFORMAÇÃO
+       - Cards informativos
+       - Indicadores de status
+       - Exibição de metadados
+    ============================================================ */
+    .info-card {
+      margin-top: 0.75rem;
+      padding: 1rem;
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: 0 2px 8px var(--card-shadow);
+      width: 100%;
+      font-size: 0.95rem;
+      transition: background-color var(--transition-speed),
+                  box-shadow var(--transition-speed);
+    }
 
-body.dark-mode canvas {
-  background-color: #333;
-}
-</style>
+    #dataType {
+      display: flex;
+      align-items: center;
+      font-weight: 500;
+      color: var(--primary-color);
+    }
+
+    #dataType .icon {
+      margin-right: 0.5rem;
+      font-size: 1.2rem;
+    }
+
+    #linkInfo, #pixInfo {
+      display: none;
+      word-break: break-all;
+    }
+
+    .info-section {
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .info-section:first-child {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+    }
+
+    .info-title {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      color: var(--primary-color);
+    }
+
+    .info-row {
+      display: flex;
+      margin-bottom: 0.4rem;
+    }
+
+    .info-label {
+      font-weight: 500;
+      min-width: 120px;
+    }
+
+    .info-value {
+      flex: 1;
+    }
+
+    .security-badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      margin-left: 0.5rem;
+    }
+
+    .security-badge.secure {
+      background-color: var(--success-color);
+      color: white;
+    }
+
+    .security-badge.insecure {
+      background-color: var(--error-color);
+      color: white;
+    }
+
+    .security-badge.warning {
+      background-color: var(--warning-color);
+      color: white;
+    }
+
+    /* ============================================================
+       QR CODE E FUNCIONALIDADES DE DOWNLOAD
+       - Exibição responsiva
+       - Animações sutis
+       - Feedback visual
+    ============================================================ */
+    #qrcodeContainer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 1.5rem;
+      width: 100%;
+    }
+
+    #qrcode {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+
+    canvas {
+      background-color: var(--card-bg);
+      padding: 1rem;
+      border-radius: var(--border-radius);
+      box-shadow: 0 4px 12px var(--card-shadow);
+      transition: transform var(--transition-speed), 
+                  background-color var(--transition-speed),
+                  box-shadow var(--transition-speed);
+      max-width: 100%;
+      height: auto;
+    }
+
+    canvas:hover {
+      transform: scale(1.02);
+      box-shadow: 0 6px 16px var(--card-shadow);
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      width: 100%;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--secondary-color);
+      color: var(--primary-color);
+      border: 2px solid var(--primary-color);
+      padding: 0.75rem 1.25rem;
+      cursor: pointer;
+      border-radius: var(--border-radius);
+      font-weight: bold;
+      font-size: 1rem;
+      transition: background-color var(--transition-speed), 
+                  transform 0.2s, 
+                  border-color var(--transition-speed),
+                  color var(--transition-speed);
+    }
+
+    .btn:hover {
+      background-color: var(--accent-color);
+      border-color: var(--accent-color);
+      transform: translateY(-2px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn .icon {
+      margin-right: 0.5rem;
+    }
+
+    #downloadBtn, #copyBtn {
+      display: none;
+    }
+
+    /* ============================================================
+       RODAPÉ
+       - Informações de copyright
+       - Links úteis
+    ============================================================ */
+    footer {
+      text-align: center;
+      padding: 1.25rem;
+      background-color: var(--primary-color);
+      color: var(--secondary-color);
+      width: 100%;
+      margin-top: auto;
+      box-shadow: 0 -2px 8px var(--card-shadow);
+    }
+
+    footer a {
+      color: var(--accent-color);
+      text-decoration: none;
+      transition: color var(--transition-speed);
+    }
+
+    footer a:hover {
+      color: var(--secondary-color);
+      text-decoration: underline;
+    }
+
+    /* ============================================================
+       MODO ESCURO
+       - Inversão de cores com contraste adequado
+       - Transições suaves entre modos
+    ============================================================ */
+    body.dark-mode {
+      --bg-color: #121212;
+      --text-color: #e0e0e0;
+      --primary-color: #1a237e;
+      --secondary-color: #fafafa;
+      --accent-color: #ffca28;
+      --card-bg: #1e1e1e;
+      --card-shadow: rgba(0, 0, 0, 0.3);
+    }
+
+    body.dark-mode .info-section {
+      border-top-color: rgba(255,255,255,0.1);
+    }
+
+    body.dark-mode input[type="text"] {
+      background-color: #2a2a2a;
+      color: var(--text-color);
+      border-color: #444;
+    }
+
+    body.dark-mode input[type="text"]:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 5px var(--accent-color);
+    }
+
+    /* ============================================================
+       RESPONSIVIDADE
+       - Adaptações para dispositivos móveis
+       - Ajustes para telas pequenas
+    ============================================================ */
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 1.5rem;
+      }
+      
+      .button-group {
+        flex-direction: column;
+        width: 100%;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+      
+      .info-row {
+        flex-direction: column;
+      }
+      
+      .info-label {
+        min-width: auto;
+        margin-bottom: 0.25rem;
+      }
+    }
+  </style>
 </head>
 
 <body>
   <header>
-    <h1>Gerador Automático de QR Code</h1>
-    <button id="darkModeBtn" onclick="toggleDarkMode()">🌓</button>
+    <h1>Gerador Avançado de QR Code PIX</h1>
+    <p>Identifica automaticamente chaves PIX, links e outros dados</p>
+    <button id="darkModeBtn" aria-label="Alternar modo escuro" onclick="toggleDarkMode()">🌓</button>
   </header>
 
   <main>
-    <label for="qrInput">Digite algo (link, texto, e-mail, celular ou chave PIX):</label>
-    <input type="text" id="qrInput" placeholder="Ex: https://exemplo.com" />
+    <!-- Seção de entrada de dados -->
+    <div class="input-group">
+      <label for="qrInput">Digite uma chave PIX, link ou outro texto:</label>
+      <input 
+        type="text" 
+        id="qrInput" 
+        placeholder="Ex: email@exemplo.com, 11987654321, CPF, chave aleatória..." 
+        aria-describedby="dataType"
+      />
+    </div>
 
-    <div id="dataType">Tipo de dado: -</div>
+    <!-- Exibição do tipo de dado detectado -->
+    <div id="dataType" class="info-card">
+      <span class="icon">📋</span> Tipo de dado: aguardando entrada...
+    </div>
 
-    <div id="qrcodeContainer" style="display: flex; flex-direction: column; align-items: center;">
+    <!-- Informações detalhadas para links -->
+    <div id="linkInfo" class="info-card">
+      <!-- Conteúdo preenchido via JavaScript -->
+    </div>
+
+    <!-- Informações detalhadas para chaves PIX -->
+    <div id="pixInfo" class="info-card">
+      <!-- Conteúdo preenchido via JavaScript -->
+    </div>
+
+    <!-- Container para QR Code gerado e botões de ação -->
+    <div id="qrcodeContainer">
       <div id="qrcode"></div>
-      <button id="downloadBtn">⬇️ Baixar QR Code</button>
+      <div class="button-group">
+        <button id="downloadBtn" class="btn">
+          <span class="icon">⬇️</span> Baixar QR Code
+        </button>
+        <button id="copyBtn" class="btn">
+          <span class="icon">📋</span> Copiar QR Code
+        </button>
+      </div>
     </div>
   </main>
 
   <footer>
-    &copy; 2025 Rafael Passos Domingues
+    &copy; 2025 Gerador Avançado de QR Code PIX | Desenvolvido por Rafael Passos Domingues
   </footer>
 
+  <!-- Biblioteca QR Code -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-
+  
   <script>
-  /**
-   * ⚡ Detecta automaticamente o tipo de dado
-   */
-  function detectDataType(text) {
-    if (!text) return '-';
-    const urlRegex = /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/[\w\-./?%&=]*)?$/i;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const phoneRegex = /^\+?\d{10,15}$/;
-    const pixKeyRegex = /^[a-f0-9\-]{36}$/i; // UUID para chave aleatória PIX
-    const isNumeric = /^\d{11}$/.test(text); // Celular simples (11 dígitos Brasil)
-
-    if (urlRegex.test(text)) return '🔗 Link';
-    if (emailRegex.test(text)) return '✉️ E-mail';
-    if (pixKeyRegex.test(text)) return '💳 Chave PIX (Aleatória)';
-    if (phoneRegex.test(text) || isNumeric) return '📱 Celular / PIX Celular';
-    return '📝 Texto simples';
-  }
-
-  /**
-   * 🎨 Gera o QR Code em tempo real
-   */
-  function generateQRCode(text) {
-    const qrcodeContainer = document.getElementById('qrcode');
-    qrcodeContainer.innerHTML = '';
-
-    if (!text) {
-      document.getElementById('downloadBtn').style.display = 'none';
-      return;
+    /* ============================================================
+     * SISTEMA DE DETECÇÃO E VALIDAÇÃO DE DADOS
+     * 
+     * Este módulo implementa validações robustas para diferentes
+     * tipos de dados, com foco especial em chaves PIX brasileiras.
+     * Inclui validação de CPF/CNPJ, telefone, e-mail, chaves
+     * aleatórias e links, com verificações de segurança.
+     * ============================================================ */
+    
+    /**
+     * Detecta e valida o tipo de dado inserido pelo usuário
+     * 
+     * Implementa validações específicas para cada tipo de dado:
+     * - Chaves PIX (CPF, CNPJ, telefone, e-mail, aleatória)
+     * - URLs (com verificação de segurança)
+     * - Outros formatos (Bitcoin, Ethereum, texto simples)
+     * 
+     * @param {string} text - Texto a ser analisado
+     * @returns {Object} Objeto contendo tipo de dado e metadados
+     */
+    function detectDataType(text) {
+      // Valor padrão para retorno
+      const defaultResult = {
+        type: '-',
+        icon: '📋',
+        isValid: false,
+        metadata: {}
+      };
+      
+      if (!text || text.trim() === '') return defaultResult;
+      
+      text = text.trim();
+      
+      // ========== VALIDAÇÃO DE LINKS ==========
+      const urlResult = validateUrl(text);
+      if (urlResult.isValid) return urlResult;
+      
+      // ========== VALIDAÇÃO DE E-MAIL ==========
+      const emailResult = validateEmail(text);
+      if (emailResult.isValid) return emailResult;
+      
+      // ========== VALIDAÇÃO DE CPF ==========
+      const cpfResult = validateCpf(text);
+      if (cpfResult.isValid) return cpfResult;
+      
+      // ========== VALIDAÇÃO DE CNPJ ==========
+      const cnpjResult = validateCnpj(text);
+      if (cnpjResult.isValid) return cnpjResult;
+      
+      // ========== VALIDAÇÃO DE TELEFONE ==========
+      const phoneResult = validatePhone(text);
+      if (phoneResult.isValid) return phoneResult;
+      
+      // ========== VALIDAÇÃO DE CHAVE PIX ALEATÓRIA ==========
+      const pixRandomResult = validatePixRandom(text);
+      if (pixRandomResult.isValid) return pixRandomResult;
+      
+      // ========== VALIDAÇÃO DE CRIPTOMOEDAS ==========
+      
+      // Bitcoin (começa com 1, 3 ou bc1, 26-35 caracteres)
+      const btcRegex = /^(1|3|bc1)[a-zA-HJ-NP-Z0-9]{25,59}$/;
+      if (btcRegex.test(text)) {
+        return {
+          type: 'Endereço Bitcoin',
+          icon: '₿',
+          isValid: true,
+          metadata: {
+            format: text.startsWith('bc1') ? 'Bech32' : (text.startsWith('3') ? 'P2SH' : 'P2PKH')
+          }
+        };
+      }
+      
+      // Ethereum (0x + 40 caracteres hexadecimais)
+      const ethRegex = /^0x[a-fA-F0-9]{40}$/;
+      if (ethRegex.test(text)) {
+        return {
+          type: 'Endereço Ethereum',
+          icon: 'Ξ',
+          isValid: true,
+          metadata: {}
+        };
+      }
+      
+      // ========== TEXTO SIMPLES ==========
+      return {
+        type: 'Texto simples',
+        icon: '📝',
+        isValid: true,
+        metadata: {
+          length: text.length,
+          hasSpecialChars: /[^a-zA-Z0-9\s]/.test(text)
+        }
+      };
     }
-
-    QRCode.toCanvas(text, {
-      errorCorrectionLevel: 'H',
-      width: 250,
-      margin: 2,
-      color: { dark: "#000", light: "#FFF" }
-    }, function (err, canvas) {
-      if (err) {
-        console.error(err);
+    
+    /**
+     * Valida URLs e verifica sua segurança
+     * 
+     * Analisa se o texto é uma URL válida, adiciona protocolo
+     * se necessário e verifica se é uma conexão segura (HTTPS).
+     * 
+     * @param {string} text - Texto a ser validado como URL
+     * @returns {Object} Resultado da validação com metadados
+     */
+    function validateUrl(text) {
+      try {
+        // Adiciona protocolo se não existir
+        const candidate = /^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//.test(text)
+          ? text
+          : 'https://' + text;
+        
+        const parsed = new URL(candidate);
+        const hostname = parsed.hostname.toLowerCase();
+        
+        // Verifica se é um domínio válido (com ponto e não apenas IP)
+        if (hostname.includes('.') && !/^[\d.]+$/.test(hostname)) {
+          const isSecure = parsed.protocol === 'https:';
+          
+          // Lista de domínios potencialmente perigosos (exemplo)
+          const suspiciousDomains = [
+            'example-malware.com',
+            'phishing-example.net',
+            'malware-example.org'
+          ];
+          
+          // Verifica se o domínio está na lista de suspeitos
+          const isSuspicious = suspiciousDomains.some(domain => 
+            hostname === domain || hostname.endsWith('.' + domain)
+          );
+          
+          return {
+            type: isSecure 
+              ? 'Link Seguro (HTTPS)' 
+              : 'Link Não Seguro (HTTP)',
+            icon: isSecure ? '🔒' : '⚠️',
+            isValid: true,
+            isSecure: isSecure,
+            isSuspicious: isSuspicious,
+            metadata: {
+              protocol: parsed.protocol,
+              hostname: hostname,
+              pathname: parsed.pathname,
+              port: parsed.port || (isSecure ? '443' : '80'),
+              search: parsed.search,
+              hash: parsed.hash,
+              fullUrl: parsed.toString()
+            }
+          };
+        }
+      } catch (e) {
+        // Não é uma URL válida
+      }
+      
+      return { isValid: false };
+    }
+    
+    /**
+     * Valida endereços de e-mail
+     * 
+     * Implementa validação robusta de e-mail, verificando formato,
+     * domínio e outras características.
+     * 
+     * @param {string} text - Texto a ser validado como e-mail
+     * @returns {Object} Resultado da validação com metadados
+     */
+    function validateEmail(text) {
+      // Regex mais robusta para e-mail
+      const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+      
+      if (!emailRegex.test(text)) {
+        return { isValid: false };
+      }
+      
+      const parts = text.split('@');
+      const localPart = parts[0];
+      const domain = parts[1];
+      
+      // Mapeamento de alguns domínios de e-mail para bancos (para PIX)
+      const bankEmailDomains = {
+        'nubank.com.br': 'Nubank',
+        'itau.com.br': 'Itaú',
+        'bradesco.com.br': 'Bradesco',
+        'santander.com.br': 'Santander',
+        'bb.com.br': 'Banco do Brasil',
+        'caixa.gov.br': 'Caixa Econômica Federal',
+        'banrisul.com.br': 'Banrisul',
+        'inter.co': 'Banco Inter',
+        'original.com.br': 'Banco Original',
+        'c6bank.com.br': 'C6 Bank',
+        'btgpactual.com': 'BTG Pactual'
+      };
+      
+      // Tenta identificar o banco pelo domínio do e-mail
+      let bankName = null;
+      for (const [bankDomain, name] of Object.entries(bankEmailDomains)) {
+        if (domain.endsWith(bankDomain)) {
+          bankName = name;
+          break;
+        }
+      }
+      
+      return {
+        type: 'E-mail / Chave PIX',
+        icon: '✉️',
+        isValid: true,
+        isPix: true,
+        metadata: {
+          localPart: localPart,
+          domain: domain,
+          bankName: bankName || 'Não identificado',
+          pixType: 'E-mail'
+        }
+      };
+    }
+    
+    /**
+     * Valida números de CPF
+     * 
+     * Implementa validação completa de CPF, incluindo verificação
+     * de dígitos e formatação.
+     * 
+     * @param {string} text - Texto a ser validado como CPF
+     * @returns {Object} Resultado da validação com metadados
+     */
+    function validateCpf(text) {
+      // Remove caracteres não numéricos
+      const cpfClean = text.replace(/\D/g, '');
+      
+      // Verifica se tem 11 dígitos
+      if (cpfClean.length !== 11) {
+        return { isValid: false };
+      }
+      
+      // Verifica se todos os dígitos são iguais (CPF inválido)
+      if (/^(\d)\1{10}$/.test(cpfClean)) {
+        return { 
+          type: 'CPF Inválido (dígitos repetidos)',
+          icon: '⚠️',
+          isValid: false
+        };
+      }
+      
+      // Algoritmo de validação do CPF
+      let sum = 0;
+      let remainder;
+      
+      // Primeiro dígito verificador
+      for (let i = 1; i <= 9; i++) {
+        sum += parseInt(cpfClean.substring(i - 1, i)) * (11 - i);
+      }
+      
+      remainder = (sum * 10) % 11;
+      if (remainder === 10 || remainder === 11) {
+        remainder = 0;
+      }
+      
+      if (remainder !== parseInt(cpfClean.substring(9, 10))) {
+        return { 
+          type: 'CPF Inválido (dígito verificador)',
+          icon: '⚠️',
+          isValid: false
+        };
+      }
+      
+      // Segundo dígito verificador
+      sum = 0;
+      for (let i = 1; i <= 10; i++) {
+        sum += parseInt(cpfClean.substring(i - 1, i)) * (12 - i);
+      }
+      
+      remainder = (sum * 10) % 11;
+      if (remainder === 10 || remainder === 11) {
+        remainder = 0;
+      }
+      
+      if (remainder !== parseInt(cpfClean.substring(10, 11))) {
+        return { 
+          type: 'CPF Inválido (dígito verificador)',
+          icon: '⚠️',
+          isValid: false
+        };
+      }
+      
+      // CPF válido - formata para exibição
+      const formattedCpf = cpfClean.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+      
+      // Identificação de região pelo primeiro dígito
+      const regionMap = {
+        '0': 'RS',
+        '1': 'DF, GO, MT, MS, TO',
+        '2': 'AC, AM, AP, PA, RO, RR',
+        '3': 'CE, MA, PI',
+        '4': 'AL, PB, PE, RN',
+        '5': 'BA, SE',
+        '6': 'MG',
+        '7': 'ES, RJ',
+        '8': 'SP',
+        '9': 'PR, SC'
+      };
+      
+      const region = regionMap[cpfClean[8]] || 'Desconhecida';
+      
+      return {
+        type: 'CPF / Chave PIX',
+        icon: '💳',
+        isValid: true,
+        isPix: true,
+        metadata: {
+          cpf: formattedCpf,
+          region: region,
+          pixType: 'CPF'
+        }
+      };
+    }
+    
+    /**
+     * Valida números de CNPJ
+     * 
+     * Implementa validação completa de CNPJ, incluindo verificação
+     * de dígitos e formatação.
+     * 
+     * @param {string} text - Texto a ser validado como CNPJ
+     * @returns {Object} Resultado da validação com metadados
+     */
+    function validateCnpj(text) {
+      // Remove caracteres não numéricos
+      const cnpjClean = text.replace(/\D/g, '');
+      
+      // Verifica se tem 14 dígitos
+      if (cnpjClean.length !== 14) {
+        return { isValid: false };
+      }
+      
+      // Verifica se todos os dígitos são iguais (CNPJ inválido)
+      if (/^(\d)\1{13}$/.test(cnpjClean)) {
+        return { 
+          type: 'CNPJ Inválido (dígitos repetidos)',
+          icon: '⚠️',
+          isValid: false
+        };
+      }
+      
+      // Algoritmo de validação do CNPJ
+      let size = cnpjClean.length - 2;
+      let numbers = cnpjClean.substring(0, size);
+      const digits = cnpjClean.substring(size);
+      let sum = 0;
+      let pos = size - 7;
+      
+      // Primeiro dígito verificador
+      for (let i = size; i >= 1; i--) {
+        sum += numbers.charAt(size - i) * pos--;
+        if (pos < 2) pos = 9;
+      }
+      
+      let result = sum % 11 < 2 ? 0 : 11 - sum % 11;
+      if (result !== parseInt(digits.charAt(0))) {
+        return { 
+          type: 'CNPJ Inválido (dígito verificador)',
+          icon: '⚠️',
+          isValid: false
+        };
+      }
+      
+      // Segundo dígito verificador
+      size = size + 1;
+      numbers = cnpjClean.substring(0, size);
+      sum = 0;
+      pos = size - 7;
+      
+      for (let i = size; i >= 1; i--) {
+        sum += numbers.charAt(size - i) * pos--;
+        if (pos < 2) pos = 9;
+      }
+      
+      result = sum % 11 < 2 ? 0 : 11 - sum % 11;
+      if (result !== parseInt(digits.charAt(1))) {
+        return { 
+          type: 'CNPJ Inválido (dígito verificador)',
+          icon: '⚠️',
+          isValid: false
+        };
+      }
+      
+      // CNPJ válido - formata para exibição
+      const formattedCnpj = cnpjClean.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+      
+      return {
+        type: 'CNPJ / Chave PIX',
+        icon: '🏢',
+        isValid: true,
+        isPix: true,
+        metadata: {
+          cnpj: formattedCnpj,
+          pixType: 'CNPJ'
+        }
+      };
+    }
+    
+    /**
+     * Valida números de telefone brasileiros
+     * 
+     * Implementa validação robusta de telefones, suportando
+     * diferentes formatos e verificando DDD válido.
+     * 
+     * @param {string} text - Texto a ser validado como telefone
+     * @returns {Object} Resultado da validação com metadados
+     */
+    function validatePhone(text) {
+      // Remove caracteres não numéricos
+      const phoneClean = text.replace(/\D/g, '');
+      
+      // Verifica formatos válidos de telefone brasileiro
+      // - Com código do país: +55 11 98765-4321 (13 dígitos)
+      // - Sem código do país: 11 98765-4321 (11 dígitos)
+      // - Apenas DDD e número: 11987654321 (10-11 dígitos)
+      if (![10, 11, 13].includes(phoneClean.length)) {
+        return { isValid: false };
+      }
+      
+      let countryCode = '';
+      let areaCode = '';
+      let number = '';
+      
+      // Extrai as partes do telefone
+      if (phoneClean.length === 13) {
+        // Formato com código do país (+55)
+        countryCode = phoneClean.substring(0, 2);
+        areaCode = phoneClean.substring(2, 4);
+        number = phoneClean.substring(4);
+        
+        // Verifica se o código do país é válido para Brasil
+        if (countryCode !== '55') {
+          return { 
+            type: 'Telefone (Internacional)',
+            icon: '📱',
+            isValid: true,
+            isPix: false,
+            metadata: {
+              countryCode: '+' + countryCode,
+              areaCode: areaCode,
+              number: number.replace(/(\d{5})(\d{4})/, '$1-$2')
+            }
+          };
+        }
+      } else if (phoneClean.length === 11) {
+        // Formato com DDD e 9 dígitos
+        areaCode = phoneClean.substring(0, 2);
+        number = phoneClean.substring(2);
+      } else {
+        // Formato com DDD e 8 dígitos (telefone fixo)
+        areaCode = phoneClean.substring(0, 2);
+        number = phoneClean.substring(2);
+      }
+      
+      // Verifica se o DDD é válido (códigos de área do Brasil)
+      const validDDDs = [
+        '11', '12', '13', '14', '15', '16', '17', '18', '19', // SP
+        '21', '22', '24', '27', '28', // RJ, ES
+        '31', '32', '33', '34', '35', '37', '38', // MG
+        '41', '42', '43', '44', '45', '46', '47', '48', '49', // PR, SC
+        '51', '53', '54', '55', // RS
+        '61', '62', '63', '64', '65', '66', '67', '68', '69', // Centro-Oeste e Norte
+        '71', '73', '74', '75', '77', '79', // BA, SE
+        '81', '82', '83', '84', '85', '86', '87', '88', '89', // Nordeste
+        '91', '92', '93', '94', '95', '96', '97', '98', '99' // Norte
+      ];
+      
+      if (!validDDDs.includes(areaCode)) {
+        return { 
+          type: 'Telefone (DDD inválido)',
+          icon: '⚠️',
+          isValid: false
+        };
+      }
+      
+      // Verifica se é celular (começa com 9) - apenas celulares são válidos para PIX
+      const isMobile = number.startsWith('9');
+      
+      // Formata o número para exibição
+      const formattedNumber = isMobile 
+        ? number.replace(/(\d{5})(\d{4})/, '$1-$2')
+        : number.replace(/(\d{4})(\d{4})/, '$1-$2');
+      
+      // Mapeamento de alguns DDDs para estados
+      const dddToState = {
+        '11': 'São Paulo (Capital)',
+        '21': 'Rio de Janeiro (Capital)',
+        '31': 'Minas Gerais (Belo Horizonte)',
+        '41': 'Paraná (Curitiba)',
+        '51': 'Rio Grande do Sul (Porto Alegre)',
+        '61': 'Distrito Federal (Brasília)',
+        '71': 'Bahia (Salvador)',
+        '81': 'Pernambuco (Recife)',
+        '91': 'Pará (Belém)'
+      };
+      
+      return {
+        type: isMobile ? 'Celular / Chave PIX' : 'Telefone Fixo',
+        icon: '📱',
+        isValid: true,
+        isPix: isMobile, // Apenas celulares são válidos para PIX
+        metadata: {
+          countryCode: countryCode ? '+' + countryCode : '+55',
+          areaCode: areaCode,
+          number: formattedNumber,
+          fullNumber: `+55 (${areaCode}) ${formattedNumber}`,
+          region: dddToState[areaCode] || 'Brasil',
+          isMobile: isMobile,
+          pixType: isMobile ? 'Telefone' : null
+        }
+      };
+    }
+    
+    /**
+     * Valida chaves PIX aleatórias (UUID)
+     * 
+     * Verifica se o texto corresponde ao formato de chave
+     * aleatória PIX (UUID).
+     * 
+     * @param {string} text - Texto a ser validado como chave PIX aleatória
+     * @returns {Object} Resultado da validação com metadados
+     */
+    function validatePixRandom(text) {
+      // Regex para UUID (chave aleatória PIX)
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      
+      if (!uuidRegex.test(text)) {
+        return { isValid: false };
+      }
+      
+      return {
+        type: 'Chave PIX Aleatória',
+        icon: '🔑',
+        isValid: true,
+        isPix: true,
+        metadata: {
+          uuid: text.toLowerCase(),
+          pixType: 'Chave aleatória'
+        }
+      };
+    }
+    
+    /* ============================================================
+     * SISTEMA DE GERAÇÃO E MANIPULAÇÃO DE QR CODE
+     * 
+     * Este módulo implementa a geração de QR Codes otimizados,
+     * com suporte a download e cópia para área de transferência.
+     * ============================================================ */
+    
+    /**
+     * Gera QR Code a partir do texto fornecido
+     * 
+     * Cria um QR Code otimizado com alta correção de erros,
+     * permitindo personalização visual e download.
+     * 
+     * @param {string} text - Texto para gerar o QR Code
+     * @param {Object} dataInfo - Informações sobre o tipo de dado
+     */
+    function generateQRCode(text, dataInfo) {
+      const qrcodeContainer = document.getElementById('qrcode');
+      qrcodeContainer.innerHTML = '';
+      
+      const downloadBtn = document.getElementById('downloadBtn');
+      const copyBtn = document.getElementById('copyBtn');
+      
+      if (!text) {
+        downloadBtn.style.display = 'none';
+        copyBtn.style.display = 'none';
         return;
       }
-      qrcodeContainer.appendChild(canvas);
-
-      const fileName = 'qrcode_' + text.substring(0, 10).replace(/[^a-zA-Z0-9]/g, '_');
-      const downloadBtn = document.getElementById('downloadBtn');
-      downloadBtn.style.display = 'inline-block';
-      downloadBtn.onclick = function() {
-        const link = document.createElement('a');
-        link.download = fileName + '.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+      
+      // Configurações avançadas para o QR Code
+      const qrOptions = {
+        errorCorrectionLevel: 'H', // Alta correção de erros
+        width: 280,
+        margin: 4,
+        color: {
+          dark: "#000000",
+          light: "#FFFFFF"
+        }
       };
+      
+      // Gera o QR Code
+      QRCode.toCanvas(text, qrOptions, function (err, canvas) {
+        if (err) {
+          console.error('Erro ao gerar QR Code:', err);
+          return;
+        }
+        
+        qrcodeContainer.appendChild(canvas);
+        
+        // Prepara nome de arquivo seguro para download
+        let fileName = 'qrcode';
+        
+        // Adiciona prefixo baseado no tipo de dado
+        if (dataInfo && dataInfo.isValid) {
+          if (dataInfo.isPix) {
+            fileName = 'pix';
+            
+            // Adiciona tipo específico de PIX
+            if (dataInfo.metadata && dataInfo.metadata.pixType) {
+              const pixType = dataInfo.metadata.pixType.toLowerCase()
+                .replace(/\s+/g, '_')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, ''); // Remove acentos
+              
+              fileName += '_' + pixType;
+            }
+          } else if (dataInfo.type.includes('Link')) {
+            fileName = 'link';
+          } else if (dataInfo.type.includes('Bitcoin')) {
+            fileName = 'btc';
+          } else if (dataInfo.type.includes('Ethereum')) {
+            fileName = 'eth';
+          }
+        }
+        
+        // Adiciona parte do conteúdo ao nome do arquivo (limitado e sanitizado)
+        const contentPart = text.substring(0, 20)
+          .replace(/[^a-zA-Z0-9]/g, '_')
+          .toLowerCase();
+        
+        fileName += '_' + contentPart;
+        
+        // Configura botão de download
+        downloadBtn.style.display = 'inline-flex';
+        downloadBtn.onclick = function() {
+          const link = document.createElement('a');
+          link.download = fileName + '.png';
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        };
+        
+        // Configura botão de cópia
+        copyBtn.style.display = 'inline-flex';
+        copyBtn.onclick = function() {
+          canvas.toBlob(function(blob) {
+            try {
+              // Tenta usar a API moderna de área de transferência
+              navigator.clipboard.write([
+                new ClipboardItem({ 'image/png': blob })
+              ]).then(() => {
+                alert('QR Code copiado para a área de transferência!');
+              }).catch(err => {
+                console.error('Erro ao copiar QR Code:', err);
+                alert('Não foi possível copiar o QR Code. Use o botão de download.');
+              });
+            } catch (e) {
+              alert('Seu navegador não suporta cópia de imagens. Use o botão de download.');
+            }
+          });
+        };
+      });
+    }
+    
+    /* ============================================================
+     * SISTEMA DE INFORMAÇÕES DETALHADAS
+     * 
+     * Este módulo gera informações detalhadas sobre os dados
+     * detectados, como detalhes de links e chaves PIX.
+     * ============================================================ */
+    
+    /**
+     * Exibe informações detalhadas sobre links
+     * 
+     * Analisa e exibe metadados de URLs, incluindo protocolo,
+     * domínio, caminho e informações de segurança.
+     * 
+     * @param {Object} urlInfo - Informações da URL validada
+     */
+    function displayLinkInfo(urlInfo) {
+      const infoBox = document.getElementById('linkInfo');
+      infoBox.style.display = 'none';
+      infoBox.innerHTML = '';
+      
+      if (!urlInfo || !urlInfo.isValid) return;
+      
+      const metadata = urlInfo.metadata;
+      const isSecure = urlInfo.isSecure;
+      const isSuspicious = urlInfo.isSuspicious;
+      
+      let securityBadge = '';
+      if (isSecure && !isSuspicious) {
+        securityBadge = '<span class="security-badge secure">SEGURO</span>';
+      } else if (!isSecure && !isSuspicious) {
+        securityBadge = '<span class="security-badge warning">NÃO SEGURO</span>';
+      } else {
+        securityBadge = '<span class="security-badge insecure">SUSPEITO</span>';
+      }
+      
+      let html = `
+        <div class="info-section">
+          <div class="info-title">Informações do Link ${securityBadge}</div>
+          
+          <div class="info-row">
+            <div class="info-label">URL Completa:</div>
+            <div class="info-value">${metadata.fullUrl}</div>
+          </div>
+          
+          <div class="info-row">
+            <div class="info-label">Protocolo:</div>
+            <div class="info-value">${metadata.protocol.replace(':', '')}</div>
+          </div>
+          
+          <div class="info-row">
+            <div class="info-label">Domínio:</div>
+            <div class="info-value">${metadata.hostname}</div>
+          </div>
+      `;
+      
+      if (metadata.port && metadata.port !== '80' && metadata.port !== '443') {
+        html += `
+          <div class="info-row">
+            <div class="info-label">Porta:</div>
+            <div class="info-value">${metadata.port}</div>
+          </div>
+        `;
+      }
+      
+      if (metadata.pathname && metadata.pathname !== '/') {
+        html += `
+          <div class="info-row">
+            <div class="info-label">Caminho:</div>
+            <div class="info-value">${metadata.pathname}</div>
+          </div>
+        `;
+      }
+      
+      if (metadata.search) {
+        html += `
+          <div class="info-row">
+            <div class="info-label">Parâmetros:</div>
+            <div class="info-value">${metadata.search}</div>
+          </div>
+        `;
+      }
+      
+      html += `
+        <div class="info-row">
+          <div class="info-label">Recomendação:</div>
+          <div class="info-value">
+            ${isSecure && !isSuspicious 
+              ? 'Este link usa HTTPS, o que ajuda a proteger a conexão.' 
+              : 'Tenha cuidado ao acessar este link. Verifique se o domínio é confiável.'}
+          </div>
+        </div>
+      `;
+      
+      html += '</div>';
+      
+      infoBox.innerHTML = html;
+      infoBox.style.display = 'block';
+      
+      // Oculta informações de PIX quando exibindo informações de link
+      document.getElementById('pixInfo').style.display = 'none';
+    }
+    
+    /**
+     * Exibe informações detalhadas sobre chaves PIX
+     * 
+     * Analisa e exibe metadados de chaves PIX, incluindo tipo,
+     * banco (quando identificável) e outras informações relevantes.
+     * 
+     * @param {Object} pixInfo - Informações da chave PIX validada
+     */
+    function displayPixInfo(pixInfo) {
+      const infoBox = document.getElementById('pixInfo');
+      infoBox.style.display = 'none';
+      infoBox.innerHTML = '';
+      
+      if (!pixInfo || !pixInfo.isValid || !pixInfo.isPix) return;
+      
+      const metadata = pixInfo.metadata;
+      const pixType = metadata.pixType;
+      
+      let html = `
+        <div class="info-section">
+          <div class="info-title">Informações da Chave PIX</div>
+          
+          <div class="info-row">
+            <div class="info-label">Tipo de Chave:</div>
+            <div class="info-value">${pixType}</div>
+          </div>
+      `;
+      
+      // Informações específicas por tipo de chave PIX
+      switch (pixType) {
+        case 'CPF':
+          html += `
+            <div class="info-row">
+              <div class="info-label">CPF:</div>
+              <div class="info-value">${metadata.cpf}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">Região Fiscal:</div>
+              <div class="info-value">${metadata.region}</div>
+            </div>
+          `;
+          break;
+          
+        case 'CNPJ':
+          html += `
+            <div class="info-row">
+              <div class="info-label">CNPJ:</div>
+              <div class="info-value">${metadata.cnpj}</div>
+            </div>
+          `;
+          break;
+          
+        case 'Telefone':
+          html += `
+            <div class="info-row">
+              <div class="info-label">Número:</div>
+              <div class="info-value">${metadata.fullNumber}</div>
+            </div>
+            <div class="info-row">
+              <div class="info-label">Região:</div>
+              <div class="info-value">${metadata.region}</div>
+            </div>
+          `;
+          break;
+          
+        case 'E-mail':
+          html += `
+            <div class="info-row">
+              <div class="info-label">E-mail:</div>
+              <div class="info-value">${metadata.localPart}@${metadata.domain}</div>
+            </div>
+          `;
+          
+          if (metadata.bankName && metadata.bankName !== 'Não identificado') {
+            html += `
+              <div class="info-row">
+                <div class="info-label">Possível Banco:</div>
+                <div class="info-value">${metadata.bankName}</div>
+              </div>
+            `;
+          }
+          break;
+          
+        case 'Chave aleatória':
+          html += `
+            <div class="info-row">
+              <div class="info-label">UUID:</div>
+              <div class="info-value">${metadata.uuid}</div>
+            </div>
+          `;
+          break;
+      }
+      
+      html += `
+        <div class="info-row">
+          <div class="info-label">Observação:</div>
+          <div class="info-value">
+            Este QR Code pode ser usado para pagamentos via PIX.
+            Confirme sempre os dados do destinatário antes de efetuar pagamentos.
+          </div>
+        </div>
+      `;
+      
+      html += '</div>';
+      
+      infoBox.innerHTML = html;
+      infoBox.style.display = 'block';
+      
+      // Oculta informações de link quando exibindo informações de PIX
+      document.getElementById('linkInfo').style.display = 'none';
+    }
+    
+    /* ============================================================
+     * SISTEMA DE INTERFACE E INTERAÇÃO
+     * 
+     * Este módulo gerencia a interface do usuário, incluindo
+     * eventos, modo escuro e atualizações em tempo real.
+     * ============================================================ */
+    
+    /**
+     * Atualiza a interface com base no texto inserido
+     * 
+     * Processa o texto inserido, detecta o tipo de dado,
+     * gera o QR Code e exibe informações relevantes.
+     */
+    function updateInterface() {
+      const inputElement = document.getElementById('qrInput');
+      const text = inputElement.value.trim();
+      const dataTypeElement = document.getElementById('dataType');
+      
+      // Detecta o tipo de dado
+      const dataInfo = detectDataType(text);
+      
+      // Atualiza o indicador de tipo de dado
+      if (dataInfo.isValid) {
+        dataTypeElement.innerHTML = `<span class="icon">${dataInfo.icon}</span> Tipo de dado: ${dataInfo.type}`;
+      } else {
+        dataTypeElement.innerHTML = `<span class="icon">📋</span> Tipo de dado: aguardando entrada válida...`;
+      }
+      
+      // Exibe informações específicas com base no tipo de dado
+      if (dataInfo.type.includes('Link')) {
+        displayLinkInfo(dataInfo);
+      } else if (dataInfo.isPix) {
+        displayPixInfo(dataInfo);
+      } else {
+        document.getElementById('linkInfo').style.display = 'none';
+        document.getElementById('pixInfo').style.display = 'none';
+      }
+      
+      // Gera o QR Code
+      generateQRCode(text, dataInfo);
+    }
+    
+    /**
+     * Alterna entre modo claro e escuro
+     * 
+     * Implementa a funcionalidade de alternar entre temas,
+     * salvando a preferência do usuário.
+     */
+    function toggleDarkMode() {
+      const body = document.body;
+      body.classList.toggle('dark-mode');
+      
+      // Salva a preferência do usuário
+      const isDarkMode = body.classList.contains('dark-mode');
+      localStorage.setItem('darkMode', isDarkMode);
+      
+      // Atualiza o ícone do botão
+      const darkModeBtn = document.getElementById('darkModeBtn');
+      darkModeBtn.textContent = isDarkMode ? '☀️' : '🌓';
+    }
+    
+    /* ============================================================
+     * INICIALIZAÇÃO E CONFIGURAÇÃO
+     * 
+     * Este módulo configura os eventos e inicializa a aplicação,
+     * incluindo a restauração de preferências do usuário.
+     * ============================================================ */
+    
+    // Configura evento de entrada para atualização em tempo real
+    document.getElementById('qrInput').addEventListener('input', updateInterface);
+    
+    // Inicializa a interface
+    document.addEventListener('DOMContentLoaded', function() {
+      // Restaura preferência de modo escuro
+      const savedDarkMode = localStorage.getItem('darkMode');
+      if (savedDarkMode === 'true') {
+        document.body.classList.add('dark-mode');
+        document.getElementById('darkModeBtn').textContent = '☀️';
+      }
+      
+      // Foca no campo de entrada
+      document.getElementById('qrInput').focus();
     });
-  }
-
-  /**
-   * 🔄 Atualiza tudo em tempo real ao digitar
-   */
-  document.getElementById('qrInput').addEventListener('input', function() {
-    const text = this.value.trim();
-    const dataType = detectDataType(text);
-    document.getElementById('dataType').innerText = 'Tipo de dado: ' + dataType;
-    generateQRCode(text);
-  });
-
-  /**
-   * 🌙 Dark Mode
-   */
-  function toggleDarkMode() {
-    document.body.classList.toggle('dark-mode');
-  }
   </script>
 </body>
 </html>
