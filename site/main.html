@@ -481,6 +481,7 @@
   
   <script>
     // Dados dos projetos
+    const BASE_URL = "'''${BASE_URL}'''";  // Base URL para links diretos GitHub Pages
     const projects = [
       {
         id: "buscaContextoPDFs",
@@ -488,7 +489,7 @@
         description: "Clique para visualizar este projeto.",
         icon: "📄",
         category: "Outros",
-        path: "site/utilities/buscaContextoPDFs.html",
+        path: "https://rpassosdomingues.github.io/insights/site/site/utilities/buscaContextoPDFs.html",
         lastModified: "2025-06-01"
       },
       {
@@ -497,7 +498,7 @@
         description: "Um copiloto para moderadores de eventos online",
         icon: "🛠️",
         category: "Outros",
-        path: "site/utilities/meetMotions.html",
+        path: "https://rpassosdomingues.github.io/insights/site/site/utilities/meetMotions.html",
         lastModified: "2025-06-01"
       },
       {
@@ -506,7 +507,7 @@
         description: "Identifica automaticamente chaves PIX, links e outros dados",
         icon: "💻",
         category: "Outros",
-        path: "site/utilities/qrCodeGenerator.html",
+        path: "https://rpassosdomingues.github.io/insights/site/site/utilities/qrCodeGenerator.html",
         lastModified: "2025-06-02"
       },
     ];
@@ -526,15 +527,12 @@
     // Função para organizar projetos por categoria
     function organizeByCategory(projects) {
       const categories = {};
-      
-      // Agrupar projetos por categoria
       projects.forEach(project => {
         if (!categories[project.category]) {
           categories[project.category] = [];
         }
         categories[project.category].push(project);
       });
-      
       return categories;
     }
     
@@ -553,83 +551,75 @@
         return;
       }
       
-      // Organizar por categoria
       const organizedProjects = organizeByCategory(filteredProjects);
       
-      // Renderizar cada categoria
       Object.keys(organizedProjects).sort().forEach(category => {
         const categoryProjects = organizedProjects[category];
         
-        const categorySection = document.createElement('section');
-        categorySection.innerHTML = `
+        const section = document.createElement('section');
+        section.innerHTML = `
           <h2 class="category-title">${category}</h2>
-          <div class="cards-grid" id="category-${category.toLowerCase().replace(/\s+/g, '-')}"></div>
+          <div class="cards-grid" id="grid-${category.toLowerCase().replace(/\s+/g, '-')}"></div>
         `;
-        container.appendChild(categorySection);
+        container.appendChild(section);
         
-        const categoryGrid = categorySection.querySelector('.cards-grid');
+        const grid = section.querySelector('.cards-grid');
         
-        // Renderizar projetos desta categoria
-        categoryProjects.forEach(project => {
+        categoryProjects.forEach(proj => {
           const card = document.createElement('a');
           card.className = 'card';
-          card.href = project.path;
+          card.href = proj.path;
           card.setAttribute('target', '_blank');
           card.setAttribute('rel', 'noopener');
-          card.setAttribute('aria-label', `${project.title} – abre em nova aba`);
-          card.setAttribute('data-category', project.category);
-          card.setAttribute('data-id', project.id);
+          card.setAttribute('aria-label', `${proj.title} – abre em nova aba`);
+          card.setAttribute('data-category', proj.category);
+          card.setAttribute('data-id', proj.id);
           
           card.innerHTML = `
             <div class="card-header">
-              <div class="card-icon" aria-hidden="true">${project.icon}</div>
-              <div class="card-title">${project.title}</div>
+              <div class="card-icon" aria-hidden="true">${proj.icon}</div>
+              <div class="card-title">${proj.title}</div>
             </div>
             <div class="card-body">
-              <div class="card-desc">${project.description}</div>
+              <div class="card-desc">${proj.description}</div>
               <div class="card-meta">
-                <span class="card-category">${project.category}</span>
-                <span class="card-date">${project.lastModified}</span>
+                <span class="card-category">${proj.category}</span>
+                <span class="card-date">${proj.lastModified}</span>
               </div>
             </div>
           `;
           
-          categoryGrid.appendChild(card);
+          grid.appendChild(card);
         });
       });
     }
     
     // Função para popular o filtro de categorias
     function populateCategoryFilter(projects) {
-      const categories = [...new Set(projects.map(project => project.category))].sort();
+      const categories = [...new Set(projects.map(p => p.category))].sort();
       const select = document.getElementById('categoryFilter');
-      
-      categories.forEach(category => {
+      categories.forEach(cat => {
         const option = document.createElement('option');
-        option.value = category;
-        option.textContent = category;
+        option.value = cat;
+        option.textContent = cat;
         select.appendChild(option);
       });
     }
     
     // Função para filtrar projetos
     function filterProjects() {
-      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-      const categoryFilter = document.getElementById('categoryFilter').value;
+      const term = document.getElementById('searchInput').value.toLowerCase();
+      const catFilter = document.getElementById('categoryFilter').value;
       
       let filtered = projects;
-      
-      // Filtrar por categoria
-      if (categoryFilter !== 'all') {
-        filtered = filtered.filter(project => project.category === categoryFilter);
+      if (catFilter !== 'all') {
+        filtered = filtered.filter(p => p.category === catFilter);
       }
-      
-      // Filtrar por termo de busca
-      if (searchTerm) {
-        filtered = filtered.filter(project => 
-          project.title.toLowerCase().includes(searchTerm) || 
-          project.description.toLowerCase().includes(searchTerm) ||
-          project.category.toLowerCase().includes(searchTerm)
+      if (term) {
+        filtered = filtered.filter(p => 
+          p.title.toLowerCase().includes(term) ||
+          p.description.toLowerCase().includes(term) ||
+          p.category.toLowerCase().includes(term)
         );
       }
       
@@ -638,17 +628,11 @@
     
     // Inicialização
     document.addEventListener('DOMContentLoaded', () => {
-      // Renderizar todos os projetos inicialmente
       renderProjects(projects);
-      
-      // Popular filtro de categorias
       populateCategoryFilter(projects);
-      
-      // Configurar eventos de filtro
       document.getElementById('searchInput').addEventListener('input', filterProjects);
       document.getElementById('categoryFilter').addEventListener('change', filterProjects);
       
-      // Configurar toggle de tema escuro
       const toggleBtn = document.getElementById('darkModeToggle');
       toggleBtn.addEventListener('click', () => {
         const isDark = localStorage.getItem('darkMode') === 'true';
@@ -657,21 +641,19 @@
       });
       
       // Botão voltar ao topo
-      const backToTopBtn = document.getElementById('backToTop');
-      
+      const backToTop = document.getElementById('backToTop');
       window.addEventListener('scroll', () => {
         if (window.scrollY > 300) {
-          backToTopBtn.classList.add('visible');
+          backToTop.classList.add('visible');
         } else {
-          backToTopBtn.classList.remove('visible');
+          backToTop.classList.remove('visible');
         }
       });
-      
-      backToTopBtn.addEventListener('click', () => {
+      backToTop.addEventListener('click', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
       
-      // Verificar preferência de tema do sistema
+      // Preferência de tema
       if (!localStorage.getItem('darkMode')) {
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         localStorage.setItem('darkMode', prefersDark.toString());
