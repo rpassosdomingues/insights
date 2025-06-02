@@ -1,0 +1,219 @@
+/* Reset e tipografia básica */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #f0f4f8;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+header {
+  background: #4a90e2;
+  color: #fff;
+  padding: 1rem;
+  text-align: center;
+  font-size: 1.3rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 1rem;
+}
+
+main {
+  max-width: 800px;
+  margin: auto;
+  flex-grow: 1;
+}
+
+/* Estrutura das etapas */
+.etapa {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.05);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  transition: opacity 0.3s ease;
+}
+
+.etapa.hidden {
+  display: none;
+}
+
+h3 {
+  margin-bottom: 1rem;
+  color: #4a90e2;
+  font-size: 1.2rem;
+}
+
+label {
+  display: block;
+  margin: 0.8rem 0 0.3rem;
+  font-weight: 600;
+}
+
+input[type="text"],
+input[type="number"],
+select {
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: box-shadow 0.3s;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(74,144,226,0.4);
+  border-color: #4a90e2;
+}
+
+/* Lista de serviços em duas colunas */
+.servicos-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  list-style: none;
+  margin-bottom: 1rem;
+}
+
+.servicos-lista li {
+  flex: 1 1 45%;
+}
+
+.servicos-lista input[type="checkbox"] {
+  margin-right: 6px;
+}
+
+/* Botões de navegação entre etapas */
+.botoes-fluxo {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+}
+
+.botoes-fluxo button {
+  flex: 1;
+  padding: 0.8rem;
+  margin: 0 0.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+  color: #fff;
+}
+
+.botoes-fluxo button:first-child {
+  margin-left: 0;
+}
+
+.botoes-fluxo button:last-child {
+  margin-right: 0;
+}
+
+.btn-avancar {
+  background: #4a90e2;
+}
+
+.btn-avancar:hover {
+  background: #3a78c2;
+  transform: scale(1.02);
+}
+
+.btn-voltar {
+  background: #6c757d;
+}
+
+.btn-voltar:hover {
+  background: #5a6268;
+  transform: scale(1.02);
+}
+
+/* Seção de resultado final */
+.resultado-secao {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.05);
+  padding: 1.5rem;
+  margin: 1rem 0;
+  animation: fadeIn 0.4s ease;
+}
+
+.material-item {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.5rem 0;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+}
+
+.material-item:last-child {
+  border-bottom: none;
+}
+
+.acoes-final {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.acoes-final button {
+  flex: 1;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+  color: #fff;
+}
+
+.acoes-final .whatsapp {
+  background: #25D366;
+}
+
+.acoes-final .whatsapp:hover {
+  background: #1DAE50;
+  transform: scale(1.02);
+}
+
+.acoes-final .save-img {
+  background: #5cb85c;
+}
+
+.acoes-final .save-img:hover {
+  background: #4cae4c;
+  transform: scale(1.02);
+}
+
+footer {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #777;
+  margin-top: auto;
+  padding: 1rem 0;
+}
+
+.hidden {
+  display: none !important;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
