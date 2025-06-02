@@ -122,17 +122,17 @@
     <button id="darkModeToggle" aria-pressed="false" aria-label="Ativar modo escuro">🌙</button>
   </header>
   <main>
-    <a class="card" href="site/buscaContextoPDFs.html" target="_blank" rel="noopener" aria-label="🕵️‍♂️ Caçador de Contexto PDF – abre em nova aba">
+    <a class="card" href="site/utilities/buscaContextoPDFs.html" target="_blank" rel="noopener" aria-label="🕵️‍♂️ Caçador de Contexto PDF – abre em nova aba">
       <div class="card-icon" aria-hidden="true">🔍</div>
       <div class="card-title">🕵️‍♂️ Caçador de Contexto PDF</div>
       <div class="card-desc">Clique para abrir.</div>
     </a>
-    <a class="card" href="site/meetMotions.html" target="_blank" rel="noopener" aria-label="Copiloto de Evento Online - Modular – abre em nova aba">
+    <a class="card" href="site/utilities/meetMotions.html" target="_blank" rel="noopener" aria-label="Copiloto de Evento Online - Modular – abre em nova aba">
       <div class="card-icon" aria-hidden="true">🛠️</div>
       <div class="card-title">Copiloto de Evento Online - Modular</div>
       <div class="card-desc">Clique para abrir.</div>
     </a>
-    <a class="card" href="site/qrCodeGenerator.html" target="_blank" rel="noopener" aria-label="Gerador Automático de QR Code – abre em nova aba">
+    <a class="card" href="site/utilities/qrCodeGenerator.html" target="_blank" rel="noopener" aria-label="Gerador Automático de QR Code – abre em nova aba">
       <div class="card-icon" aria-hidden="true">💻</div>
       <div class="card-title">Gerador Automático de QR Code</div>
       <div class="card-desc">Clique para abrir.</div>
@@ -140,7 +140,7 @@
   </main>
   <script>
     const toggleBtn = document.getElementById('darkModeToggle');
-    // Verifica preferência salva no localStorage
+    // Aplica preferência salva no localStorage
     const darkPref = localStorage.getItem('darkMode');
     if (darkPref === 'true') {
       document.body.classList.add('dark');
