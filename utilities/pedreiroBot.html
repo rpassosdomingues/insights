@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copiloto da Construção</title>
+
+    <style>
+        /* Reset e tipografia básica */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f4f8;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        header {
+            background: #4a90e2;
+            color: #fff;
+            padding: 1rem;
+            text-align: center;
+            font-size: 1.3rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+        }
+
+        main {
+            max-width: 800px;
+            margin: auto;
+            flex-grow: 1;
+        }
+
+        /* Estrutura das etapas */
+        .etapa {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: opacity 0.3s ease;
+        }
+
+        .etapa.hidden {
+            display: none;
+        }
+
+        h3 {
+            margin-bottom: 1rem;
+            color: #4a90e2;
+            font-size: 1.2rem;
+        }
+
+        label {
+            display: block;
+            margin: 0.8rem 0 0.3rem;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 0.7rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: box-shadow 0.3s;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            box-shadow: 0 0 5px rgba(74,144,226,0.4);
+            border-color: #4a90e2;
+        }
+
+        /* Lista de serviços em duas colunas */
+        .servicos-lista {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            list-style: none;
+            margin-bottom: 1rem;
+        }
+
+        .servicos-lista li {
+            flex: 1 1 45%;
+        }
+
+        .servicos-lista input[type="checkbox"] {
+            margin-right: 6px;
+        }
+
+        /* Botões de navegação entre etapas */
+        .botoes-fluxo {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+        }
+
+        .botoes-fluxo button {
+            flex: 1;
+            padding: 0.8rem;
+            margin: 0 0.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            color: #fff;
+        }
+
+        .botoes-fluxo button:first-child {
+            margin-left: 0;
+        }
+
+        .botoes-fluxo button:last-child {
+            margin-right: 0;
+        }
+
+        .btn-avancar {
+            background: #4a90e2;
+        }
+
+        .btn-avancar:hover {
+            background: #3a78c2;
+            transform: scale(1.02);
+        }
+
+        .btn-voltar {
+            background: #6c757d;
+        }
+
+        .btn-voltar:hover {
+            background: #5a6268;
+            transform: scale(1.02);
+        }
+
+        /* Seção de resultado final */
+        .resultado-secao {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .material-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+
+        .material-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Alterado de .acoes-final para .botoes-acoes para corresponder ao JS */
+        .botoes-acoes {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .botoes-acoes button {
+            flex: 1;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            color: #fff;
+        }
+
+        /* Renomeado classes de botão para btn-whatsapp e btn-exportar conforme JS */
+        .btn-whatsapp {
+            background: #25D366;
+        }
+
+        .btn-whatsapp:hover {
+            background: #1DAE50;
+            transform: scale(1.02);
+        }
+
+        .btn-exportar {
+            background: #5cb85c;
+        }
+
+        .btn-exportar:hover {
+            background: #4cae4c;
+            transform: scale(1.02);
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #777;
+            margin-top: auto;
+            padding: 1rem 0;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+    </head>
+<body>
+
+    <header>🔨 Copiloto da Construção 🏗️</header>
+
+    <main>
+        <div class="etapa" id="etapaCliente">
+            <h3>1️⃣ Dados do Cliente e Serviços</h3>
+
+            <label for="nomeProjeto">Nome do Projeto / Cliente:</label>
+            <input type="text" id="nomeProjeto" placeholder="Ex: Reforma Sala Sra. Maria" aria-label="Nome do Projeto ou Cliente">
+
+            <label for="areaReforma">Área Total da Reforma (m²):</label>
+            <input type="number" id="areaReforma" placeholder="Ex: 60" min="1" step="0.01" aria-label="Área total da reforma em metros quadrados">
+
+            <label for="numComodos">Número de Cômodos Envolvidos:</label>
+            <input type="number" id="numComodos" placeholder="Ex: 3" min="1" aria-label="Número de cômodos envolvidos na reforma">
+
+            <h4>Selecione os Serviços Desejados:</h4>
+            <ul class="servicos-lista" id="listaServicosCheckboxes" aria-label="Lista de serviços disponíveis para seleção">
+                </ul>
+
+            <label for="tipoRejunte">Tipo de Rejunte (caso haja assentamento):</label>
+            <select id="tipoRejunte" aria-label="Tipo de rejunte a ser utilizado">
+                <option value="cimenticio">Cimentício</option>
+                <option value="acrilico">Acrílico</option>
+                <option value="epoxi">Epóxi</option>
+            </select>
+
+            <div class="botoes-fluxo">
+                <button class="btn-avancar" onclick="avancarParaPedreiro()">👉 Próximo (Pedreiro)</button>
+            </div>
+        </div>
+
+        <div class="etapa hidden" id="etapaPedreiro">
+            <h3>2️⃣ Detalhes do Pedreiro</h3>
+
+            <label for="custoDiariaPedreiro">Valor da sua diária (R$):</label>
+            <input type="number" id="custoDiariaPedreiro" placeholder="Ex: 220" min="0" step="0.01" aria-label="Valor da diária do pedreiro">
+
+            <label for="percentualLucro">Margem / Administração (% sobre Materiais + M.O.):</label>
+            <input type="number" id="percentualLucro" placeholder="Ex: 15" value="0" min="0" step="0.01" aria-label="Percentual de margem ou administração">
+
+            <div class="botoes-fluxo">
+                <button class="btn-voltar" onclick="voltarParaCliente()">⬅️ Voltar (Cliente)</button>
+                <button class="btn-avancar" onclick="avancarParaVendedor()">👉 Próximo (Vendedor)</button>
+            </div>
+        </div>
+
+        <div class="etapa hidden" id="etapaVendedor">
+            <h3>3️⃣ Cotação de Materiais (Vendedor)</h3>
+            <p>Informe o preço de cada material para esta obra:</p>
+            <div id="listaMateriaisVendedor" aria-label="Lista de materiais para cotação de preços do vendedor">
+                </div>
+
+            <div class="botoes-fluxo">
+                <button class="btn-voltar" onclick="voltarParaPedreiro()">⬅️ Voltar (Pedreiro)</button>
+                <button class="btn-avancar" onclick="finalizarOrcamento()">👉 Finalizar Orçamento</button>
+            </div>
+        </div>
+
+        <div class="resultado-secao hidden" id="resultadoFinal">
+            <h3 id="tituloResultado"></h3>
+            <div id="conteudoResultado">
+                </div>
+            <div class="botoes-fluxo botoes-acoes hidden" id="botoesAcoes">
+                <button class="btn-whatsapp" onclick="abrirWhatsApp()">📱 Enviar por WhatsApp</button>
+                <button class="btn-exportar" onclick="exportarPNG()">🖼️ Exportar como PNG</button>
+            </div>
+        </div>
+    </main>
+
+    <footer>Estimativas aproximadas. Consulte profissionais para valores exatos.</footer>
+
+    <script src="servicos.js"></script>
+    <script src="main.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</body>
+</html>
