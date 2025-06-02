@@ -1,11 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Utilities Suite - App Index</title>
 <style>
-  /* (Aqui seu CSS completo, exatamente como você já tem) */
+  /* Coloque seu CSS aqui */
+  body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #fff; color: #333; }
+  header { padding: 1rem; background: #007acc; color: white; display: flex; justify-content: space-between; align-items: center; }
+  main { padding: 1rem; display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 1rem; }
+  .card { background: #f0f0f0; padding: 1rem; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1); text-decoration: none; color: inherit; transition: background 0.3s ease; }
+  .card:hover { background: #ddd; }
+  .icon { font-size: 2.5rem; }
+  .title { font-weight: bold; margin: 0.5rem 0; }
+  .desc { font-size: 0.9rem; color: #555; }
+  /* Dark mode */
+  body.dark-theme { background: #222; color: #ddd; }
+  body.dark-theme header { background: #004080; }
+  body.dark-theme .card { background: #333; }
+  body.dark-theme .card:hover { background: #444; }
 </style>
 </head>
 <body>
@@ -15,8 +28,22 @@
   <button id="darkModeToggle" aria-label="Toggle dark mode">🌙</button>
 </header>
 <main>
+<a href="buscaContextoPDFs.html" class="card" target="_blank" rel="noopener noreferrer" aria-label="Abrir 🕵️‍♂️ Caçador de Contexto PDF">
+  <div class="icon">📄</div>
+  <div class="title">🕵️‍♂️ Caçador de Contexto PDF</div>
+  <div class="desc"></div>
+</a>
+<a href="meetMotions.html" class="card" target="_blank" rel="noopener noreferrer" aria-label="Abrir Copiloto de Evento Online - Modular">
+  <div class="icon">🛠️</div>
+  <div class="title">Copiloto de Evento Online - Modular</div>
+  <div class="desc"></div>
+</a>
+<a href="qrCodeGenerator.html" class="card" target="_blank" rel="noopener noreferrer" aria-label="Abrir Gerador Automático de QR Code">
+  <div class="icon">💻</div>
+  <div class="title">Gerador Automático de QR Code</div>
+  <div class="desc"></div>
+</a>
 </main>
-
 <script>
 (() => {
   const toggleBtn = document.getElementById('darkModeToggle');
@@ -64,6 +91,5 @@
   initTheme();
 })();
 </script>
-
 </body>
 </html>
