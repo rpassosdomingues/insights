@@ -481,7 +481,7 @@
   
   <script>
     // Dados dos projetos
-    const BASE_URL = "'''${BASE_URL}'''";  // Base URL para links diretos GitHub Pages
+    const BASE_URL = "${BASE_URL}";  // Base URL para links diretos no GitHub Pages
     const projects = [
       {
         id: "buscaContextoPDFs",
@@ -489,7 +489,7 @@
         description: "Clique para visualizar este projeto.",
         icon: "📄",
         category: "Outros",
-        path: "https://rpassosdomingues.github.io/insights/site/site/utilities/buscaContextoPDFs.html",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/buscaContextoPDFs.html",
         lastModified: "2025-06-01"
       },
       {
@@ -498,7 +498,7 @@
         description: "Um copiloto para moderadores de eventos online",
         icon: "🛠️",
         category: "Outros",
-        path: "https://rpassosdomingues.github.io/insights/site/site/utilities/meetMotions.html",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/meetMotions.html",
         lastModified: "2025-06-01"
       },
       {
@@ -507,11 +507,11 @@
         description: "Identifica automaticamente chaves PIX, links e outros dados",
         icon: "💻",
         category: "Outros",
-        path: "https://rpassosdomingues.github.io/insights/site/site/utilities/qrCodeGenerator.html",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/qrCodeGenerator.html",
         lastModified: "2025-06-02"
       },
     ];
-    
+
     // Função para aplicar tema escuro/claro
     function applyTheme() {
       const darkPref = localStorage.getItem('darkMode') === 'true';
@@ -520,10 +520,10 @@
       toggleBtn.setAttribute('aria-pressed', darkPref.toString());
       toggleBtn.textContent = darkPref ? '☀️' : '🌙';
     }
-    
+
     // Aplicar tema inicial
     applyTheme();
-    
+
     // Função para organizar projetos por categoria
     function organizeByCategory(projects) {
       const categories = {};
@@ -535,12 +535,12 @@
       });
       return categories;
     }
-    
+
     // Função para renderizar projetos
     function renderProjects(filteredProjects) {
       const container = document.getElementById('projectsContainer');
       container.innerHTML = '';
-      
+
       if (filteredProjects.length === 0) {
         container.innerHTML = `
           <div class="no-results">
@@ -550,21 +550,21 @@
         `;
         return;
       }
-      
+
       const organizedProjects = organizeByCategory(filteredProjects);
-      
+
       Object.keys(organizedProjects).sort().forEach(category => {
         const categoryProjects = organizedProjects[category];
-        
+
         const section = document.createElement('section');
         section.innerHTML = `
           <h2 class="category-title">${category}</h2>
           <div class="cards-grid" id="grid-${category.toLowerCase().replace(/\s+/g, '-')}"></div>
         `;
         container.appendChild(section);
-        
+
         const grid = section.querySelector('.cards-grid');
-        
+
         categoryProjects.forEach(proj => {
           const card = document.createElement('a');
           card.className = 'card';
@@ -574,7 +574,7 @@
           card.setAttribute('aria-label', `${proj.title} – abre em nova aba`);
           card.setAttribute('data-category', proj.category);
           card.setAttribute('data-id', proj.id);
-          
+
           card.innerHTML = `
             <div class="card-header">
               <div class="card-icon" aria-hidden="true">${proj.icon}</div>
@@ -588,12 +588,12 @@
               </div>
             </div>
           `;
-          
+
           grid.appendChild(card);
         });
       });
     }
-    
+
     // Função para popular o filtro de categorias
     function populateCategoryFilter(projects) {
       const categories = [...new Set(projects.map(p => p.category))].sort();
@@ -605,41 +605,41 @@
         select.appendChild(option);
       });
     }
-    
+
     // Função para filtrar projetos
     function filterProjects() {
       const term = document.getElementById('searchInput').value.toLowerCase();
       const catFilter = document.getElementById('categoryFilter').value;
-      
+
       let filtered = projects;
       if (catFilter !== 'all') {
         filtered = filtered.filter(p => p.category === catFilter);
       }
       if (term) {
-        filtered = filtered.filter(p => 
+        filtered = filtered.filter(p =>
           p.title.toLowerCase().includes(term) ||
           p.description.toLowerCase().includes(term) ||
           p.category.toLowerCase().includes(term)
         );
       }
-      
+
       renderProjects(filtered);
     }
-    
+
     // Inicialização
     document.addEventListener('DOMContentLoaded', () => {
       renderProjects(projects);
       populateCategoryFilter(projects);
       document.getElementById('searchInput').addEventListener('input', filterProjects);
       document.getElementById('categoryFilter').addEventListener('change', filterProjects);
-      
+
       const toggleBtn = document.getElementById('darkModeToggle');
       toggleBtn.addEventListener('click', () => {
         const isDark = localStorage.getItem('darkMode') === 'true';
         localStorage.setItem('darkMode', (!isDark).toString());
         applyTheme();
       });
-      
+
       // Botão voltar ao topo
       const backToTop = document.getElementById('backToTop');
       window.addEventListener('scroll', () => {
@@ -652,7 +652,7 @@
       backToTop.addEventListener('click', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
-      
+
       // Preferência de tema
       if (!localStorage.getItem('darkMode')) {
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
