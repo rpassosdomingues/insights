@@ -3,338 +3,787 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>PlantAI</title>
+<title>🌱 PlantAI - Gestão Agrícola Inteligente</title>
 
-<!-- Leaflet CSS para mapa -->
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  integrity="sha256-sA+U9+ap54F0bTTDkTp8uuJtYt1fvfQj9H5DQkZTZ/k="
-  crossorigin=""
-/>
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<!-- Leaflet Draw CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
 <style>
-  /* Reset básico */
+  :root {
+    --primary: #2f855a;
+    --secondary: #38a169;
+    --accent: #dd6b20;
+    --text: #2d3748;
+    --light: #f7fafc;
+    --white: #ffffff;
+    --warning: #dd6b20;
+    --success: #38a169;
+    --error: #e53e3e;
+  }
+  
   * {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
   }
+  
   body {
-    margin: 0; 
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    background: #f7fafc;
-    color: #2d3748;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--light);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 1rem;
+  }
+  
+  .app-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  
+  h1 {
+    color: var(--primary);
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  
+  .status-bar {
+    background: var(--white);
+    padding: 0.8rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .grid-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  
+  .panel {
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .panel-title {
+    color: var(--primary);
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  #map {
+    height: 500px;
+    width: 100%;
+    border-radius: 12px;
+    z-index: 1;
+  }
+  
+  .map-container {
+    position: relative;
+  }
+  
+  .map-controls {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    background: var(--white);
+    padding: 0.5rem;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding: 1.5rem;
-    min-height: 100vh;
+    gap: 0.3rem;
   }
-  h1 {
-    color: #2f855a;
-    margin-bottom: 0.5rem;
-    font-weight: 700;
-  }
-  #status {
-    font-style: italic;
-    margin-bottom: 1rem;
-    color: #718096;
-  }
-  #weatherInfo {
-    background: white;
-    box-shadow: 0 4px 12px rgb(0 0 0 / 0.1);
-    border-radius: 12px;
-    padding: 1rem 2rem;
-    width: 100%;
-    max-width: 380px;
-    margin-bottom: 1.5rem;
-    transition: all 0.3s ease;
-  }
-  label, select {
-    font-weight: 600;
-  }
-  select {
-    margin: 0.5rem 0 1rem;
-    padding: 0.5rem 0.8rem;
-    border: 2px solid #cbd5e0;
-    border-radius: 8px;
-    font-size: 1rem;
-    width: 100%;
-    max-width: 380px;
+  
+  .btn {
+    background: var(--primary);
+    color: var(--white);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
     cursor: pointer;
-    transition: border-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    transition: all 0.2s;
   }
-  select:focus {
-    outline: none;
-    border-color: #38a169;
-    box-shadow: 0 0 5px #38a169aa;
+  
+  .btn:hover {
+    background: var(--secondary);
+    transform: translateY(-1px);
   }
-  #tips {
-    max-width: 380px;
-    background: white;
-    padding: 1.3rem 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgb(0 0 0 / 0.1);
-    text-align: left;
-    line-height: 1.4;
-    font-size: 1rem;
-    min-height: 170px;
-    transition: opacity 0.4s ease;
+  
+  .btn-sm {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
   }
-  #map {
-    margin-top: 1.5rem;
+  
+  .btn-warning {
+    background: var(--warning);
+  }
+  
+  .btn-success {
+    background: var(--success);
+  }
+  
+  select, input {
     width: 100%;
-    max-width: 380px;
-    height: 240px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
-    transition: transform 0.3s ease;
+    padding: 0.5rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 5px;
+    margin-bottom: 1rem;
   }
-  #map:hover {
-    transform: scale(1.03);
+  
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .metric-card {
+    background: #f0fff4;
+    padding: 0.8rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary);
+  }
+  
+  .metric-value {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--primary);
+  }
+  
+  .metric-label {
+    font-size: 0.8rem;
+    color: #4a5568;
+  }
+  
+  .alert {
+    padding: 0.8rem;
+    border-radius: 5px;
+    margin: 0.5rem 0;
+    border-left: 4px solid;
+  }
+  
+  .alert-warning {
+    background: #fffaf0;
+    border-left-color: var(--warning);
+  }
+  
+  .alert-success {
+    background: #f0fff4;
+    border-left-color: var(--success);
+  }
+  
+  .alert-error {
+    background: #fff5f5;
+    border-left-color: var(--error);
+  }
+  
+  .crop-info {
+    line-height: 1.6;
+  }
+  
+  .action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+  }
+  
+  .irrigation-calculator {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f0f9ff;
+    border-radius: 8px;
+  }
+  
+  @media (max-width: 768px) {
+    .grid-container {
+      grid-template-columns: 1fr;
+    }
+    
+    #map {
+      height: 350px;
+    }
+    
+    .metrics-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
 </head>
 <body>
-  <h1>PlantAI</h1>
-  <p id="status">Detectando localização e clima...</p>
-  <div id="weatherInfo">Carregando dados do clima...</div>
+  <div class="app-container">
+    <header>
+      <h1>🌱 PlantAI - Gestão Agrícola Inteligente</h1>
+      <p>Solução completa para mapeamento e gestão de irrigação</p>
+    </header>
+    
+    <div class="status-bar">
+      <i class="fas fa-map-marker-alt"></i>
+      <span id="status-text">Obtendo sua localização...</span>
+    </div>
+    
+    <div class="grid-container">
+      <div class="map-panel">
+        <div class="panel">
+          <h2 class="panel-title"><i class="fas fa-map-marked-alt"></i> Mapeamento da Área</h2>
+          <div class="map-container">
+            <div id="map"></div>
+            <div class="map-controls">
+              <button id="drawPolygon" class="btn btn-sm" title="Marcar área fechada">
+                <i class="fas fa-draw-polygon"></i> Polígono
+              </button>
+              <button id="drawPolyline" class="btn btn-sm btn-secondary" title="Marcar área aberta">
+                <i class="fas fa-draw-polygon"></i> Linha
+              </button>
+              <button id="clearAll" class="btn btn-sm btn-warning" title="Limpar tudo">
+                <i class="fas fa-trash-alt"></i> Limpar
+              </button>
+            </div>
+          </div>
+          
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-value" id="areaValue">0 m²</div>
+              <div class="metric-label">Área total</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-value" id="perimeterValue">0 m</div>
+              <div class="metric-label">Perímetro</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-value" id="volumeValue">0 m³</div>
+              <div class="metric-label">Volume de terra</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-value" id="plantsValue">0</div>
+              <div class="metric-label">Plantas estimadas</div>
+            </div>
+          </div>
+          
+          <div class="irrigation-calculator">
+            <h3><i class="fas fa-tint"></i> Cálculo de Irrigação</h3>
+            <div id="irrigationResult">
+              <p>Marque uma área e selecione uma cultura para calcular a irrigação necessária.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="info-panel">
+        <div class="panel">
+          <h2 class="panel-title"><i class="fas fa-cloud-sun"></i> Dados Climáticos</h2>
+          <div id="weatherInfo">
+            <div class="alert">
+              <i class="fas fa-sync-alt fa-spin"></i> Carregando dados meteorológicos...
+            </div>
+          </div>
+        </div>
+        
+        <div class="panel">
+          <h2 class="panel-title"><i class="fas fa-tractor"></i> Gestão de Culturas</h2>
+          <label for="crop"><i class="fas fa-seedling"></i> Selecione a cultura:</label>
+          <select id="crop">
+            <option value="">-- Selecione --</option>
+            <option value="cafe">☕ Café</option>
+            <option value="milho">🌽 Milho</option>
+            <option value="soja">🥜 Soja</option>
+            <option value="feijao">🥜 Feijão</option>
+            <option value="algodao">🧶 Algodão</option>
+            <option value="hortalicas">🥦 Hortaliças</option>
+            <option value="frutiferas">🍊 Frutíferas</option>
+          </select>
+          
+          <div id="cropInfo" class="crop-info">
+            <p>Selecione uma cultura para ver recomendações específicas.</p>
+          </div>
+          
+          <div class="action-buttons">
+            <button id="exportPdf" class="btn">
+              <i class="fas fa-file-pdf"></i> Exportar PDF
+            </button>
+            <button id="shareWhatsapp" class="btn btn-success">
+              <i class="fab fa-whatsapp"></i> Compartilhar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <label for="crop">Selecione a cultura:</label>
-  <select id="crop" aria-label="Selecione a cultura">
-    <option value="">-- Escolha uma cultura --</option>
-    <option value="cafe">Café</option>
-    <option value="milho">Milho</option>
-    <option value="feijao">Feijão</option>
-    <option value="mandioca">Mandioca</option>
-    <option value="hortalicas">Hortaliças</option>
-    <option value="frutiferas">Frutíferas</option>
-  </select>
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
+  <!-- Leaflet Draw -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+  
+  <!-- Turf.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
 
-  <div id="tips">Selecione uma cultura para ver as dicas.</div>
-
-  <div id="map"></div>
-
-  <!-- Leaflet JS para mapa -->
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-oMwvGO9Rx2vJs1lBzR6qIF9oN0x34BYh1h2i7IxkLZ0="
-    crossorigin=""
-  ></script>
+  <!-- jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
   <script>
-    const statusElem = document.getElementById("status");
-    const weatherElem = document.getElementById("weatherInfo");
-    const cropSelect = document.getElementById("crop");
-    const tipsDiv = document.getElementById("tips");
+    // Configuração inicial
+    const { jsPDF } = window.jspdf;
+    
+    // Elementos DOM
+    const statusText = document.getElementById('status-text');
+    const mapElement = document.getElementById('map');
+    const drawPolygonBtn = document.getElementById('drawPolygon');
+    const drawPolylineBtn = document.getElementById('drawPolyline');
+    const clearAllBtn = document.getElementById('clearAll');
+    const areaValue = document.getElementById('areaValue');
+    const perimeterValue = document.getElementById('perimeterValue');
+    const volumeValue = document.getElementById('volumeValue');
+    const plantsValue = document.getElementById('plantsValue');
+    const cropSelect = document.getElementById('crop');
+    const cropInfo = document.getElementById('cropInfo');
+    const weatherInfo = document.getElementById('weatherInfo');
+    const irrigationResult = document.getElementById('irrigationResult');
+    const exportPdfBtn = document.getElementById('exportPdf');
+    const shareWhatsappBtn = document.getElementById('shareWhatsapp');
 
-    const cropNames = {
-      cafe: "Café",
-      milho: "Milho",
-      feijao: "Feijão",
-      mandioca: "Mandioca",
-      hortalicas: "Hortaliças",
-      frutiferas: "Frutíferas",
-    };
-
+    // Variáveis globais
+    let map;
+    let drawnItems = new L.FeatureGroup();
+    let userLocation = null;
+    let currentCrop = null;
+    let currentArea = 0;
     let weatherData = null;
-    let isOffline = false;
 
-    /* Função para atualizar dicas (mantive simplificado, pode ajustar depois) */
-    function updateTips() {
-      const crop = cropSelect.value;
-      if (!crop) {
-        tipsDiv.textContent = "Selecione uma cultura para ver as dicas.";
-        return;
-      }
-      const cropName = cropNames[crop] || crop;
-      let plantar = "",
-        solo = "",
-        irrigacao = "",
-        pragas = "";
-
-      const month = new Date().getMonth() + 1;
-      const rainySeason = month >= 10 || month <= 4;
-
-      switch (crop) {
-        case "cafe":
-          plantar = "Início da estação das chuvas (outubro/novembro).";
-          solo = "Solo profundo, bem drenado e rico em matéria orgânica.";
-          break;
-        case "milho":
-          plantar = "Início das chuvas para safra de verão; ou janeiro para safrinha.";
-          solo = "Solo bem preparado, com rotação de culturas e cobertura morta.";
-          break;
-        case "feijao":
-          plantar = "No começo das chuvas (out a dez) ou retorno em fev/mar.";
-          solo = "Solo leve, rico em matéria orgânica; adubação fosfatada.";
-          break;
-        case "mandioca":
-          plantar = "Preferencialmente início do período chuvoso (set/out).";
-          solo = "Solo solto, arenoso, com matéria orgânica; evitar encharcamentos.";
-          break;
-        case "hortalicas":
-          plantar = "Após pico de chuvas para evitar excesso de umidade.";
-          solo = "Solo fértil, bem drenado, enriquecido com composto orgânico.";
-          break;
-        case "frutiferas":
-          plantar =
-            "Varia conforme espécie, geralmente próximo ao início das chuvas.";
-          solo = "Solo profundo e drenado; preparar covas com composto orgânico.";
-          break;
-        default:
-          plantar = "Confira recomendações locais de plantio.";
-          solo = "Preparar o solo adequadamente conforme a cultura.";
-      }
-
-      if (isOffline) {
-        irrigacao = rainySeason
-          ? "Estamos em período chuvoso; irrigue somente se necessário."
-          : "Período seco; irrigue regularmente se não houver chuva.";
-      } else {
-        if (weatherData) {
-          const curr = weatherData.current_weather;
-          const idx = weatherData.hourly.time.indexOf(curr.time);
-          let rainSum = 0;
-          for (
-            let i = idx + 1;
-            i <= idx + 3 && i < weatherData.hourly.precipitation.length;
-            i++
-          ) {
-            rainSum += weatherData.hourly.precipitation[i];
-          }
-          irrigacao =
-            rainSum > 1
-              ? "Chuva prevista; considere adiar irrigação."
-              : "Sem chuva prevista; verifique umidade do solo e irrigue se precisar.";
-        } else {
-          irrigacao = "Monitore umidade do solo para irrigação adequada.";
+    // Inicialização do mapa
+    function initMap(lat, lon) {
+      map = L.map('map').setView([lat, lon], 15);
+      
+      // Camadas base
+      const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      });
+      
+      const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri'
+      });
+      
+      osmLayer.addTo(map);
+      
+      // Controle de camadas
+      const baseLayers = {
+        "Mapa": osmLayer,
+        "Satélite": satelliteLayer
+      };
+      
+      L.control.layers(baseLayers).addTo(map);
+      
+      // Configuração do desenho
+      const drawControl = new L.Control.Draw({
+        draw: {
+          polygon: {
+            allowIntersection: false,
+            shapeOptions: {
+              color: '#2f855a',
+              fillOpacity: 0.3
+            }
+          },
+          polyline: {
+            shapeOptions: {
+              color: '#dd6b20',
+              weight: 4
+            }
+          },
+          rectangle: false,
+          circle: false,
+          marker: false,
+          circlemarker: false
+        },
+        edit: {
+          featureGroup: drawnItems
         }
-      }
-
-      if (isOffline) {
-        pragas = rainySeason
-          ? "Clima úmido favorece fungos e doenças; inspecione o cultivo."
-          : "Clima seco favorece pragas; fique atento a insetos e nematoides.";
-      } else {
-        if (weatherData) {
-          const curr = weatherData.current_weather;
-          const idx = weatherData.hourly.time.indexOf(curr.time);
-          let humidity = weatherData.hourly.relativehumidity_2m[idx];
-          let rainNext = 0;
-          for (
-            let i = idx + 1;
-            i <= idx + 3 && i < weatherData.hourly.precipitation.length;
-            i++
-          ) {
-            rainNext += weatherData.hourly.precipitation[i];
-          }
-          if (humidity >= 80 || rainNext > 10) {
-            pragas =
-              "Alta umidade ou chuva intensa: risco de fungos e doenças foliares.";
-          } else if (!rainySeason && humidity < 40) {
-            pragas =
-              "Clima seco atual: atenção a pragas que proliferam com estresse hídrico.";
-          } else {
-            pragas = "Mantenha monitoramento preventivo e manejo integrado.";
-          }
-        } else {
-          pragas = "Sem dados climáticos atuais; mantenha manejo preventivo.";
+      });
+      
+      map.addControl(drawControl);
+      map.addLayer(drawnItems);
+      
+      // Eventos de desenho
+      map.on(L.Draw.Event.CREATED, function(e) {
+        const layer = e.layer;
+        drawnItems.addLayer(layer);
+        updateMetrics(layer);
+        
+        const type = e.layerType;
+        const area = type === 'polygon' ? turf.area(layer.toGeoJSON()) : 0;
+        const length = type === 'polyline' ? turf.length(layer.toGeoJSON(), {units: 'meters'}) : 0;
+        
+        layer.bindPopup(`
+          <b>${type === 'polygon' ? 'Área' : 'Linha'}</b><br>
+          ${type === 'polygon' ? `Área: ${area.toFixed(0)} m²` : `Comprimento: ${length.toFixed(0)} m`}
+        `).openPopup();
+      });
+      
+      map.on(L.Draw.Event.EDITED, function(e) {
+        const layers = e.layers;
+        layers.eachLayer(function(layer) {
+          updateMetrics(layer);
+        });
+      });
+      
+      map.on(L.Draw.Event.DELETED, function() {
+        if (drawnItems.getLayers().length === 0) {
+          resetMetrics();
         }
+      });
+      
+      // Marcador de localização
+      const greenIcon = L.icon({
+        iconUrl: 'https://cdn-icons-png.flaticon.com/512/447/447031.png',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+      });
+      
+      L.marker([lat, lon], {icon: greenIcon}).addTo(map)
+        .bindPopup(`<b>Sua localização</b><br>Lat: ${lat.toFixed(4)}<br>Lon: ${lon.toFixed(4)}`)
+        .openPopup();
+    }
+    
+    // Atualiza métricas
+    function updateMetrics(layer) {
+      const geoJson = layer.toGeoJSON();
+      const type = layer instanceof L.Polygon ? 'polygon' : 'polyline';
+      
+      if (type === 'polygon') {
+        currentArea = turf.area(geoJson);
+        const perimeter = turf.length(geoJson, {units: 'meters'});
+        const volume = currentArea * 0.3; // 0.3m profundidade
+        
+        areaValue.textContent = `${currentArea.toFixed(0)} m² (${(currentArea / 10000).toFixed(2)} ha)`;
+        perimeterValue.textContent = `${perimeter.toFixed(0)} m`;
+        volumeValue.textContent = `${volume.toFixed(0)} m³`;
+        
+        if (currentCrop) {
+          updatePlantsEstimate(currentArea, currentCrop);
+          calculateIrrigation(currentArea, currentCrop);
+        }
+      } else if (type === 'polyline') {
+        const length = turf.length(geoJson, {units: 'meters'});
+        perimeterValue.textContent = `${length.toFixed(0)} m`;
       }
-
-      tipsDiv.innerHTML = `
-        <h3>Época Ideal de Plantio (${cropName}):</h3>
-        <p>${plantar}</p>
-        <h3>Preparo do Solo:</h3>
-        <p>${solo}</p>
-        <h3>Irrigação:</h3>
-        <p>${irrigacao}</p>
-        <h3>Alerta de Pragas:</h3>
-        <p>${pragas}</p>
+    }
+    
+    // Reseta métricas
+    function resetMetrics() {
+      currentArea = 0;
+      areaValue.textContent = '0 m²';
+      perimeterValue.textContent = '0 m';
+      volumeValue.textContent = '0 m³';
+      plantsValue.textContent = '0';
+      irrigationResult.innerHTML = '<p>Marque uma área e selecione uma cultura para calcular a irrigação necessária.</p>';
+    }
+    
+    // Atualiza estimativa de plantas
+    function updatePlantsEstimate(area, crop) {
+      let plants = 0;
+      const spacing = {
+        cafe: 2.5,    // m² por planta
+        milho: 0.2,
+        soja: 0.15,
+        feijao: 0.1,
+        algodao: 0.2,
+        hortalicas: 0.3,
+        frutiferas: 4
+      };
+      
+      plants = area / (spacing[crop] || 1);
+      plantsValue.textContent = `${plants.toFixed(0)} plantas`;
+    }
+    
+    // Calcula irrigação necessária
+    function calculateIrrigation(area, crop) {
+      const waterNeeds = {
+        cafe: 5,       // mm/dia
+        milho: 6,
+        soja: 5.5,
+        feijao: 4.5,
+        algodao: 6.5,
+        hortalicas: 4,
+        frutiferas: 5
+      };
+      
+      const need = waterNeeds[crop] || 5;
+      const dailyWater = (need * area) / 1000; // em m³/dia
+      const weeklyWater = dailyWater * 7;
+      
+      irrigationResult.innerHTML = `
+        <div class="alert alert-success">
+          <i class="fas fa-tint"></i> <strong>Recomendação de Irrigação</strong>
+          <p>🌧️ <strong>${need} mm/dia</strong> para ${cropSelect.options[cropSelect.selectedIndex].text}</p>
+          <p>💧 <strong>${dailyWater.toFixed(1)} m³/dia</strong> (${weeklyWater.toFixed(1)} m³/semana)</p>
+          <p>⏱️ <strong>${(dailyWater/10).toFixed(1)} horas/dia</strong> com sistema de 10m³/h</p>
+        </div>
       `;
     }
-
-    /* Função para buscar clima usando Open-Meteo API */
+    
+    // Busca dados meteorológicos
     async function fetchWeather(lat, lon) {
-      // API endpoint com parâmetros essenciais para clima atual e precipitação horária
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=precipitation,relativehumidity_2m&timezone=auto`;
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,relativehumidity_2m,precipitation&daily=precipitation_sum&timezone=auto`;
+      
       try {
         const response = await fetch(url);
-        if (!response.ok) throw new Error("Erro ao acessar a API");
-        const data = await response.json();
-        return data;
+        if (!response.ok) throw new Error("Erro na API");
+        return await response.json();
       } catch (error) {
-        console.error("Erro fetchWeather:", error);
-        statusElem.textContent =
-          "Erro ao obter dados do clima. Verifique sua conexão ou tente novamente.";
-        weatherElem.textContent = "";
-        isOffline = true;
+        console.error("Erro ao buscar clima:", error);
+        weatherInfo.innerHTML = `
+          <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> Não foi possível obter dados climáticos em tempo real.
+          </div>
+        `;
         return null;
       }
     }
-
-    /* Função para inicializar mapa com Leaflet */
-    function initMap(lat, lon) {
-      const map = L.map("map").setView([lat, lon], 12);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution:
-          '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      }).addTo(map);
-      L.marker([lat, lon]).addTo(map).bindPopup("Você está aqui!").openPopup();
+    
+    // Atualiza exibição do clima
+    function updateWeatherDisplay(data) {
+      if (!data || !data.current_weather) return;
+      
+      const current = data.current_weather;
+      const hourly = data.hourly;
+      const timeIndex = hourly.time.findIndex(t => t === current.time);
+      
+      weatherInfo.innerHTML = `
+        <div class="weather-current">
+          <h3><i class="fas fa-temperature-high"></i> Condições Atuais</h3>
+          <p>🌡️ <strong>Temperatura:</strong> ${current.temperature}°C</p>
+          <p>💧 <strong>Umidade:</strong> ${timeIndex >= 0 ? hourly.relativehumidity_2m[timeIndex] + '%' : '--'}</p>
+          <p>🌬️ <strong>Vento:</strong> ${current.windspeed} km/h</p>
+          <p>🌧️ <strong>Precipitação:</strong> ${timeIndex >= 0 ? hourly.precipitation[timeIndex] + ' mm' : '--'}</p>
+        </div>
+      `;
     }
-
-    /* Função principal de inicialização */
-    async function init() {
-      if (!navigator.geolocation) {
-        statusElem.textContent =
-          "Geolocalização não suportada pelo navegador.";
-        weatherElem.textContent = "";
-        isOffline = true;
-        updateTips();
+    
+    // Atualiza informações da cultura
+    function updateCropInfo(crop) {
+      currentCrop = crop;
+      if (!crop) {
+        cropInfo.innerHTML = '<p>Selecione uma cultura para ver recomendações.</p>';
         return;
       }
-
-      statusElem.textContent = "Detectando sua localização...";
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const lat = position.coords.latitude.toFixed(5);
-          const lon = position.coords.longitude.toFixed(5);
-
-          statusElem.textContent = `Localização detectada: (${lat}, ${lon}). Buscando clima...`;
-          weatherData = await fetchWeather(lat, lon);
-
-          if (weatherData && weatherData.current_weather) {
-            const cw = weatherData.current_weather;
-            weatherElem.innerHTML = `
-              <strong>Temperatura atual:</strong> ${cw.temperature}°C<br />
-              <strong>Velocidade do vento:</strong> ${cw.windspeed} km/h<br />
-              <strong>Direção do vento:</strong> ${cw.winddirection}°<br />
-              <strong>Hora da medição:</strong> ${new Date(cw.time).toLocaleString()}
-            `;
-            statusElem.textContent = "Dados do clima atualizados.";
-            isOffline = false;
-          } else {
-            weatherElem.textContent = "Dados do clima não disponíveis.";
-            isOffline = true;
-          }
-          updateTips();
-          initMap(lat, lon);
+      
+      const cropData = {
+        cafe: {
+          name: '☕ Café',
+          planting: 'Out-Nov (início das chuvas)',
+          water: '5-7 mm/dia',
+          tips: 'Mantenha solo úmido durante floração e granação'
         },
-        (error) => {
-          statusElem.textContent = `Erro ao obter localização: ${error.message}`;
-          weatherElem.textContent = "";
-          isOffline = true;
-          updateTips();
+        milho: {
+          name: '🌽 Milho',
+          planting: 'Set-Out (safra) ou Jan (safrinha)',
+          water: '6-8 mm/dia',
+          tips: 'Crítico no florescimento e enchimento de grãos'
         },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
-      );
+        soja: {
+          name: '🥜 Soja',
+          planting: 'Set-Nov conforme região',
+          water: '5-6 mm/dia',
+          tips: 'Evite déficit hídrico no florescimento'
+        },
+        feijao: {
+          name: '🥜 Feijão',
+          planting: 'Out-Dez ou Fev-Mar',
+          water: '4-5 mm/dia',
+          tips: 'Irrigação uniforme durante o ciclo'
+        },
+        algodao: {
+          name: '🧶 Algodão',
+          planting: 'Nov-Dez',
+          water: '6-7 mm/dia',
+          tips: 'Maior necessidade na floração e frutificação'
+        },
+        hortalicas: {
+          name: '🥦 Hortaliças',
+          planting: 'Conforme espécie',
+          water: '4-5 mm/dia',
+          tips: 'Irrigações frequentes em pequenos volumes'
+        },
+        frutiferas: {
+          name: '🍊 Frutíferas',
+          planting: 'Início das chuvas',
+          water: '5-6 mm/dia',
+          tips: 'Boa drenagem é essencial'
+        }
+      };
+      
+      const info = cropData[crop];
+      cropInfo.innerHTML = `
+        <h3>${info.name}</h3>
+        <p>📅 <strong>Época de plantio:</strong> ${info.planting}</p>
+        <p>💧 <strong>Necessidade hídrica:</strong> ${info.water}</p>
+        <p>🌱 <strong>Dicas:</strong> ${info.tips}</p>
+      `;
+      
+      if (currentArea > 0) {
+        updatePlantsEstimate(currentArea, crop);
+        calculateIrrigation(currentArea, crop);
+      }
     }
-
-    // Atualiza dicas ao mudar cultura
-    cropSelect.addEventListener("change", updateTips);
-
-    // Chama a inicialização quando a página carregar
-    window.onload = init;
+    
+    // Gera relatório PDF
+    function generatePDF() {
+      const doc = new jsPDF();
+      
+      // Cabeçalho
+      doc.setFontSize(18);
+      doc.setTextColor(47, 133, 90);
+      doc.text('🌱 PlantAI - Relatório Agrícola', 105, 15, { align: 'center' });
+      
+      // Dados da cultura
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`Cultura: ${cropSelect.options[cropSelect.selectedIndex].text}`, 15, 30);
+      doc.text(`Área: ${areaValue.textContent}`, 15, 40);
+      doc.text(`Plantas estimadas: ${plantsValue.textContent}`, 15, 50);
+      
+      // Recomendações de irrigação
+      const irrigationText = irrigationResult.textContent.split('\n').filter(t => t.trim());
+      doc.text('Recomendações de Irrigação:', 15, 65);
+      irrigationText.forEach((line, i) => {
+        doc.text(line.trim(), 20, 75 + (i * 7));
+      });
+      
+      // Data e localização
+      doc.text(`Data: ${new Date().toLocaleDateString()}`, 15, 120);
+      if (userLocation) {
+        doc.text(`Localização: Lat ${userLocation.lat.toFixed(4)}, Lon ${userLocation.lon.toFixed(4)}`, 15, 130);
+      }
+      
+      doc.save('relatorio_plantai.pdf');
+    }
+    
+    // Compartilha via WhatsApp
+    function shareViaWhatsApp() {
+      const cropName = cropSelect.options[cropSelect.selectedIndex].text;
+      const areaText = areaValue.textContent;
+      const plantsText = plantsValue.textContent;
+      const irrigationText = irrigationResult.textContent.split('\n')
+        .filter(t => t.trim())
+        .map(t => t.trim())
+        .join('%0A- ');
+      
+      const text = `*Relatório PlantAI*%0A%0A` +
+        `*Cultura:* ${cropName}%0A` +
+        `*Área:* ${areaText}%0A` +
+        `*Plantas:* ${plantsText}%0A%0A` +
+        `*Recomendações:*%0A- ${irrigationText}%0A%0A` +
+        `_Gerado em ${new Date().toLocaleDateString()}_`;
+      
+      window.open(`https://wa.me/?text=${text}`, '_blank');
+    }
+    
+    // Inicialização do app
+    async function initApp() {
+      try {
+        // Obtém localização
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+          });
+        });
+        
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        userLocation = { lat, lon };
+        
+        statusText.textContent = `Localização: ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+        
+        // Inicializa mapa
+        initMap(lat, lon);
+        
+        // Busca dados climáticos
+        weatherData = await fetchWeather(lat, lon);
+        updateWeatherDisplay(weatherData);
+        
+        // Configura eventos
+        drawPolygonBtn.addEventListener('click', () => {
+          new L.Draw.Polygon(map, L.Draw.Polygon.prototype.options).enable();
+        });
+        
+        drawPolylineBtn.addEventListener('click', () => {
+          new L.Draw.Polyline(map, L.Draw.Polyline.prototype.options).enable();
+        });
+        
+        clearAllBtn.addEventListener('click', () => {
+          drawnItems.clearLayers();
+          resetMetrics();
+        });
+        
+        cropSelect.addEventListener('change', () => {
+          updateCropInfo(cropSelect.value);
+        });
+        
+        exportPdfBtn.addEventListener('click', generatePDF);
+        shareWhatsappBtn.addEventListener('click', shareViaWhatsApp);
+        
+      } catch (error) {
+        console.error("Erro na geolocalização:", error);
+        
+        // Fallback para localização padrão (Brasília)
+        const defaultLat = -15.7975;
+        const defaultLon = -47.8919;
+        userLocation = { lat: defaultLat, lon: defaultLon };
+        
+        statusText.textContent = "Localização padrão (Brasília)";
+        initMap(defaultLat, defaultLon);
+        
+        weatherInfo.innerHTML = `
+          <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> Usando localização padrão.
+          </div>
+        `;
+      }
+    }
+    
+    // Inicia o aplicativo
+    window.addEventListener('DOMContentLoaded', initApp);
   </script>
 </body>
 </html>

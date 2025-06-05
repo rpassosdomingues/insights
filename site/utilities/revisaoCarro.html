@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoCheck - Inspeção Veicular Completa</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #3498db;
+            --primary-dark: #2980b9;
+            --secondary: #2ecc71;
+            --secondary-dark: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --warning-light: #f1c40f;
+            --dark: #2c3e50;
+            --dark-light: #34495e;
+            --light: #ecf0f1;
+            --gray: #95a5a6;
+            --gray-light: #bdc3c7;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 100%;
+            padding: 15px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--dark));
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            font-size: 2rem;
+        }
+
+        .form-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .form-section:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .rating-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            gap: 5px;
+        }
+
+        .rating-btn {
+            flex: 1;
+            padding: 8px 0;
+            border-radius: 5px;
+            background-color: var(--light);
+            color: var(--dark);
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: bold;
+            min-height: 50px;
+        }
+
+        .rating-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .rating-btn.active {
+            color: white;
+        }
+
+        .rating-btn[data-rating="1"]:not(.active):hover { background-color: #ffcdd2; }
+        .rating-btn[data-rating="2"]:not(.active):hover { background-color: #ffccbc; }
+        .rating-btn[data-rating="3"]:not(.active):hover { background-color: #fff9c4; }
+        .rating-btn[data-rating="4"]:not(.active):hover { background-color: #c8e6c9; }
+        .rating-btn[data-rating="5"]:not(.active):hover { background-color: #a5d6a7; }
+
+        .rating-btn.active[data-rating="1"] { background-color: var(--danger); }
+        .rating-btn.active[data-rating="2"] { background-color: var(--warning); }
+        .rating-btn.active[data-rating="3"] { background-color: var(--warning-light); }
+        .rating-btn.active[data-rating="4"] { background-color: var(--secondary); }
+        .rating-btn.active[data-rating="5"] { background-color: var(--secondary-dark); }
+
+        .rating-label {
+            font-size: 0.7rem;
+            font-weight: normal;
+            margin-top: 3px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            font-size: 1.2rem;
+        }
+
+        .inspection-item {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .inspection-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .item-title i {
+            color: var(--primary);
+        }
+
+        .notes-area {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: vertical;
+            min-height: 80px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border-radius: 5px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: var(--transition);
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: var(--secondary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-whatsapp {
+            background-color: #25D366;
+            color: white;
+        }
+
+        .btn-whatsapp:hover {
+            background-color: #128C7E;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .dashboard {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: var(--shadow);
+            display: none;
+        }
+
+        .dashboard-title {
+            font-size: 1.3rem;
+            color: var(--dark);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .dashboard-summary {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .summary-item {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: var(--light);
+            flex: 1;
+            min-width: 120px;
+            transition: var(--transition);
+        }
+
+        .summary-item:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+
+        .summary-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .summary-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .dashboard-chart-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .chart-container {
+            flex: 1;
+            min-width: 300px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .chart-title {
+            font-size: 1rem;
+            color: var(--dark);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .dashboard-details {
+            margin-top: 20px;
+        }
+
+        .details-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            align-items: center;
+        }
+
+        .details-item:last-child {
+            border-bottom: none;
+        }
+
+        .details-category {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .details-rating {
+            display: flex;
+            gap: 5px;
+        }
+
+        .rating-star {
+            color: var(--gray-light);
+        }
+
+        .rating-star.filled {
+            color: var(--warning);
+        }
+
+        .details-estimate {
+            font-weight: 600;
+            color: var(--dark);
+            background-color: #e3f2fd;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+        }
+
+        .severity-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 8px;
+        }
+
+        .severity-1 { background-color: var(--danger); }
+        .severity-2 { background-color: var(--warning); }
+        .severity-3 { background-color: var(--warning-light); }
+        .severity-4 { background-color: var(--secondary); }
+        .severity-5 { background-color: var(--secondary-dark); }
+
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--gray);
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .priority-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            transition: var(--transition);
+        }
+
+        .priority-item:hover {
+            background-color: #e9ecef;
+        }
+
+        .priority-rank {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .priority-content {
+            flex-grow: 1;
+        }
+
+        .priority-title {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .priority-description {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .priority-estimate {
+            font-weight: 600;
+            color: var(--dark);
+            margin-left: 15px;
+            white-space: nowrap;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .badge-danger {
+            background-color: #ffebee;
+            color: var(--danger);
+        }
+
+        .badge-warning {
+            background-color: #fff8e1;
+            color: var(--warning);
+        }
+
+        .badge-success {
+            background-color: #e8f5e9;
+            color: var(--secondary-dark);
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--dark);
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+            font-weight: normal;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin: 10px 0;
+            height: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.5s ease;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @media (max-width: 768px) {
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .summary-item {
+                min-width: 100px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .btn {
+                min-width: 100%;
+            }
+            
+            .dashboard-chart-container {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .summary-item {
+                min-width: 80px;
+                padding: 10px;
+            }
+            
+            .summary-value {
+                font-size: 1.5rem;
+            }
+            
+            .rating-btn {
+                padding: 5px 0;
+                min-height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-car"></i>
+                <h1>AutoCheck - Inspeção Veicular Completa</h1>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="form-section">
+            <h2 class="section-title"><i class="fas fa-user"></i> Informações Básicas</h2>
+            <div class="form-group">
+                <label for="inspectorName">Nome do Avaliador:</label>
+                <input type="text" id="inspectorName" class="form-control" placeholder="Digite seu nome completo" required>
+            </div>
+            <div class="form-group">
+                <label for="clientName">Nome do Cliente:</label>
+                <input type="text" id="clientName" class="form-control" placeholder="Nome do proprietário do veículo" required>
+            </div>
+            <div class="form-group">
+                <label for="carModel">Carro/Modelo:</label>
+                <input type="text" id="carModel" class="form-control" placeholder="Ex: Volkswagen Gol 1.6 2020" required>
+            </div>
+            <div class="form-group">
+                <label for="carPlate">Placa:</label>
+                <input type="text" id="carPlate" class="form-control" placeholder="Ex: ABC1D23" required>
+            </div>
+            <div class="form-group">
+                <label for="carMileage">Quilometragem (km):</label>
+                <input type="number" id="carMileage" class="form-control" placeholder="Ex: 45000" required>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2 class="section-title"><i class="fas fa-clipboard-check"></i> Critérios de Avaliação</h2>
+            
+            <div class="inspection-item">
+                <div class="item-title">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Documentação e Procedência</span>
+                    <span class="tooltip">
+                        <i class="fas fa-info-circle"></i>
+                        <span class="tooltiptext">Verifique CRLV, histórico de manutenção, multas, sinistros e documentação em geral</span>
+                    </span>
+                </div>
+                <div class="rating-container">
+                    <button class="rating-btn" data-rating="1">
+                        <span>1</span>
+                        <span class="rating-label">Péssimo</span>
+                    </button>
+                    <button class="rating-btn" data-rating="2">
+                        <span>2</span>
+                        <span class="rating-label">Ruim</span>
+                    </button>
+                    <button class="rating-btn" data-rating="3">
+                        <span>3</span>
+                        <span class="rating-label">Regular</span>
+                    </button>
+                    <button class="rating-btn" data-rating="4">
+                        <span>4</span>
+                        <span class="rating-label">Bom</span>
+                    </button>
+                    <button class="rating-btn" data-rating="5">
+                        <span>5</span>
+                        <span class="rating-label">Excelente</span>
+                    </button>
+                </div>
+                <textarea class="notes-area" placeholder="Observações (ex: documento com restrição, falta de histórico de manutenção...)"></textarea>
+                <div class="progress-container">
+                    <div class="progress-bar" id="doc-progress" style="width: 0%; background-color: #e0e0e0;"></div>
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label for="doc-estimate">Estimativa de Investimento (R$):</label>
+                    <input type="number" id="doc-estimate" class="form-control" placeholder="Valor estimado para regularização">
+                </div>
+            </div>
+
+            <div class="inspection-item">
+                <div class="item-title">
+                    <i class="fas fa-tire"></i>
+                    <span>Pneus e Rodas</span>
+                    <span class="tooltip">
+                        <i class="fas fa-info-circle"></i>
+                        <span class="tooltiptext">Verifique desgaste, calibragem, alinhamento, balanceamento e estado das rodas</span>
+                    </span>
+                </div>
+                <div class="rating-container">
+                    <button class="rating-btn" data-rating="1">
+                        <span>1</span>
+                        <span class="rating-label">Péssimo</span>
+                    </button>
+                    <button class="rating-btn" data-rating="2">
+                        <span>2</span>
+                        <span class="rating-label">Ruim</span>
+                    </button>
+                    <button class="rating-btn" data-rating="3">
+                        <span>3</span>
+                        <span class="rating-label">Regular</span>
+                    </button>
+                    <button class="rating-btn" data-rating="4">
+                        <span>4</span>
+                        <span class="rating-label">Bom</span>
+                    </button>
+                    <button class="rating-btn" data-rating="5">
+                        <span>5</span>
+                        <span class="rating-label">Excelente</span>
+                    </button>
+                </div>
+                <textarea class="notes-area" placeholder="Observações (ex: pneus carecas, rodas amassadas...)"></textarea>
+                <div class="progress-container">
+                    <div class="progress-bar" id="tires-progress" style="width: 0%; background-color: #e0e0e0;"></div>
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label for="tires-estimate">Estimativa de Investimento (R$):</label>
+                    <input type="number" id="tires-estimate" class="form-control" placeholder="Valor estimado para troca/recuperação">
+                </div>
+            </div>
+
+            <div class="inspection-item">
+                <div class="item-title">
+                    <i class="fas fa-car-side"></i>
+                    <span>Lataria e Pintura</span>
+                    <span class="tooltip">
+                        <i class="fas fa-info-circle"></i>
+                        <span class="tooltiptext">Verifique amassados, riscos, desgaste de pintura, corrosão e alinhamento de portas/porta-malas</span>
+                    </span>
+                </div>
+                <div class="rating-container">
+                    <button class="rating-btn" data-rating="1">
+                        <span>1</span>
+                        <span class="rating-label">Péssimo</span>
+                    </button>
+                    <button class="rating-btn" data-rating="2">
+                        <span>2</span>
+                        <span class="rating-label">Ruim</span>
+                    </button>
+                    <button class="rating-btn" data-rating="3">
+                        <span>3</span>
+                        <span class="rating-label">Regular</span>
+                    </button>
+                    <button class="rating-btn" data-rating="4">
+                        <span>4</span>
+                        <span class="rating-label">Bom</span>
+                    </button>
+                    <button class="rating-btn" data-rating="5">
+                        <span>5</span>
+                        <span class="rating-label">Excelente</span>
+                    </button>
+                </div>
+                <textarea class="notes-area" placeholder="Observações (ex: amassado na porta direita, riscos profundos...)"></textarea>
+                <div class="progress-container">
+                    <div class="progress-bar" id="body-progress" style="width: 0%; background-color: #e0e0e0;"></div>
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label for="body-estimate">Estimativa de Investimento (R$):</label>
+                    <input type="number" id="body-estimate" class="form-control" placeholder="Valor estimado para reparos">
+                </div>
+            </div>
+
+            <div class="inspection-item">
+                <div class="item-title">
+                    <i class="fas fa-window-maximize"></i>
+                    <span>Vidros, Espelhos e Retrovisores</span>
+                    <span class="tooltip">
+                        <i class="fas fa-info-circle"></i>
+                        <span class="tooltiptext">Verifique trincas, funcionamento, regulagem, desembaçador e sistema elétrico</span>
+                    </span>
+                </div>
+                <div class="rating-container">
+                    <button class="rating-btn" data-rating="1">
+                        <span>1</span>
+                        <span class="rating-label">Péssimo</span>
+                    </button>
+                    <button class="rating-btn" data-rating="2">
+                        <span>2</span>
+                        <span class="rating-label">Ruim</span>
+                    </button>
+                    <button class="rating-btn" data-rating="3">
+                        <span>3</span>
+                        <span class="rating-label">Regular</span>
+                    </button>
+                    <button class="rating-btn" data-rating="4">
+                        <span>4</span>
+                        <span class="rating-label">Bom</span>
+                    </button>
+                    <button class="rating-btn" data-rating="5">
+                        <span>5</span>
+                        <span class="rating-label">Excelente</span>
+                    </button>
+                </div>
+                <textarea class="notes-area" placeholder="Observações (ex: vidro trincado, retrovisor quebrado...)"></textarea>
+                <div class="progress-container">
+                    <div class="progress-bar" id="glass-progress" style="width: 0%; background-color: #e0e0e0;"></div>
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label for="glass-estimate">Estimativa de Investimento (R$):</label>
+                    <input type="number" id="glass-estimate" class="form-control" placeholder="Valor estimado para reparos">
+                </div>
+            </div>
+
+            <div class="inspection-item">
+                <div class="item-title">
+                    <i class="fas fa-id-card"></i>
+                    <span>Placas, Etiquetas e Identificação</span>
+                    <span class="tooltip">
+                        <i class="fas fa-info-circle"></i>
+                        <span class="tooltiptext">Verifique placas de identificação, etiquetas de revisão, número de chassis e gravações</span>
+                    </span>
+                </div>
+                <div class="rating-container">
+                    <button class="rating-btn" data-rating="1">
+                        <span>1</span>
+                        <span class="rating-label">Péssimo</span>
+                    </button>
+                    <button class="rating-btn" data-rating="2">
+                        <span>2</span>
+                        <span class="rating-label">Ruim</span>
+                    </button>
+                    <button class="rating-btn" data-rating="3">
+                        <span>3</span>
+                        <span class="rating-label">Regular</span>
+                    </button>
+                    <button class="rating-btn" data-rating="4">
+                        <span>4</span>
+                        <span class="rating-label">Bom</span>
+                    </button>
+                    <button class="rating-btn" data-rating="5">
+                        <span>5</span>
+                        <span class="rating-label">Excelente</span>
+                    </button>
+                </div>
+                <textarea class="notes-area" placeholder="Observações (ex: placa danificada, etiqueta de revisão faltando...)"></textarea>
+                <div class="progress-container">
+                    <div class="progress-bar" id="plates-progress" style="width: 0%; background-color: #e0e0e0;"></div>
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label for="plates-estimate">Estimativa de Investimento (R$):</label>
+                    <input type="number" id="plates-estimate" class="form-control" placeholder="Valor estimado para regularização">
+                </div>
+            </div>
+
+            <div class="inspection-item">
+                <div class="item-title">
+                    <i class="fas fa-cogs"></i>
+                    <span>Motor e Componentes Mecânicos</span>
+                    <span class="tooltip">
+                        <i class="fas fa-info-circle"></i>
+                        <span class="tooltiptext">Verifique vazamentos, ruídos, desempenho, consumo de óleo e estado geral do motor</span>
+                    </span>
+                </div>
+                <div class="rating-container">
+                    <button class="rating-btn" data-rating="1">
+                        <span>1</span>
+                        <span class="rating-label">Péssimo</span>
+                    </button>
+                    <button class="rating-btn" data-rating="2">
+                        <span>2</span>
+                        <span class="rating-label">Ruim</span>
+                    </button>
+                    <button class="rating-btn" data-rating="3">
+                        <span>3</span>
+                        <span class="rating-label">Regular</span>
+                    </button>
+                    <button class="rating-btn" data-rating="4">
+                        <span>4</span>
+                        <span class="rating-label">Bom</span>
+                    </button>
+                    <button class="rating-btn" data-rating="5">
+                        <span>5</span>
+                        <span class="rating-label">Excelente</span>
+                    </button>
+                </div>
+                <textarea class="notes-area" placeholder="Observações (ex: vazamento de óleo, ruído na correia...)"></textarea>
+                <div class="progress-container">
+                    <div class="progress-bar" id="engine-progress" style="width: 0%; background-color: #e0e0e0;"></div>
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label for="engine-estimate">Estimativa de Investimento (R$):</label>
+                    <input type="number" id="engine-estimate" class="form-control" placeholder="Valor estimado para reparos">
+                </div>
+            </div>
+
+            <div class="inspection-item">
+                <div class="item-title">
+                    <i class="fas fa-car-crash"></i>
+                    <span>Chassi, Suspensão e Direção</span>
+                    <span class="tooltip">
+                        <i class="fas fa-info-circle"></i>
+                        <span class="tooltiptext">Verifique amassados, corrosão, folgas, alinhamento e estado dos componentes</span>
+                    </span>
+                </div>
+                <div class="rating-container">
+                    <button class="rating-btn" data-rating="1">
+                        <span>1</span>
+                        <span class="rating-label">Péssimo</span>
+                    </button>
+                    <button class="rating-btn" data-rating="2">
+                        <span>2</span>
+                        <span class="rating-label">Ruim</span>
+                    </button>
+                    <button class="rating-btn" data-rating="3">
+                        <span>3</span>
+                        <span class="rating-label">Regular</span>
+                    </button>
+                    <button class="rating-btn" data-rating="4">
+                        <span>4</span>
+                        <span class="rating-label">Bom</span>
+                    </button>
+                    <button class="rating-btn" data-rating="5">
+                        <span>5</span>
+                        <span class="rating-label">Excelente</span>
+                    </button>
+                </div>
+                <textarea class="notes-area" placeholder="Observações (ex: folga na direção, barulho na suspensão...)"></textarea>
+                <div class="progress-container">
+                    <div class="progress-bar" id="chassis-progress" style="width: 0%; background-color: #e0e0e0;"></div>
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label for="chassis-estimate">Estimativa de Investimento (R$):</label>
+                    <input type="number" id="chassis-estimate" class="form-control" placeholder="Valor estimado para reparos">
+                </div>
+            </div>
+
+            <div class="inspection-item">
+                <div class="item-title">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Teste de Rodagem e Freios</span>
+                    <span class="tooltip">
+                        <i class="fas fa-info-circle"></i>
+                        <span class="tooltiptext">Verifique desempenho, frenagem, ruídos, vibrações e comportamento geral</span>
+                    </span>
+                </div>
+                <div class="rating-container">
+                    <button class="rating-btn" data-rating="1">
+                        <span>1</span>
+                        <span class="rating-label">Péssimo</span>
+                    </button>
+                    <button class="rating-btn" data-rating="2">
+                        <span>2</span>
+                        <span class="rating-label">Ruim</span>
+                    </button>
+                    <button class="rating-btn" data-rating="3">
+                        <span>3</span>
+                        <span class="rating-label">Regular</span>
+                    </button>
+                    <button class="rating-btn" data-rating="4">
+                        <span>4</span>
+                        <span class="rating-label">Bom</span>
+                    </button>
+                    <button class="rating-btn" data-rating="5">
+                        <span>5</span>
+                        <span class="rating-label">Excelente</span>
+                    </button>
+                </div>
+                <textarea class="notes-area" placeholder="Observações (ex: freio pulsando, barulho em curva...)"></textarea>
+                <div class="progress-container">
+                    <div class="progress-bar" id="brakes-progress" style="width: 0%; background-color: #e0e0e0;"></div>
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label for="brakes-estimate">Estimativa de Investimento (R$):</label>
+                    <input type="number" id="brakes-estimate" class="form-control" placeholder="Valor estimado para reparos">
+                </div>
+            </div>
+
+            <div class="inspection-item">
+                <div class="item-title">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Itens Internos e Conforto</span>
+                    <span class="tooltip">
+                        <i class="fas fa-info-circle"></i>
+                        <span class="tooltiptext">Verifique bancos, painel, ar-condicionado, sistema de som, limpeza e conservação</span>
+                    </span>
+                </div>
+                <div class="rating-container">
+                    <button class="rating-btn" data-rating="1">
+                        <span>1</span>
+                        <span class="rating-label">Péssimo</span>
+                    </button>
+                    <button class="rating-btn" data-rating="2">
+                        <span>2</span>
+                        <span class="rating-label">Ruim</span>
+                    </button>
+                    <button class="rating-btn" data-rating="3">
+                        <span>3</span>
+                        <span class="rating-label">Regular</span>
+                    </button>
+                    <button class="rating-btn" data-rating="4">
+                        <span>4</span>
+                        <span class="rating-label">Bom</span>
+                    </button>
+                    <button class="rating-btn" data-rating="5">
+                        <span>5</span>
+                        <span class="rating-label">Excelente</span>
+                    </button>
+                </div>
+                <textarea class="notes-area" placeholder="Observações (ex: banco rasgado, ar-condicionado não funciona...)"></textarea>
+                <div class="progress-container">
+                    <div class="progress-bar" id="interior-progress" style="width: 0%; background-color: #e0e0e0;"></div>
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label for="interior-estimate">Estimativa de Investimento (R$):</label>
+                    <input type="number" id="interior-estimate" class="form-control" placeholder="Valor estimado para reparos">
+                </div>
+            </div>
+
+            <div class="inspection-item">
+                <div class="item-title">
+                    <i class="fas fa-bolt"></i>
+                    <span>Sistema Elétrico e Eletrônicos</span>
+                    <span class="tooltip">
+                        <i class="fas fa-info-circle"></i>
+                        <span class="tooltiptext">Verifique bateria, luzes, painel de instrumentos, central multimídia e acessórios</span>
+                    </span>
+                </div>
+                <div class="rating-container">
+                    <button class="rating-btn" data-rating="1">
+                        <span>1</span>
+                        <span class="rating-label">Péssimo</span>
+                    </button>
+                    <button class="rating-btn" data-rating="2">
+                        <span>2</span>
+                        <span class="rating-label">Ruim</span>
+                    </button>
+                    <button class="rating-btn" data-rating="3">
+                        <span>3</span>
+                        <span class="rating-label">Regular</span>
+                    </button>
+                    <button class="rating-btn" data-rating="4">
+                        <span>4</span>
+                        <span class="rating-label">Bom</span>
+                    </button>
+                    <button class="rating-btn" data-rating="5">
+                        <span>5</span>
+                        <span class="rating-label">Excelente</span>
+                    </button>
+                </div>
+                <textarea class="notes-area" placeholder="Observações (ex: luz de freio queimada, tela do rádio piscando...)"></textarea>
+                <div class="progress-container">
+                    <div class="progress-bar" id="electric-progress" style="width: 0%; background-color: #e0e0e0;"></div>
+                </div>
+                <div class="form-group" style="margin-top: 10px;">
+                    <label for="electric-estimate">Estimativa de Investimento (R$):</label>
+                    <input type="number" id="electric-estimate" class="form-control" placeholder="Valor estimado para reparos">
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="generateReport()">
+                <i class="fas fa-file-pdf"></i> Gerar PDF
+            </button>
+            <button class="btn btn-success" onclick="showDashboard()">
+                <i class="fas fa-chart-bar"></i> Ver Resumo
+            </button>
+            <button class="btn btn-whatsapp" onclick="shareOnWhatsApp()">
+                <i class="fab fa-whatsapp"></i> Compartilhar
+            </button>
+            <button class="btn btn-danger" onclick="clearForm()">
+                <i class="fas fa-trash-alt"></i> Limpar Formulário
+            </button>
+        </div>
+
+        <div class="dashboard" id="dashboard">
+            <h3 class="dashboard-title"><i class="fas fa-chart-pie"></i> Resumo Completo da Inspeção</h3>
+            
+            <div class="dashboard-summary">
+                <div class="summary-item">
+                    <div class="summary-value" id="totalScore">0</div>
+                    <div class="summary-label">Pontuação Total</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value" id="averageScore">0</div>
+                    <div class="summary-label">Média Geral</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value" id="totalEstimate">R$ 0</div>
+                    <div class="summary-label">Investimento Total</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value" id="inspectionDate">--/--/----</div>
+                    <div class="summary-label">Data da Inspeção</div>
+                </div>
+            </div>
+            
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="openTab('tab-summary')">Resumo</button>
+                <button class="tab-btn" onclick="openTab('tab-priority')">Prioridades</button>
+                <button class="tab-btn" onclick="openTab('tab-details')">Detalhes</button>
+            </div>
+            
+            <div class="tab-content active" id="tab-summary">
+                <div class="dashboard-chart-container">
+                    <div class="chart-container">
+                        <div class="chart-title">Pontuação por Categoria</div>
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-title">Distribuição das Notas</div>
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-container" style="margin-top: 20px;">
+                    <div class="chart-title">Investimento por Área (R$)</div>
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="tab-priority">
+                <h4 style="margin-bottom: 15px; color: var(--dark);"><i class="fas fa-exclamation-triangle"></i> Itens que Requerem Atenção</h4>
+                <div id="priority-items">
+                    <!-- Priority items will be added here -->
+                </div>
+            </div>
+            
+            <div class="tab-content" id="tab-details">
+                <div class="dashboard-details" id="details">
+                    <!-- Details will be added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables to store chart instances
+        let radarChart, barChart, pieChart;
+        
+        // Rating System with progress bars
+        document.querySelectorAll('.rating-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const container = this.closest('.inspection-item');
+                const progressBar = container.querySelector('.progress-bar');
+                
+                // Remove active class from siblings
+                this.parentNode.querySelectorAll('.rating-btn').forEach(sibling => {
+                    sibling.classList.remove('active');
+                });
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Update progress bar
+                const rating = parseInt(this.getAttribute('data-rating'));
+                const progress = (rating / 5) * 100;
+                
+                // Set color based on rating
+                if (rating <= 2) {
+                    progressBar.style.backgroundColor = '#e74c3c';
+                } else if (rating <= 3) {
+                    progressBar.style.backgroundColor = '#f39c12';
+                } else if (rating <= 4) {
+                    progressBar.style.backgroundColor = '#f1c40f';
+                } else {
+                    progressBar.style.backgroundColor = '#2ecc71';
+                }
+                
+                // Animate progress bar
+                progressBar.style.width = `${progress}%`;
+                
+                // Update estimate field color based on rating
+                const estimateInput = container.querySelector('input[type="number"]');
+                if (estimateInput) {
+                    if (rating <= 2) {
+                        estimateInput.style.borderColor = '#e74c3c';
+                        estimateInput.style.boxShadow = '0 0 0 2px rgba(231, 76, 60, 0.2)';
+                    } else if (rating <= 3) {
+                        estimateInput.style.borderColor = '#f39c12';
+                        estimateInput.style.boxShadow = '0 0 0 2px rgba(243, 156, 18, 0.2)';
+                    } else if (rating <= 4) {
+                        estimateInput.style.borderColor = '#f1c40f';
+                        estimateInput.style.boxShadow = '0 0 0 2px rgba(241, 196, 15, 0.2)';
+                    } else {
+                        estimateInput.style.borderColor = '#2ecc71';
+                        estimateInput.style.boxShadow = '0 0 0 2px rgba(46, 204, 113, 0.2)';
+                    }
+                }
+            });
+        });
+        
+        // Tab System
+        function openTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show the selected tab content
+            document.getElementById(tabId).classList.add('active');
+            
+            // Add active class to clicked tab button
+            event.currentTarget.classList.add('active');
+        }
+        
+        // Dashboard Functions
+        function showDashboard() {
+            if (!validateForm()) return;
+            
+            const dashboard = document.getElementById('dashboard');
+            dashboard.style.display = 'block';
+            dashboard.classList.add('fade-in');
+            
+            // Calculate scores and estimates
+            const items = document.querySelectorAll('.inspection-item');
+            let totalScore = 0;
+            let totalEstimate = 0;
+            let ratedItems = 0;
+            const categories = [];
+            const scores = [];
+            const estimates = [];
+            const notes = [];
+            
+            items.forEach(item => {
+                const activeBtn = item.querySelector('.rating-btn.active');
+                if (activeBtn) {
+                    const rating = parseInt(activeBtn.getAttribute('data-rating'));
+                    totalScore += rating;
+                    ratedItems++;
+                    
+                    const category = item.querySelector('.item-title span').textContent;
+                    categories.push(category);
+                    scores.push(rating);
+                    
+                    // Get estimate value
+                    const estimateInput = item.querySelector('input[type="number"]');
+                    const estimate = estimateInput ? parseFloat(estimateInput.value) || 0 : 0;
+                    estimates.push(estimate);
+                    totalEstimate += estimate;
+                    
+                    // Get notes
+                    const note = item.querySelector('.notes-area').value;
+                    notes.push(note);
+                }
+            });
+            
+            const averageScore = ratedItems > 0 ? (totalScore / ratedItems).toFixed(1) : 0;
+            
+            // Update dashboard
+            document.getElementById('totalScore').textContent = totalScore;
+            document.getElementById('averageScore').textContent = averageScore;
+            document.getElementById('totalEstimate').textContent = `R$ ${totalEstimate.toLocaleString('pt-BR')}`;
+            
+            // Set current date
+            const now = new Date();
+            document.getElementById('inspectionDate').textContent = 
+                `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth()+1).toString().padStart(2, '0')}/${now.getFullYear()}`;
+            
+            // Create charts
+            createCharts(categories, scores, estimates);
+            
+            // Create priority list
+            createPriorityList(categories, scores, estimates, notes);
+            
+            // Create details
+            createDetails(categories, scores, estimates, notes);
+            
+            // Scroll to dashboard
+            dashboard.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function createCharts(categories, scores, estimates) {
+            // Destroy previous charts if they exist
+            if (radarChart) radarChart.destroy();
+            if (barChart) barChart.destroy();
+            if (pieChart) pieChart.destroy();
+            
+            // Radar Chart - Scores by Category
+            const radarCtx = document.getElementById('radarChart').getContext('2d');
+            radarChart = new Chart(radarCtx, {
+                type: 'radar',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        label: 'Pontuação',
+                        data: scores,
+                        backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(52, 152, 219, 1)',
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    scale: {
+                        min: 0,
+                        max: 5,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+            
+            // Bar Chart - Score Distribution
+            const barCtx = document.getElementById('barChart').getContext('2d');
+            barChart = new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['1 ⭐', '2 ⭐', '3 ⭐', '4 ⭐', '5 ⭐'],
+                    datasets: [{
+                        label: 'Quantidade',
+                        data: countScores(scores),
+                        backgroundColor: [
+                            'rgba(231, 76, 60, 0.7)',
+                            'rgba(243, 156, 18, 0.7)',
+                            'rgba(241, 196, 15, 0.7)',
+                            'rgba(46, 204, 113, 0.7)',
+                            'rgba(39, 174, 96, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(231, 76, 60, 1)',
+                            'rgba(243, 156, 18, 1)',
+                            'rgba(241, 196, 15, 1)',
+                            'rgba(46, 204, 113, 1)',
+                            'rgba(39, 174, 96, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+            
+            // Pie Chart - Investment by Area
+            const pieCtx = document.getElementById('pieChart').getContext('2d');
+            pieChart = new Chart(pieCtx, {
+                type: 'pie',
+                data: {
+                    labels: categories,
+                    datasets: [{
+                        data: estimates,
+                        backgroundColor: [
+                            'rgba(52, 152, 219, 0.7)',
+                            'rgba(155, 89, 182, 0.7)',
+                            'rgba(26, 188, 156, 0.7)',
+                            'rgba(241, 196, 15, 0.7)',
+                            'rgba(230, 126, 34, 0.7)',
+                            'rgba(231, 76, 60, 0.7)',
+                            'rgba(46, 204, 113, 0.7)',
+                            'rgba(142, 68, 173, 0.7)',
+                            'rgba(41, 128, 185, 0.7)',
+                            'rgba(39, 174, 96, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(52, 152, 219, 1)',
+                            'rgba(155, 89, 182, 1)',
+                            'rgba(26, 188, 156, 1)',
+                            'rgba(241, 196, 15, 1)',
+                            'rgba(230, 126, 34, 1)',
+                            'rgba(231, 76, 60, 1)',
+                            'rgba(46, 204, 113, 1)',
+                            'rgba(142, 68, 173, 1)',
+                            'rgba(41, 128, 185, 1)',
+                            'rgba(39, 174, 96, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: R$ ${value.toLocaleString('pt-BR')} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function countScores(scores) {
+            const count = [0, 0, 0, 0, 0];
+            scores.forEach(score => {
+                count[score-1]++;
+            });
+            return count;
+        }
+        
+        function createPriorityList(categories, scores, estimates, notes) {
+            const priorityContainer = document.getElementById('priority-items');
+            priorityContainer.innerHTML = '';
+            
+            // Create an array of items with their priority (lower score = higher priority)
+            const priorityItems = categories.map((category, index) => {
+                return {
+                    category,
+                    score: scores[index],
+                    estimate: estimates[index],
+                    note: notes[index],
+                    index
+                };
+            });
+            
+            // Sort by score (ascending) and then by estimate (descending)
+            priorityItems.sort((a, b) => {
+                if (a.score !== b.score) return a.score - b.score;
+                return b.estimate - a.estimate;
+            });
+            
+            // Display top 5 priority items
+            const topPriorities = priorityItems.slice(0, 5);
+            
+            if (topPriorities.length === 0) {
+                priorityContainer.innerHTML = '<p style="text-align: center; color: var(--gray);">Nenhum item prioritário identificado.</p>';
+                return;
+            }
+            
+            topPriorities.forEach((item, idx) => {
+                const priorityItem = document.createElement('div');
+                priorityItem.className = 'priority-item';
+                
+                const priorityRank = document.createElement('div');
+                priorityRank.className = 'priority-rank';
+                priorityRank.textContent = idx + 1;
+                
+                const priorityContent = document.createElement('div');
+                priorityContent.className = 'priority-content';
+                
+                const priorityTitle = document.createElement('div');
+                priorityTitle.className = 'priority-title';
+                priorityTitle.textContent = item.category;
+                
+                const priorityDescription = document.createElement('div');
+                priorityDescription.className = 'priority-description';
+                priorityDescription.textContent = item.note || 'Nenhuma observação específica';
+                
+                const priorityEstimate = document.createElement('div');
+                priorityEstimate.className = 'priority-estimate';
+                priorityEstimate.textContent = `R$ ${item.estimate.toLocaleString('pt-BR')}`;
+                
+                priorityContent.appendChild(priorityTitle);
+                priorityContent.appendChild(priorityDescription);
+                
+                priorityItem.appendChild(priorityRank);
+                priorityItem.appendChild(priorityContent);
+                priorityItem.appendChild(priorityEstimate);
+                
+                priorityContainer.appendChild(priorityItem);
+            });
+        }
+        
+        function createDetails(categories, scores, estimates, notes) {
+            const details = document.getElementById('details');
+            details.innerHTML = '';
+            
+            if (categories.length === 0) {
+                details.innerHTML = '<p style="text-align: center; color: var(--gray);">Nenhum dado disponível.</p>';
+                return;
+            }
+            
+            categories.forEach((cat, index) => {
+                const item = document.createElement('div');
+                item.className = 'details-item';
+                
+                const category = document.createElement('div');
+                category.className = 'details-category';
+                
+                const catName = document.createElement('span');
+                catName.textContent = cat;
+                
+                const severity = document.createElement('span');
+                severity.className = `severity-indicator severity-${scores[index]}`;
+                severity.title = `Nota: ${scores[index]}/5`;
+                
+                category.appendChild(catName);
+                category.appendChild(severity);
+                
+                if (notes[index]) {
+                    const noteIcon = document.createElement('i');
+                    noteIcon.className = 'fas fa-comment-alt';
+                    noteIcon.style.marginLeft = '8px';
+                    noteIcon.style.color = 'var(--primary)';
+                    noteIcon.title = notes[index];
+                    category.appendChild(noteIcon);
+                }
+                
+                const rating = document.createElement('div');
+                rating.className = 'details-rating';
+                
+                for (let i = 1; i <= 5; i++) {
+                    const star = document.createElement('i');
+                    star.className = `fas fa-star rating-star ${i <= scores[index] ? 'filled' : ''}`;
+                    rating.appendChild(star);
+                }
+                
+                const estimate = document.createElement('div');
+                estimate.className = 'details-estimate';
+                estimate.textContent = `R$ ${estimates[index].toLocaleString('pt-BR')}`;
+                
+                item.appendChild(category);
+                item.appendChild(rating);
+                item.appendChild(estimate);
+                details.appendChild(item);
+            });
+        }
+        
+        // PDF Generation
+        function generateReport() {
+            if (!validateForm()) return;
+            
+            // Show dashboard if not visible
+            const dashboard = document.getElementById('dashboard');
+            if (dashboard.style.display !== 'block') {
+                showDashboard();
+            }
+            
+            // Wait a moment for charts to render
+            setTimeout(() => {
+                // Create a promise to wait for html2canvas to finish
+                new Promise((resolve, reject) => {
+                    html2canvas(document.body).then(canvas => {
+                        resolve(canvas);
+                    });
+                }).then(canvas => {
+                    const { jsPDF } = window.jspdf;
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = pdf.internal.pageSize.getHeight();
+                    const imgWidth = canvas.width;
+                    const imgHeight = canvas.height;
+                    const ratio = Math.min((pdfWidth - 20) / imgWidth, (pdfHeight - 20) / imgHeight);
+                    const imgX = (pdfWidth - imgWidth * ratio) / 2;
+                    const imgY = 10;
+                    
+                    pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+                    
+                    // Add metadata
+                    const inspectorName = document.getElementById('inspectorName').value;
+                    const clientName = document.getElementById('clientName').value;
+                    const carModel = document.getElementById('carModel').value;
+                    const carPlate = document.getElementById('carPlate').value;
+                    const now = new Date();
+                    const dateStr = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth()+1).toString().padStart(2, '0')}/${now.getFullYear()}`;
+                    
+                    pdf.setFontSize(10);
+                    pdf.setTextColor(100);
+                    pdf.text(`Relatório gerado por: ${inspectorName} | Cliente: ${clientName} | Veículo: ${carModel} (${carPlate}) | Data: ${dateStr}`, 10, pdf.internal.pageSize.getHeight() - 10);
+                    
+                    // Save the PDF
+                    pdf.save(`Inspeção_${carPlate}_${dateStr.replace(/\//g, '-')}.pdf`);
+                });
+            }, 1000);
+        }
+
+        // WhatsApp Sharing
+        function shareOnWhatsApp() {
+            if (!validateForm()) return;
+            
+            const inspectorName = document.getElementById('inspectorName').value;
+            const clientName = document.getElementById('clientName').value;
+            const carModel = document.getElementById('carModel').value;
+            const carPlate = document.getElementById('carPlate').value;
+            const carMileage = document.getElementById('carMileage').value;
+            const now = new Date();
+            const dateStr = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth()+1).toString().padStart(2, '0')}/${now.getFullYear()}`;
+            
+            // Calculate scores and estimates
+            const items = document.querySelectorAll('.inspection-item');
+            let totalScore = 0;
+            let totalEstimate = 0;
+            let ratedItems = 0;
+            const inspectionDetails = [];
+            
+            items.forEach(item => {
+                const activeBtn = item.querySelector('.rating-btn.active');
+                if (activeBtn) {
+                    const rating = parseInt(activeBtn.getAttribute('data-rating'));
+                    totalScore += rating;
+                    ratedItems++;
+                    
+                    const category = item.querySelector('.item-title span').textContent;
+                    const note = item.querySelector('.notes-area').value;
+                    
+                    // Get estimate value
+                    const estimateInput = item.querySelector('input[type="number"]');
+                    const estimate = estimateInput ? parseFloat(estimateInput.value) || 0 : 0;
+                    totalEstimate += estimate;
+                    
+                    inspectionDetails.push({
+                        category,
+                        rating,
+                        estimate,
+                        note
+                    });
+                }
+            });
+            
+            const averageScore = ratedItems > 0 ? (totalScore / ratedItems).toFixed(1) : 0;
+            
+            // Create message with emojis
+            let message = `*🚗 Relatório de Inspeção Veicular - AutoCheck* 🚗\n\n`;
+            message += `*🔍 Avaliador:* ${inspectorName}\n`;
+            message += `*👤 Cliente:* ${clientName}\n`;
+            message += `*🚘 Veículo:* ${carModel}\n`;
+            message += `*🔢 Placa:* ${carPlate}\n`;
+            message += `*🛣️ Quilometragem:* ${carMileage} km\n`;
+            message += `*📅 Data:* ${dateStr}\n\n`;
+            message += `*📊 Pontuação Total:* ${totalScore} (Média: ${averageScore}/5)\n`;
+            message += `*💰 Investimento Estimado:* R$ ${totalEstimate.toLocaleString('pt-BR')}\n\n`;
+            message += `*📝 Detalhes da Inspeção:*\n\n`;
+            
+            // Sort by priority (lower score first)
+            inspectionDetails.sort((a, b) => a.rating - b.rating);
+            
+            inspectionDetails.forEach(item => {
+                // Get emoji based on rating
+                let emoji;
+                if (item.rating <= 2) emoji = '🔴';
+                else if (item.rating <= 3) emoji = '🟠';
+                else if (item.rating <= 4) emoji = '🟡';
+                else emoji = '🟢';
+                
+                message += `${emoji} *${item.category}:* ${item.rating}/5\n`;
+                message += `   💰 *Investimento:* R$ ${item.estimate.toLocaleString('pt-BR')}\n`;
+                if (item.note) {
+                    message += `   📌 *Observação:* ${item.note}\n`;
+                }
+                message += `\n`;
+            });
+            
+            message += `\n_Relatório gerado pelo AutoCheck - Sistema de Inspeção Veicular_`;
+            
+            // Encode for URL
+            const encodedMessage = encodeURIComponent(message);
+            window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
+        }
+
+        // Clear Form
+        function clearForm() {
+            if (confirm('Tem certeza que deseja limpar todo o formulário? Todos os dados serão perdidos.')) {
+                // Reset form inputs
+                document.getElementById('inspectorName').value = '';
+                document.getElementById('clientName').value = '';
+                document.getElementById('carModel').value = '';
+                document.getElementById('carPlate').value = '';
+                document.getElementById('carMileage').value = '';
+                
+                // Reset ratings and notes
+                document.querySelectorAll('.rating-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                document.querySelectorAll('.notes-area').forEach(textarea => {
+                    textarea.value = '';
+                });
+                
+                // Reset progress bars
+                document.querySelectorAll('.progress-bar').forEach(bar => {
+                    bar.style.width = '0%';
+                    bar.style.backgroundColor = '#e0e0e0';
+                });
+                
+                // Reset estimate inputs
+                document.querySelectorAll('input[type="number"]').forEach(input => {
+                    input.value = '';
+                    input.style.borderColor = '';
+                    input.style.boxShadow = '';
+                });
+                
+                // Hide dashboard
+                document.getElementById('dashboard').style.display = 'none';
+            }
+        }
+
+        // Form Validation
+        function validateForm() {
+            const inspectorName = document.getElementById('inspectorName').value;
+            const clientName = document.getElementById('clientName').value;
+            const carModel = document.getElementById('carModel').value;
+            const carPlate = document.getElementById('carPlate').value;
+            const carMileage = document.getElementById('carMileage').value;
+            
+            if (!inspectorName || !clientName || !carModel || !carPlate || !carMileage) {
+                alert('Por favor, preencha todas as informações básicas antes de continuar.');
+                return false;
+            }
+            
+            // Check if at least one rating is selected
+            const ratedItems = document.querySelectorAll('.rating-btn.active').length;
+            if (ratedItems === 0) {
+                alert('Por favor, avalie pelo menos um item antes de gerar o relatório.');
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Any initialization code can go here
+        });
+    </script>
+</body>
+</html>
