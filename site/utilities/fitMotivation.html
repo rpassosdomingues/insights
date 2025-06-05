@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FitMotivation - Seu Companheiro Fitness</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+  :root {
+    --primary: #3498db;
+    --primary-light: #5dade2;
+    --secondary: #f1c40f;
+    --accent: #e74c3c;
+    --light: #ecf0f1;
+    --light-gray: #bdc3c7;
+    --dark: #2c3e50;
+    --success: #2ecc71;
+    --border-radius: 12px;
+    --box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    --transition: all 0.3s ease;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+    color: var(--dark);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 1rem;
+    line-height: 1.6;
+  }
+
+  .container {
+    max-width: 600px;
+    width: 100%;
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    box-shadow: var(--box-shadow);
+    margin: 1rem 0;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  h1 {
+    color: var(--primary);
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .subtitle {
+    color: var(--light-gray);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .tab-container {
+    display: flex;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--light-gray);
+  }
+
+  .tab {
+    padding: 0.8rem 1.5rem;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--light-gray);
+    transition: var(--transition);
+    border-bottom: 3px solid transparent;
+  }
+
+  .tab.active {
+    color: var(--primary);
+    border-bottom: 3px solid var(--primary);
+  }
+
+  .tab-content {
+    display: none;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+
+  label {
+    display: block;
+    margin-top: 1.5rem;
+    font-weight: 600;
+    color: var(--dark);
+  }
+
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="date"],
+  input[type="time"],
+  select,
+  textarea {
+    width: 100%;
+    background: var(--light);
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    padding: 0.8rem 1rem;
+    margin-top: 0.5rem;
+    font-size: 1rem;
+    font-family: inherit;
+    color: var(--dark);
+    transition: var(--transition);
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+
+  .checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-top: 1rem;
+  }
+
+  .checkbox-group label {
+    background: var(--light);
+    padding: 0.8rem 1.2rem;
+    border-radius: 30px;
+    font-weight: 500;
+    cursor: pointer;
+    user-select: none;
+    color: var(--dark);
+    transition: var(--transition);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .checkbox-group input[type="checkbox"],
+  .checkbox-group input[type="radio"] {
+    display: none;
+  }
+
+  .checkbox-group input[type="checkbox"]:checked + span,
+  .checkbox-group input[type="radio"]:checked + span {
+    background: var(--primary);
+    color: white;
+  }
+
+  .checkbox-group label span {
+    padding: 0.8rem 1.2rem;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  button {
+    margin-top: 2rem;
+    width: 100%;
+    background: var(--primary);
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+  }
+
+  button:hover {
+    background: var(--primary-light);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+  }
+
+  button.secondary {
+    background: var(--secondary);
+    color: var(--dark);
+  }
+
+  button.secondary:hover {
+    background: #f4d03f;
+  }
+
+  button.accent {
+    background: var(--accent);
+  }
+
+  button.accent:hover {
+    background: #c0392b;
+  }
+
+  #fotoPreview {
+    margin-top: 1rem;
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: var(--border-radius);
+    border: 2px dashed var(--light-gray);
+    display: none;
+  }
+
+  .stats-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .stat-card {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    box-shadow: var(--box-shadow);
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 0.3rem;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    color: var(--light-gray);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .progress-container {
+    margin-top: 1.5rem;
+  }
+
+  .progress-bar {
+    height: 10px;
+    background: var(--light);
+    border-radius: 5px;
+    margin-top: 0.5rem;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--success);
+    border-radius: 5px;
+    width: 0%;
+    transition: width 0.5s ease;
+  }
+
+  .motivation-quote {
+    font-style: italic;
+    color: var(--dark);
+    text-align: center;
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background: rgba(241, 196, 15, 0.1);
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--secondary);
+  }
+
+  #msgStatus {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    text-align: center;
+    font-weight: 600;
+    display: none;
+  }
+
+  .success {
+    background: rgba(46, 204, 113, 0.1);
+    color: var(--success);
+    border-left: 4px solid var(--success);
+  }
+
+  .error {
+    background: rgba(231, 76, 60, 0.1);
+    color: var(--accent);
+    border-left: 4px solid var(--accent);
+  }
+
+  @media (max-width: 600px) {
+    .container {
+      padding: 1.5rem;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+    }
+
+    .tab {
+      padding: 0.6rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    .stats-container {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><i class="fas fa-dumbbell"></i> FitMotivation</h1>
+      <p class="subtitle">Seu companheiro para uma vida mais saudável e motivada</p>
+    </header>
+
+    <div class="tab-container">
+      <div class="tab active" onclick="openTab('tab1')">Meu Treino</div>
+      <div class="tab" onclick="openTab('tab2')">Agendar Aula</div>
+      <div class="tab" onclick="openTab('tab3')">Meu Progresso</div>
+    </div>
+
+    <div id="tab1" class="tab-content active">
+      <label for="nome">Seu Nome</label>
+      <input type="text" id="nome" placeholder="Como gostaria de ser chamado?" />
+
+      <label>Foto do Progresso</label>
+      <input type="file" id="foto" accept="image/*" />
+      <img id="fotoPreview" alt="Prévia da foto" />
+
+      <label>Temperatura Atual</label>
+      <div id="temperatura" class="stat-card">
+        <div class="stat-value"><i class="fas fa-thermometer-half"></i> <span id="tempValue">Carregando...</span></div>
+      </div>
+
+      <label>Treinos Realizados</label>
+      <div class="checkbox-group" id="treinosCheckboxes">
+        <!-- Vai popular pelo JS -->
+      </div>
+
+      <div class="stats-container">
+        <div class="stat-card">
+          <div class="stat-value" id="pesoValue">0</div>
+          <div class="stat-label">Peso Máximo (kg)</div>
+          <input type="number" id="pesoMax" min="0" placeholder="Ex: 120" class="stat-input" />
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="tempoValue">0</div>
+          <div class="stat-label">Tempo (min)</div>
+          <input type="number" id="duracao" min="0" placeholder="Ex: 60" class="stat-input" />
+        </div>
+      </div>
+
+      <label>Sensação do Treino</label>
+      <div class="checkbox-group" id="sensacoesCheckboxes">
+        <label><input type="radio" name="sensacao" value="😅 Desafiador" checked /><span>😅 Desafiador</span></label>
+        <label><input type="radio" name="sensacao" value="💪 Superação" /><span>💪 Superação</span></label>
+        <label><input type="radio" name="sensacao" value="🧘‍♂️ Controlado" /><span>🧘‍♂️ Controlado</span></label>
+      </div>
+
+      <label for="comentarios">Reflexão do Dia</label>
+      <textarea id="comentarios" placeholder="Como você se sentiu hoje? O que aprendeu?"></textarea>
+
+      <div class="motivation-quote" id="motivationQuote">
+        "A disciplina é a ponte entre metas e realizações." - Jim Rohn
+      </div>
+
+      <button id="btnWhatsapp"><i class="fab fa-whatsapp"></i> Compartilhar Progresso</button>
+      <button id="btnInstagram" class="secondary"><i class="fab fa-instagram"></i> Criar Legenda</button>
+
+      <div id="msgStatus"></div>
+    </div>
+
+    <div id="tab2" class="tab-content">
+      <h2><i class="fas fa-calendar-check"></i> Agende sua Aula Experimental</h2>
+      <p style="margin-bottom: 1.5rem;">Preencha os dados abaixo para reservar sua aula experimental gratuita.</p>
+
+      <label for="nomeCompleto">Nome Completo</label>
+      <input type="text" id="nomeCompleto" placeholder="Seu nome completo" />
+
+      <label for="email">E-mail</label>
+      <input type="email" id="email" placeholder="Seu melhor e-mail" />
+
+      <label for="telefone">Telefone</label>
+      <input type="tel" id="telefone" placeholder="(XX) XXXXX-XXXX" />
+
+      <label for="dataAula">Data da Aula</label>
+      <input type="date" id="dataAula" />
+
+      <label for="horarioAula">Horário Preferencial</label>
+      <input type="time" id="horarioAula" />
+
+      <label for="tipoAula">Tipo de Aula</label>
+      <select id="tipoAula">
+        <option value="">Selecione...</option>
+        <option value="Musculação">Musculação</option>
+        <option value="Crossfit">Crossfit</option>
+        <option value="Funcional">Funcional</option>
+        <option value="Pilates">Pilates</option>
+        <option value="Yoga">Yoga</option>
+      </select>
+
+      <label for="objetivo">Qual seu principal objetivo?</label>
+      <textarea id="objetivo" placeholder="Ex: Perda de peso, ganho de massa muscular, condicionamento..."></textarea>
+
+      <button id="btnAgendar" class="accent"><i class="fas fa-calendar-plus"></i> Agendar Aula</button>
+    </div>
+
+    <div id="tab3" class="tab-content">
+      <h2><i class="fas fa-chart-line"></i> Meu Progresso</h2>
+      
+      <div class="stats-container">
+        <div class="stat-card">
+          <div class="stat-value" id="totalTreinos">12</div>
+          <div class="stat-label">Treinos Semanais</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="mediaTempo">45</div>
+          <div class="stat-label">Minutos/Treino</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="evolucaoPeso">+8%</div>
+          <div class="stat-label">Evolução Carga</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="diasConsecutivos">7</div>
+          <div class="stat-label">Dias Consecutivos</div>
+        </div>
+      </div>
+
+      <div class="progress-container">
+        <label>Meta Semanal - 5 treinos</label>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+      <div class="motivation-quote">
+        "Você não está apenas treinando seu corpo, está disciplinando sua mente."
+      </div>
+
+      <button id="btnConfig" class="secondary"><i class="fas fa-cog"></i> Configurar Metas</button>
+    </div>
+  </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+<script>
+  // Dados iniciais
+  const treinos = [
+    { nome: "Musculação", icone: "fas fa-dumbbell" },
+    { nome: "Cardio", icone: "fas fa-heartbeat" },
+    { nome: "Alongamento", icone: "fas fa-spa" },
+    { nome: "HIIT", icone: "fas fa-bolt" },
+    { nome: "Yoga", icone: "fas fa-peace" },
+    { nome: "Funcional", icone: "fas fa-running" },
+    { nome: "Crossfit", icone: "fas fa-fire" },
+    { nome: "Natação", icone: "fas fa-swimmer" }
+  ];
+
+  const frasesMotivacionais = [
+    "A persistência é o caminho do êxito. - Charles Chaplin",
+    "O corpo alcança o que a mente acredita. - Provérbio Chinês",
+    "Não é sobre ser bom, é sobre ser melhor que ontem. - Desconhecido",
+    "A dor que você sente hoje será a força que você sente amanhã. - Desconhecido",
+    "Disciplina é liberdade. Compromisso é liberdade. - Jocko Willink",
+    "O sucesso é a soma de pequenos esforços repetidos dia após dia. - Robert Collier",
+    "Você é mais forte do que pensa. Acredite. - Desconhecido"
+  ];
+
+  // Elementos DOM
+  const treinosContainer = document.getElementById('treinosCheckboxes');
+  const fotoInput = document.getElementById('foto');
+  const fotoPreview = document.getElementById('fotoPreview');
+  const btnWhatsapp = document.getElementById('btnWhatsapp');
+  const btnInstagram = document.getElementById('btnInstagram');
+  const btnAgendar = document.getElementById('btnAgendar');
+  const msgStatus = document.getElementById('msgStatus');
+  const motivationQuote = document.getElementById('motivationQuote');
+  const pesoValue = document.getElementById('pesoValue');
+  const tempoValue = document.getElementById('tempoValue');
+  const progressFill = document.getElementById('progressFill');
+
+  // Inicialização
+  document.addEventListener('DOMContentLoaded', function() {
+    criarCheckboxes();
+    buscarTemperatura();
+    atualizarFraseMotivacional();
+    setupEventListeners();
+    updateStats();
+    progressFill.style.width = '60%'; // Simulando progresso
+  });
+
+  // Criar checkboxes de treinos
+  function criarCheckboxes() {
+    treinos.forEach(treino => {
+      const label = document.createElement('label');
+      label.innerHTML = `
+        <input type="checkbox" value="${treino.nome}">
+        <span><i class="${treino.icone}"></i> ${treino.nome}</span>
+      `;
+      treinosContainer.appendChild(label);
+    });
+  }
+
+  // Mostrar preview da foto
+  fotoInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if(!file) {
+      fotoPreview.style.display = 'none';
+      fotoPreview.src = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      fotoPreview.src = reader.result;
+      fotoPreview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Buscar temperatura
+  async function buscarTemperatura() {
+    const tempEl = document.getElementById('tempValue');
+    tempEl.textContent = 'Carregando...';
+
+    try {
+      const pos = await new Promise((res, rej) => {
+        navigator.geolocation.getCurrentPosition(res, rej, {timeout: 8000});
+      });
+
+      const {latitude, longitude} = pos.coords;
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=celsius`;
+      const resp = await fetch(url);
+      if(!resp.ok) throw new Error('Erro na API de temperatura');
+      const data = await resp.json();
+
+      const temp = data.current_weather.temperature;
+      tempEl.textContent = `${temp.toFixed(1)}°C`;
+    } catch(e) {
+      tempEl.textContent = 'Indisponível';
+    }
+  }
+
+  // Atualizar estatísticas em tempo real
+  function updateStats() {
+    document.getElementById('pesoMax').addEventListener('input', function() {
+      pesoValue.textContent = this.value || '0';
+    });
+
+    document.getElementById('duracao').addEventListener('input', function() {
+      tempoValue.textContent = this.value || '0';
+    });
+  }
+
+  // Atualizar frase motivacional
+  function atualizarFraseMotivacional() {
+    const randomIndex = Math.floor(Math.random() * frasesMotivacionais.length);
+    motivationQuote.textContent = frasesMotivacionais[randomIndex];
+  }
+
+  // Configurar listeners de eventos
+  function setupEventListeners() {
+    btnWhatsapp.addEventListener('click', exportarParaWhatsapp);
+    btnInstagram.addEventListener('click', criarLegendaInstagram);
+    btnAgendar.addEventListener('click', agendarAula);
+  }
+
+  // Abrir tab
+  function openTab(tabId) {
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabs.forEach(tab => tab.classList.remove('active'));
+    tabContents.forEach(content => content.classList.remove('active'));
+
+    document.getElementById(tabId).classList.add('active');
+    document.querySelector(`.tab[onclick="openTab('${tabId}')"]`).classList.add('active');
+  }
+
+  // Exportar para WhatsApp
+  function exportarParaWhatsapp() {
+    const nome = document.getElementById('nome').value.trim();
+    if(!nome) {
+      showMessage('Por favor, preencha seu nome!', 'error');
+      return;
+    }
+
+    const treinosSelecionados = Array.from(treinosContainer.querySelectorAll('input:checked')).map(cb => {
+      const icon = cb.nextElementSibling.querySelector('i').className;
+      return `➤ ${cb.value} <i class="${icon}"></i>`;
+    });
+    
+    if(treinosSelecionados.length === 0) {
+      showMessage('Selecione pelo menos um treino!', 'error');
+      return;
+    }
+
+    const fotoData = fotoPreview.src && fotoPreview.style.display !== 'none' ? '📸 Foto do progresso incluída' : '';
+    const temperatura = document.getElementById('tempValue').textContent;
+    const pesoMax = document.getElementById('pesoMax').value.trim();
+    const duracao = document.getElementById('duracao').value.trim();
+    const sensacao = document.querySelector('input[name="sensacao"]:checked').value;
+    const comentarios = document.getElementById('comentarios').value.trim();
+
+    let mensagem = `🏋️‍♂️ *Relatório de Treino - FitMotivation* 🏋️‍♀️\n\n`;
+    mensagem += `👤 *Atleta:* ${nome}\n`;
+    mensagem += `🌡️ *Temperatura:* ${temperatura}\n`;
+    if(fotoData) mensagem += `${fotoData}\n\n`;
+
+    mensagem += `📅 *Treinos Realizados:*\n${treinosSelecionados.join('\n')}\n\n`;
+
+    if(pesoMax) mensagem += `🏋️‍♂️ *Peso Máximo:* ${pesoMax} kg\n`;
+    if(duracao) mensagem += `⏱️ *Duração:* ${duracao} min\n`;
+    mensagem += `💭 *Sensação:* ${sensacao}\n`;
+    if(comentarios) mensagem += `📝 *Reflexão:* ${comentarios}\n`;
+
+    mensagem += `\n💪 *Continue assim! Cada treino conta!*`;
+
+    shareOnWhatsapp(mensagem);
+  }
+
+  // Criar legenda para Instagram
+  function criarLegendaInstagram() {
+    const nome = document.getElementById('nome').value.trim();
+    if(!nome) {
+      showMessage('Por favor, preencha seu nome!', 'error');
+      return;
+    }
+
+    const treinosSelecionados = Array.from(treinosContainer.querySelectorAll('input:checked')).map(cb => cb.value);
+    if(treinosSelecionados.length === 0) {
+      showMessage('Selecione pelo menos um treino!', 'error');
+      return;
+    }
+
+    const pesoMax = document.getElementById('pesoMax').value.trim() || 'N/A';
+    const duracao = document.getElementById('duracao').value.trim() || 'N/A';
+    const sensacao = document.querySelector('input[name="sensacao"]:checked').value;
+    const comentarios = document.getElementById('comentarios').value.trim();
+
+    let legenda = `🔥 #FitMotivation - Meu Progresso Diário 🔥\n\n`;
+    legenda += `💪 Hoje foi dia de: ${treinosSelecionados.join(', ')}\n\n`;
+    legenda += `📊 Meus números:\n`;
+    legenda += `➤ Peso máximo: ${pesoMax}kg\n`;
+    legenda += `➤ Tempo de treino: ${duracao}min\n`;
+    legenda += `➤ Sensação: ${sensacao}\n\n`;
+    legenda += `💭 Reflexão do dia: ${comentarios || 'Foco no progresso, não na perfeição!'}\n\n`;
+    legenda += `#FitnessMotivation #ProgressoDiário #SaúdeEmPrimeiroLugar #${nome.replace(/\s/g, '')}`;
+
+    copyToClipboard(legenda);
+    showMessage('Legenda copiada para a área de transferência! Cole no Instagram!', 'success');
+  }
+
+  // Agendar aula experimental
+  function agendarAula() {
+    const nomeCompleto = document.getElementById('nomeCompleto').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const telefone = document.getElementById('telefone').value.trim();
+    const dataAula = document.getElementById('dataAula').value;
+    const horarioAula = document.getElementById('horarioAula').value;
+    const tipoAula = document.getElementById('tipoAula').value;
+    const objetivo = document.getElementById('objetivo').value.trim();
+
+    if(!nomeCompleto || !email || !telefone || !dataAula || !horarioAula || !tipoAula) {
+      showMessage('Por favor, preencha todos os campos obrigatórios!', 'error');
+      return;
+    }
+
+    // Simular envio (em um caso real, seria uma chamada AJAX)
+    setTimeout(() => {
+      showMessage(`Aula de ${tipoAula} agendada com sucesso para ${formatarData(dataAula)} às ${horarioAula}! Entraremos em contato para confirmar.`, 'success');
+      
+      // Limpar formulário
+      document.getElementById('nomeCompleto').value = '';
+      document.getElementById('email').value = '';
+      document.getElementById('telefone').value = '';
+      document.getElementById('dataAula').value = '';
+      document.getElementById('horarioAula').value = '';
+      document.getElementById('tipoAula').value = '';
+      document.getElementById('objetivo').value = '';
+    }, 1000);
+  }
+
+  // Funções auxiliares
+  function shareOnWhatsapp(message) {
+    const encoded = encodeURIComponent(message);
+    window.open(`https://wa.me/?text=${encoded}`, '_blank');
+  }
+
+  function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      console.log('Texto copiado para a área de transferência');
+    }).catch(err => {
+      console.error('Erro ao copiar texto: ', err);
+    });
+  }
+
+  function showMessage(message, type) {
+    msgStatus.textContent = message;
+    msgStatus.className = type;
+    msgStatus.style.display = 'block';
+    
+    setTimeout(() => {
+      msgStatus.style.display = 'none';
+    }, 5000);
+  }
+
+  function formatarData(dataString) {
+    if (!dataString) return '';
+    const data = new Date(dataString);
+    const dia = String(data.getDate()).padStart(2, '0');
+    const mes = String(data.getMonth() + 1).padStart(2, '0');
+    const ano = data.getFullYear();
+    return `${dia}/${mes}/${ano}`;
+  }
+</script>
+</body>
+</html>

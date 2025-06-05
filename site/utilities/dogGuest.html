@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>🐾 DogGuest - Hotel para Cães</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root {
+    --primary-color: #d2691e;
+    --primary-dark: #a0522d;
+    --secondary-color: #8b4513;
+    --light-color: #f9f3f0;
+    --text-color: #333;
+    --light-gray: #f5f5f5;
+    --border-radius: 12px;
+    --box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    --transition: all 0.3s ease;
+  }
+  
+  * {
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+    background: var(--light-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+    line-height: 1.6;
+  }
+  
+  .container {
+    max-width: 700px;
+    background: #fff;
+    margin: 0 auto;
+    padding: 30px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 8px;
+    background: linear-gradient(90deg, #d2691e, #8b4513, #a0522d);
+  }
+  
+  h1 {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 25px;
+    font-size: 2.2rem;
+    position: relative;
+    padding-bottom: 10px;
+  }
+  
+  h1::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 3px;
+    background: var(--primary-color);
+  }
+  
+  h3 {
+    color: var(--secondary-color);
+    border-bottom: 2px dashed var(--light-gray);
+    padding-bottom: 8px;
+    margin-top: 25px;
+  }
+  
+  label {
+    margin-top: 15px;
+    font-weight: 600;
+    display: block;
+    color: var(--secondary-color);
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  input[type="text"],
+  input[type="date"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    border-radius: var(--border-radius);
+    border: 1px solid #ddd;
+    font-size: 1rem;
+    transition: var(--transition);
+  }
+  
+  input[type="text"]:focus,
+  input[type="date"]:focus,
+  select:focus,
+  textarea:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(210, 105, 30, 0.2);
+  }
+  
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+  
+  input[type="file"] {
+    margin-top: 8px;
+    width: 100%;
+  }
+  
+  .btn {
+    background: var(--primary-color);
+    color: #fff;
+    border: none;
+    padding: 15px;
+    margin-top: 20px;
+    width: 100%;
+    border-radius: var(--border-radius);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+  }
+  
+  .btn-secondary {
+    background: var(--secondary-color);
+  }
+  
+  .btn-secondary:hover {
+    background: #6b3611;
+  }
+  
+  .foto-preview-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-top: 15px;
+  }
+  
+  .foto-preview {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--primary-color);
+    display: none;
+  }
+  
+  .checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 10px;
+  }
+  
+  .checkbox-group label {
+    display: flex;
+    align-items: center;
+    font-weight: normal;
+    cursor: pointer;
+    padding: 8px 12px;
+    background: var(--light-gray);
+    border-radius: 20px;
+    transition: var(--transition);
+    margin-top: 0;
+  }
+  
+  .checkbox-group label:hover {
+    background: #e6e6e6;
+  }
+  
+  .checkbox-group input[type="checkbox"] {
+    margin-right: 8px;
+  }
+  
+  .footer {
+    margin-top: 30px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #666;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+  }
+  
+  .required::after {
+    content: " *";
+    color: #e74c3c;
+  }
+  
+  .price-preview {
+    background: var(--light-gray);
+    padding: 15px;
+    border-radius: var(--border-radius);
+    margin-top: 20px;
+    display: none;
+  }
+  
+  .price-preview p {
+    margin: 5px 0;
+    font-size: 1rem;
+  }
+  
+  .price-preview .total {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    margin-top: 10px;
+  }
+  
+  @media (max-width: 600px) {
+    .container {
+      padding: 20px;
+    }
+    
+    h1 {
+      font-size: 1.8rem;
+    }
+    
+    .checkbox-group {
+      gap: 10px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1><i class="fas fa-paw"></i> DogGuest - Hotel para Cães</h1>
+
+  <form id="reservaForm">
+    <div class="form-group">
+      <label for="nomeDono" class="required"><i class="fas fa-user"></i> Nome do Dono:</label>
+      <input type="text" id="nomeDono" required placeholder="Seu nome completo">
+    </div>
+
+    <div class="form-group">
+      <label for="nomeCachorro" class="required"><i class="fas fa-dog"></i> Nome do Cachorro:</label>
+      <input type="text" id="nomeCachorro" required placeholder="Nome do seu pet">
+    </div>
+
+    <div class="form-group">
+      <label for="porte" class="required"><i class="fas fa-ruler-combined"></i> Porte do Cachorro:</label>
+      <select id="porte" required>
+        <option value="">Selecione o porte</option>
+        <option value="Pequeno">Pequeno (até 10kg)</option>
+        <option value="Médio">Médio (10-25kg)</option>
+        <option value="Grande">Grande (acima de 25kg)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="raca"><i class="fas fa-dna"></i> Raça do Cachorro:</label>
+      <input type="text" id="raca" placeholder="Raça ou vira-lata">
+    </div>
+
+    <div class="form-group">
+      <label for="idade"><i class="fas fa-birthday-cake"></i> Idade do Cachorro:</label>
+      <input type="text" id="idade" placeholder="Ex: 2 anos">
+    </div>
+
+    <div class="form-group">
+      <label for="humor"><i class="fas fa-smile"></i> Humor/Temperamento:</label>
+      <input type="text" id="humor" placeholder="Ex: Brincalhão, tranquilo, medroso">
+    </div>
+
+    <h3><i class="fas fa-heartbeat"></i> Saúde do Cachorro</h3>
+
+    <div class="form-group">
+      <label><i class="fas fa-syringe"></i> Vacinas Tomadas:</label>
+      <div class="checkbox-group">
+        <label><input type="checkbox" value="Raiva" class="vacina"> Raiva</label>
+        <label><input type="checkbox" value="V8" class="vacina"> V8</label>
+        <label><input type="checkbox" value="V10" class="vacina"> V10</label>
+        <label><input type="checkbox" value="Gripe Canina" class="vacina"> Gripe Canina</label>
+        <label><input type="checkbox" value="Giárdia" class="vacina"> Giárdia</label>
+        <label><input type="checkbox" value="Leishmaniose" class="vacina"> Leishmaniose</label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label><i class="fas fa-pills"></i> Medicamentos/Tratamentos em uso:</label>
+      <div class="checkbox-group">
+        <label><input type="checkbox" value="Antibiótico" class="medicamento"> Antibiótico</label>
+        <label><input type="checkbox" value="Antipulgas" class="medicamento"> Antipulgas</label>
+        <label><input type="checkbox" value="Vermífugo" class="medicamento"> Vermífugo</label>
+        <label><input type="checkbox" value="Suplemento" class="medicamento"> Suplemento</label>
+        <label><input type="checkbox" value="Anti-inflamatório" class="medicamento"> Anti-inflamatório</label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="restricoesAlimentares"><i class="fas fa-utensils"></i> Restrições Alimentares:</label>
+      <textarea id="restricoesAlimentares" placeholder="Alergias, alimentos proibidos, preferências..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="cuidadosEspeciais"><i class="fas fa-bath"></i> Cuidados Especiais:</label>
+      <textarea id="cuidadosEspeciais" placeholder="Banho, tosa, cuidados com pelos, etc..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="particularidades"><i class="fas fa-info-circle"></i> Particularidades e Observações:</label>
+      <textarea id="particularidades" placeholder="Comportamentos específicos, medos, preferências de brincadeiras..."></textarea>
+    </div>
+
+    <h3><i class="fas fa-calendar-alt"></i> Período de Hospedagem</h3>
+
+    <div class="form-group">
+      <label for="checkIn" class="required"><i class="fas fa-sign-in-alt"></i> Data de Check-in:</label>
+      <input type="date" id="checkIn" required>
+    </div>
+
+    <div class="form-group">
+      <label for="checkOut" class="required"><i class="fas fa-sign-out-alt"></i> Data de Check-out:</label>
+      <input type="date" id="checkOut" required>
+    </div>
+
+    <div class="price-preview" id="pricePreview">
+      <p><i class="fas fa-clock"></i> <span id="daysCount">0</span> dias de hospedagem</p>
+      <p><i class="fas fa-dog"></i> Porte: <span id="portePreview">-</span></p>
+      <p><i class="fas fa-money-bill-wave"></i> Diária: R$ <span id="dailyPrice">0</span>,00</p>
+      <p class="total">Total estimado: R$ <span id="totalPrice">0</span>,00</p>
+    </div>
+
+    <div class="form-group">
+      <label for="foto"><i class="fas fa-camera"></i> Foto do Cachorro:</label>
+      <input type="file" id="foto" accept="image/*">
+      <div class="foto-preview-container">
+        <img id="fotoPreview" class="foto-preview" src="#" alt="Foto do cachorro">
+        <span id="fotoHelpText" style="color: #666;">Nenhuma foto selecionada</span>
+      </div>
+    </div>
+
+    <button type="button" class="btn" onclick="enviarWhatsApp()">
+      <i class="fab fa-whatsapp"></i> Enviar Reserva pelo WhatsApp
+    </button>
+    
+    <button type="button" class="btn btn-secondary" onclick="gerarPDF()" style="margin-top: 10px;">
+      <i class="fas fa-file-pdf"></i> Gerar PDF da Reserva
+    </button>
+  </form>
+
+  <div class="footer">
+    <p><i class="fas fa-paw"></i> Feito com carinho para o conforto e segurança do seu melhor amigo! <i class="fas fa-paw"></i></p>
+    <p><small>DogGuest © 2023 - Todos os direitos reservados</small></p>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+<script>
+  // Inicializa jsPDF
+  const { jsPDF } = window.jspdf;
+
+  // Elementos DOM
+  const fotoInput = document.getElementById('foto');
+  const fotoPreview = document.getElementById('fotoPreview');
+  const fotoHelpText = document.getElementById('fotoHelpText');
+  const pricePreview = document.getElementById('pricePreview');
+  const daysCount = document.getElementById('daysCount');
+  const portePreview = document.getElementById('portePreview');
+  const dailyPrice = document.getElementById('dailyPrice');
+  const totalPrice = document.getElementById('totalPrice');
+  
+  // Pré-visualização da foto
+  fotoInput.addEventListener('change', function() {
+    const file = fotoInput.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        fotoPreview.src = e.target.result;
+        fotoPreview.style.display = 'block';
+        fotoHelpText.textContent = file.name;
+        fotoHelpText.style.color = '#333';
+      }
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Atualiza preview de preço quando datas ou porte mudam
+  document.getElementById('checkIn').addEventListener('change', atualizarPreco);
+  document.getElementById('checkOut').addEventListener('change', atualizarPreco);
+  document.getElementById('porte').addEventListener('change', atualizarPreco);
+
+  // Função para calcular e mostrar preço estimado
+  function atualizarPreco() {
+    const porte = document.getElementById('porte').value;
+    const checkIn = document.getElementById('checkIn').value;
+    const checkOut = document.getElementById('checkOut').value;
+    
+    if (!porte || !checkIn || !checkOut) return;
+    
+    const data1 = new Date(checkIn);
+    const data2 = new Date(checkOut);
+    const dias = Math.ceil((data2 - data1) / (1000 * 60 * 60 * 24));
+    
+    if (dias <= 0) return;
+    
+    const preco = calcularPreco(porte, dias);
+    const precoDiaria = calcularPreco(porte, 1);
+    
+    daysCount.textContent = dias;
+    portePreview.textContent = porte;
+    dailyPrice.textContent = precoDiaria;
+    totalPrice.textContent = preco;
+    
+    pricePreview.style.display = 'block';
+  }
+
+  // Cálculo de preço baseado no porte e dias
+  function calcularPreco(porte, dias) {
+    let precoPorDia = 0;
+    if (porte === "Pequeno") precoPorDia = 60;
+    else if (porte === "Médio") precoPorDia = 80;
+    else if (porte === "Grande") precoPorDia = 100;
+    
+    // Desconto para estadias longas
+    if (dias >= 7) {
+      precoPorDia *= 0.9; // 10% de desconto
+    } else if (dias >= 3) {
+      precoPorDia *= 0.95; // 5% de desconto
+    }
+    
+    return Math.round(precoPorDia * dias);
+  }
+
+  // Validação de formulário
+  function validarFormulario() {
+    const nomeDono = document.getElementById('nomeDono').value;
+    const nomeCachorro = document.getElementById('nomeCachorro').value;
+    const porte = document.getElementById('porte').value;
+    const checkIn = document.getElementById('checkIn').value;
+    const checkOut = document.getElementById('checkOut').value;
+    
+    if (!nomeDono || !nomeCachorro || !porte || !checkIn || !checkOut) {
+      alert('Por favor, preencha todos os campos obrigatórios!');
+      return false;
+    }
+    
+    const data1 = new Date(checkIn);
+    const data2 = new Date(checkOut);
+    const dias = Math.ceil((data2 - data1) / (1000 * 60 * 60 * 24));
+    
+    if (dias <= 0) {
+      alert('A data de check-out deve ser posterior à data de check-in.');
+      return false;
+    }
+    
+    return true;
+  }
+
+  // Envia dados para WhatsApp
+  function enviarWhatsApp() {
+    if (!validarFormulario()) return;
+    
+    // Dados gerais
+    const nomeDono = document.getElementById('nomeDono').value;
+    const nomeCachorro = document.getElementById('nomeCachorro').value;
+    const porte = document.getElementById('porte').value;
+    const raca = document.getElementById('raca').value;
+    const idade = document.getElementById('idade').value;
+    const humor = document.getElementById('humor').value;
+    const restricoesAlimentares = document.getElementById('restricoesAlimentares').value;
+    const cuidadosEspeciais = document.getElementById('cuidadosEspeciais').value;
+    const particularidades = document.getElementById('particularidades').value;
+    const checkIn = formatarData(document.getElementById('checkIn').value);
+    const checkOut = formatarData(document.getElementById('checkOut').value);
+    
+    // Calcula dias e preço
+    const data1 = new Date(document.getElementById('checkIn').value);
+    const data2 = new Date(document.getElementById('checkOut').value);
+    const dias = Math.ceil((data2 - data1) / (1000 * 60 * 60 * 24));
+    const preco = calcularPreco(porte, dias);
+    
+    // Coleta vacinas e medicamentos
+    const vacinas = Array.from(document.querySelectorAll('.vacina:checked')).map(cb => cb.value).join(', ') || 'Nenhuma';
+    const medicamentos = Array.from(document.querySelectorAll('.medicamento:checked')).map(cb => cb.value).join(', ') || 'Nenhum';
+    
+    // Monta mensagem para WhatsApp
+    let mensagem = `*🐾 Reserva no DogGuest - Hotel para Cães 🐾*%0A%0A`;
+    mensagem += `*👤 Dono:*%0A${nomeDono}%0A%0A`;
+    mensagem += `*🐶 Cachorro:*%0A${nomeCachorro}%0A`;
+    mensagem += `📏 *Porte:* ${porte}%0A`;
+    mensagem += `🧬 *Raça:* ${raca || 'Não informada'}%0A`;
+    mensagem += `🎂 *Idade:* ${idade || 'Não informada'}%0A`;
+    mensagem += `😊 *Temperamento:* ${humor || 'Não informado'}%0A%0A`;
+    
+    mensagem += `*🏥 Saúde:*%0A`;
+    mensagem += `💉 *Vacinas:* ${vacinas}%0A`;
+    mensagem += `💊 *Medicamentos:* ${medicamentos}%0A`;
+    mensagem += `🍖 *Restrições Alimentares:* ${restricoesAlimentares || 'Nenhuma'}%0A%0A`;
+    
+    mensagem += `*🏡 Cuidados Especiais:*%0A${cuidadosEspeciais || 'Nenhum'}%0A%0A`;
+    mensagem += `*ℹ️ Observações:*%0A${particularidades || 'Nenhuma'}%0A%0A`;
+    
+    mensagem += `*📅 Período de Hospedagem:*%0A`;
+    mensagem += `🔜 *Check-in:* ${checkIn}%0A`;
+    mensagem += `🔚 *Check-out:* ${checkOut}%0A`;
+    mensagem += `⏳ *Total de dias:* ${dias}%0A%0A`;
+    
+    mensagem += `*💰 Valor Total:*%0AR$ ${preco},00%0A%0A`;
+    mensagem += `✅ *Confirmo que as informações são verdadeiras e estou ciente das políticas do hotel.*`;
+    
+    // Abre WhatsApp
+    window.open(`https://wa.me/?text=${mensagem}`, '_blank');
+  }
+
+  // Gera PDF da reserva
+  function gerarPDF() {
+    if (!validarFormulario()) return;
+    
+    const doc = new jsPDF();
+    
+    // Dados do formulário
+    const nomeDono = document.getElementById('nomeDono').value;
+    const nomeCachorro = document.getElementById('nomeCachorro').value;
+    const porte = document.getElementById('porte').value;
+    const raca = document.getElementById('raca').value;
+    const idade = document.getElementById('idade').value;
+    const humor = document.getElementById('humor').value;
+    const checkIn = formatarData(document.getElementById('checkIn').value);
+    const checkOut = formatarData(document.getElementById('checkOut').value);
+    const data1 = new Date(document.getElementById('checkIn').value);
+    const data2 = new Date(document.getElementById('checkOut').value);
+    const dias = Math.ceil((data2 - data1) / (1000 * 60 * 60 * 24));
+    const preco = calcularPreco(porte, dias);
+    
+    // Vacinas e medicamentos
+    const vacinas = Array.from(document.querySelectorAll('.vacina:checked')).map(cb => cb.value).join(', ') || 'Nenhuma';
+    const medicamentos = Array.from(document.querySelectorAll('.medicamento:checked')).map(cb => cb.value).join(', ') || 'Nenhum';
+    
+    // Cabeçalho
+    doc.setFontSize(20);
+    doc.setTextColor(210, 105, 30);
+    doc.text('DogGuest - Hotel para Cães', 105, 20, { align: 'center' });
+    
+    // Logo
+    doc.setFontSize(12);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Reserva de Hospedagem', 105, 30, { align: 'center' });
+    
+    // Linha divisória
+    doc.setDrawColor(210, 105, 30);
+    doc.setLineWidth(0.5);
+    doc.line(20, 35, 190, 35);
+    
+    // Dados da reserva
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Dados do Dono e do Cachorro', 20, 45);
+    
+    doc.setFontSize(12);
+    doc.text(`Dono: ${nomeDono}`, 20, 55);
+    doc.text(`Cachorro: ${nomeCachorro}`, 20, 60);
+    doc.text(`Porte: ${porte}`, 20, 65);
+    doc.text(`Raça: ${raca || 'Não informada'}`, 20, 70);
+    doc.text(`Idade: ${idade || 'Não informada'}`, 20, 75);
+    doc.text(`Temperamento: ${humor || 'Não informado'}`, 20, 80);
+    
+    // Saúde
+    doc.setFontSize(14);
+    doc.text('Informações de Saúde', 20, 90);
+    
+    doc.setFontSize(12);
+    doc.text(`Vacinas: ${vacinas}`, 20, 100);
+    doc.text(`Medicamentos: ${medicamentos}`, 20, 105);
+    
+    // Período e valor
+    doc.setFontSize(14);
+    doc.text('Detalhes da Hospedagem', 20, 115);
+    
+    doc.setFontSize(12);
+    doc.text(`Check-in: ${checkIn}`, 20, 125);
+    doc.text(`Check-out: ${checkOut}`, 20, 130);
+    doc.text(`Total de dias: ${dias}`, 20, 135);
+    
+    doc.setFontSize(16);
+    doc.setTextColor(210, 105, 30);
+    doc.text(`Valor Total: R$ ${preco},00`, 20, 145);
+    
+    // Rodapé
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text('DogGuest © 2023 - Reserva gerada em ' + new Date().toLocaleDateString(), 105, 280, { align: 'center' });
+    
+    // Salva o PDF
+    doc.save(`reserva_dogguest_${nomeCachorro}.pdf`);
+  }
+
+  // Formata data para DD/MM/AAAA
+  function formatarData(dataString) {
+    if (!dataString) return '';
+    const data = new Date(dataString);
+    const dia = String(data.getDate()).padStart(2, '0');
+    const mes = String(data.getMonth() + 1).padStart(2, '0');
+    const ano = data.getFullYear();
+    return `${dia}/${mes}/${ano}`;
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mapa de Ruas Perigosas com CEP e WhatsApp</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+  :root {
+    --primary-color: #e74c3c;
+    --primary-dark: #c0392b;
+    --secondary-color: #3498db;
+    --text-color: #333;
+    --light-gray: #f5f5f5;
+    --border-radius: 12px;
+    --box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+  
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 1rem;
+    background: var(--light-gray);
+    color: var(--text-color);
+    line-height: 1.6;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  h1 {
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 1.8rem;
+  }
+  
+  #map {
+    height: 500px;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--box-shadow);
+    border: 1px solid #ddd;
+  }
+  
+  .info-panel {
+    background: white;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--box-shadow);
+  }
+  
+  .info-panel p {
+    margin: 0.5rem 0;
+  }
+  
+  .alert {
+    color: var(--primary-color);
+    font-weight: bold;
+  }
+  
+  .button-group {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  button {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .btn-primary {
+    background: var(--primary-color);
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+  }
+  
+  .btn-secondary {
+    background: var(--secondary-color);
+    color: white;
+  }
+  
+  .btn-secondary:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+  }
+  
+  .btn-outline {
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+  }
+  
+  .btn-outline:hover {
+    background: var(--primary-color);
+    color: white;
+  }
+  
+  .legend {
+    background: white;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    position: absolute;
+    bottom: 30px;
+    right: 10px;
+    z-index: 1000;
+    font-size: 0.9rem;
+  }
+  
+  .legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  .legend-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 0.5rem;
+    display: inline-block;
+  }
+  
+  @media (max-width: 768px) {
+    header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    
+    .button-group {
+      flex-direction: column;
+    }
+    
+    .legend {
+      position: relative;
+      bottom: auto;
+      right: auto;
+      margin-top: 1rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1><i class="fas fa-exclamation-triangle"></i> Mapa de Ruas Perigosas</h1>
+    <div class="button-group">
+      <button class="btn-primary" onclick="exportarParaWhatsApp()">
+        <i class="fab fa-whatsapp"></i> Compartilhar no WhatsApp
+      </button>
+      <button class="btn-secondary" onclick="exportarParaTexto()">
+        <i class="fas fa-download"></i> Exportar como Texto
+      </button>
+    </div>
+  </header>
+
+  <div class="info-panel">
+    <p class="alert"><i class="fas fa-info-circle"></i> Clique no mapa para marcar ruas perigosas.</p>
+    <p><i class="fas fa-map-marker-alt"></i> <strong>Total de locais marcados:</strong> <span id="contador">0</span></p>
+  </div>
+
+  <div id="map"></div>
+
+  <div class="legend">
+    <h3><i class="fas fa-key"></i> Legenda:</h3>
+    <div class="legend-item">
+      <span class="legend-icon" style="background: #2ecc71;"></span>
+      <span>Você está aqui</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-icon" style="background: #e74c3c;"></span>
+      <span>Rua perigosa</span>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+<script>
+  const pontosPerigosos = [];
+  let map;
+  let usuarioMarcador;
+
+  // Atualiza contador de pontos
+  function atualizarContador() {
+    document.getElementById('contador').textContent = pontosPerigosos.length;
+  }
+
+  // Formata data/hora para formato legível: DD/MM/AAAA HH:mm
+  function formatarTimestamp(data) {
+    const d = new Date(data);
+    const dia = String(d.getDate()).padStart(2, '0');
+    const mes = String(d.getMonth() + 1).padStart(2, '0');
+    const ano = d.getFullYear();
+    const hora = String(d.getHours()).padStart(2, '0');
+    const min = String(d.getMinutes()).padStart(2, '0');
+    return `${dia}/${mes}/${ano} ${hora}:${min}`;
+  }
+
+  // Função que faz geocoding reverso via Nominatim para obter endereço e CEP
+  async function buscarEndereco(lat, lng) {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`;
+    try {
+      const resposta = await fetch(url, { 
+        headers: { 
+          'Accept-Language': 'pt-BR',
+          'User-Agent': 'MapaRuasPerigosas/1.0' 
+        }
+      });
+      const dados = await resposta.json();
+
+      // Extrai dados do endereço
+      const endereco = dados.address || {};
+      // Rua
+      const rua = endereco.road || endereco.pedestrian || endereco.neighbourhood || "Rua desconhecida";
+      // CEP
+      const cep = endereco.postcode || "CEP não encontrado";
+      // Bairro
+      const bairro = endereco.suburb || endereco.neighbourhood || "Bairro desconhecido";
+      // Cidade
+      const cidade = endereco.city || endereco.town || endereco.village || "Cidade desconhecida";
+
+      return { rua, cep, bairro, cidade };
+    } catch (erro) {
+      console.error("Erro ao buscar endereço:", erro);
+      return { 
+        rua: "Rua desconhecida", 
+        cep: "CEP não encontrado",
+        bairro: "Bairro desconhecido",
+        cidade: "Cidade desconhecida"
+      };
+    }
+  }
+
+  function iniciarMapa(lat, lng) {
+    map = L.map('map').setView([lat, lng], 15);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
+
+    // Marcador do usuário com ícone verde
+    usuarioMarcador = L.marker([lat, lng], {
+      title: "Você está aqui",
+      icon: L.divIcon({
+        html: '<i class="fas fa-user" style="color: #2ecc71; font-size: 24px;"></i>',
+        className: 'user-marker',
+        iconSize: [24, 24]
+      })
+    }).addTo(map);
+    
+    usuarioMarcador.bindPopup("<b>Você está aqui</b>").openPopup();
+
+    // Cria marcador async para permitir buscar endereço antes de criar
+    async function criarMarcador(latlng) {
+      // Busca endereço e CEP pelo latlng
+      const { rua, cep, bairro, cidade } = await buscarEndereco(latlng.lat, latlng.lng);
+
+      let descricao = prompt(
+        `🚧 Descreva o perigo em:\n\n📍 Local: ${rua}\n🏘️ Bairro: ${bairro}\n🏙️ Cidade: ${cidade}\n📮 CEP: ${cep}`,
+        ""
+      );
+      
+      if (descricao === null) return; // Usuário cancelou
+      if (!descricao) descricao = "Sem descrição";
+
+      const timestamp = new Date();
+
+      // Cria marcador com ícone personalizado
+      const marcador = L.marker(latlng, { 
+        draggable: true,
+        icon: L.divIcon({
+          html: '<i class="fas fa-exclamation-circle" style="color: #e74c3c; font-size: 24px;"></i>',
+          className: 'danger-marker',
+          iconSize: [24, 24]
+        })
+      }).addTo(map);
+
+      marcador.bindPopup(
+        `<b><i class="fas fa-exclamation-triangle"></i> Rua perigosa:</b><br>
+        📍 ${rua}<br>
+        🏘️ ${bairro}<br>
+        🏙️ ${cidade}<br>
+        📮 CEP: ${cep}<br><br>
+        <b><i class="fas fa-skull-crossbones"></i> Perigo:</b> ${descricao}<br>
+        <b><i class="far fa-clock"></i> Registrado em:</b> ${formatarTimestamp(timestamp)}<br><br>
+        <small>(Arraste para ajustar posição)</small>`
+      ).openPopup();
+
+      // Atualiza popup ao arrastar
+      marcador.on('dragend', async () => {
+        const pos = marcador.getLatLng();
+        const { rua: novaRua, cep: novoCep, bairro: novoBairro, cidade: novaCidade } = await buscarEndereco(pos.lat, pos.lng);
+        
+        marcador.setPopupContent(
+          `<b><i class="fas fa-exclamation-triangle"></i> Rua perigosa:</b><br>
+          📍 ${novaRua}<br>
+          🏘️ ${novoBairro}<br>
+          🏙️ ${novaCidade}<br>
+          📮 CEP: ${novoCep}<br><br>
+          <b><i class="fas fa-skull-crossbones"></i> Perigo:</b> ${descricao}<br>
+          <b><i class="far fa-clock"></i> Registrado em:</b> ${formatarTimestamp(timestamp)}<br><br>
+          <small>(Arraste para ajustar posição)</small>`
+        ).openPopup();
+
+        // Atualiza dados no array
+        const index = pontosPerigosos.findIndex(e => e.marcador === marcador);
+        if (index !== -1) {
+          pontosPerigosos[index].latlng = pos;
+          pontosPerigosos[index].rua = novaRua;
+          pontosPerigosos[index].cep = novoCep;
+          pontosPerigosos[index].bairro = novoBairro;
+          pontosPerigosos[index].cidade = novaCidade;
+        }
+      });
+
+      // Permite remover marcador com tecla Delete
+      marcador.on('popupopen', () => {
+        document.addEventListener('keydown', function removerMarcador(e) {
+          if (e.key === 'Delete') {
+            map.removeLayer(marcador);
+            const index = pontosPerigosos.findIndex(p => p.marcador === marcador);
+            if (index !== -1) {
+              pontosPerigosos.splice(index, 1);
+              atualizarContador();
+            }
+            document.removeEventListener('keydown', removerMarcador);
+          }
+        });
+      });
+
+      pontosPerigosos.push({ 
+        marcador, 
+        latlng, 
+        rua, 
+        cep, 
+        bairro, 
+        cidade, 
+        descricao, 
+        timestamp 
+      });
+      
+      atualizarContador();
+    }
+
+    map.on('click', e => {
+      criarMarcador(e.latlng);
+    });
+  }
+
+  // Exporta dados para WhatsApp com emojis e bem organizado
+  function exportarParaWhatsApp() {
+    if (pontosPerigosos.length === 0) {
+      alert("Nenhuma rua perigosa marcada.");
+      return;
+    }
+
+    let texto = "🚨 *Ruas Perigosas Marcadas - Relatório*\n\n";
+    
+    // Adiciona cabeçalho com data/hora
+    texto += `📅 Relatório gerado em: ${formatarTimestamp(new Date())}\n\n`;
+    
+    pontosPerigosos.forEach((p, i) => {
+      texto += `📍 *Local ${i + 1}:*\n`;
+      texto += `   🏠 Rua: ${p.rua}\n`;
+      texto += `   🏘️ Bairro: ${p.bairro}\n`;
+      texto += `   🏙️ Cidade: ${p.cidade}\n`;
+      texto += `   📮 CEP: ${p.cep}\n`;
+      texto += `   ⚠️ Perigo: ${p.descricao}\n`;
+      texto += `   🕒 Registrado em: ${formatarTimestamp(p.timestamp)}\n`;
+      texto += `   📍 Coordenadas: (Lat: ${p.latlng.lat.toFixed(5)}, Lng: ${p.latlng.lng.toFixed(5)})\n\n`;
+    });
+
+    texto += "\n⚠️ *Atenção:* Evite estas áreas ou tome precauções extras ao trafegar por estes locais.";
+
+    const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+    window.open(url, '_blank');
+  }
+
+  // Exporta dados como texto para download
+  function exportarParaTexto() {
+    if (pontosPerigosos.length === 0) {
+      alert("Nenhuma rua perigosa marcada.");
+      return;
+    }
+
+    let texto = "=== Ruas Perigosas Marcadas - Relatório ===\n\n";
+    texto += `Data do relatório: ${formatarTimestamp(new Date())}\n\n`;
+    
+    pontosPerigosos.forEach((p, i) => {
+      texto += `Local ${i + 1}:\n`;
+      texto += `- Rua: ${p.rua}\n`;
+      texto += `- Bairro: ${p.bairro}\n`;
+      texto += `- Cidade: ${p.cidade}\n`;
+      texto += `- CEP: ${p.cep}\n`;
+      texto += `- Perigo: ${p.descricao}\n`;
+      texto += `- Registrado em: ${formatarTimestamp(p.timestamp)}\n`;
+      texto += `- Coordenadas: (Lat: ${p.latlng.lat.toFixed(5)}, Lng: ${p.latlng.lng.toFixed(5)})\n\n`;
+    });
+
+    const blob = new Blob([texto], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ruas_perigosas_${new Date().toISOString().slice(0,10)}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // Inicializa o mapa com geolocalização ou padrão
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(pos => {
+      iniciarMapa(pos.coords.latitude, pos.coords.longitude);
+    }, err => {
+      console.error("Erro de geolocalização:", err);
+      iniciarMapa(-23.55, -46.63);
+      alert("Não foi possível obter sua localização. Centralizando em São Paulo.");
+    }, {
+      enableHighAccuracy: true,
+      timeout: 5000,
+      maximumAge: 0
+    });
+  } else {
+    iniciarMapa(-23.55, -46.63);
+    alert("Seu navegador não suporta geolocalização. Centralizando em São Paulo.");
+  }
+</script>
+
+</body>
+</html>
