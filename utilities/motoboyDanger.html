@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mapa de Perigos para Motoboy</title>
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<!-- Estilo personalizado -->
+<style>
+  :root {
+    --primary: #ff4500;
+    --secondary: #333;
+    --background: #f9f9f9;
+    --accent: #0055ff;
+  }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: var(--background);
+    color: var(--secondary);
+  }
+
+  #map {
+    height: 80vh;
+    width: 100%;
+    margin: 0 auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  header {
+    padding: 1rem;
+    text-align: center;
+    background: var(--primary);
+    color: white;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+
+  .controls {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.25rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+  }
+
+  button:hover {
+    background: #0040c0;
+  }
+
+  @media (max-width: 600px) {
+    header h1 {
+      font-size: 1.2rem;
+    }
+    .controls {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    button {
+      width: 100%;
+    }
+  }
+
+  .leaflet-popup-content input,
+  .leaflet-popup-content select,
+  .leaflet-popup-content textarea {
+    width: 100%;
+    margin-bottom: 0.5rem;
+    padding: 0.4rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.9rem;
+  }
+
+  .leaflet-popup-content label {
+    font-size: 0.8rem;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🚨 Mapa de Perigos para Motoboy</h1>
+</header>
+
+<div class="controls">
+  <button onclick="exportarParaWhatsApp()">Exportar para WhatsApp</button>
+</div>
+
+<div id="map"></div>
+
+<script>
+  let map;
+  const pontos = [];
+
+  /**
+   * Inicializa o mapa com a localização fornecida
+   */
+  function iniciarMapa(lat, lng) {
+    map = L.map('map').setView([lat, lng], 15);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
+    }).addTo(map);
+
+    map.on('click', (e) => abrirFormulario(e.latlng));
+  }
+
+  /**
+   * Cria e exibe o formulário no popup
+   */
+  function abrirFormulario(latlng) {
+    const popupContent = document.createElement('div');
+
+    popupContent.innerHTML = `
+      <label for="perigo">Perigo:</label>
+      <select id="perigo">
+        <option value="Buraco">🕳️ Buraco</option>
+        <option value="Pista Molhada">💧 Pista Molhada</option>
+        <option value="Trânsito Intenso">🚗 Trânsito Intenso</option>
+        <option value="Assalto">⚠️ Assalto</option>
+        <option value="Outros">❓ Outros</option>
+      </select>
+
+      <label for="obs">Observações:</label>
+      <textarea id="obs" rows="2" placeholder="Detalhe aqui..."></textarea>
+    `;
+
+    const popup = L.popup()
+      .setLatLng(latlng)
+      .setContent(popupContent)
+      .openOn(map);
+
+    const perigoSelect = popupContent.querySelector('#perigo');
+    const obsTextarea = popupContent.querySelector('#obs');
+
+    popupContent.addEventListener('submit', (e) => e.preventDefault());
+
+    const savePoint = () => {
+      const perigo = perigoSelect.value;
+      const emoji = perigoSelect.options[perigoSelect.selectedIndex].text.split(' ')[0];
+      const obs = obsTextarea.value.trim();
+      const hora = formatarHora();
+
+      obterEndereco(latlng.lat, latlng.lng, (rua, cep) => {
+        const marcador = L.marker(latlng, { draggable: true }).addTo(map);
+        marcador.bindPopup(`<b>${emoji} ${perigo}</b><br>${rua}<br>CEP: ${cep}<br>🕒 ${hora}<br>📝 ${obs || 'Nenhuma observação'}`);
+        pontos.push({ emoji, perigo, rua, cep, hora, obs, lat: latlng.lat, lng: latlng.lng });
+      });
+      map.closePopup();
+    };
+
+    // Confirmação ao clicar fora do popup
+    popupContent.addEventListener('mouseleave', savePoint);
+  }
+
+  /**
+   * Obtém o endereço usando Nominatim
+   */
+  function obterEndereco(lat, lng, callback) {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        const rua = data.address.road || data.display_name || "Endereço não encontrado";
+        const cep = data.address.postcode || "CEP não encontrado";
+        callback(rua, cep);
+      })
+      .catch(() => callback("Endereço não encontrado", "CEP não encontrado"));
+  }
+
+  /**
+   * Formata a hora atual
+   */
+  function formatarHora() {
+    const agora = new Date();
+    return agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  /**
+   * Exporta todos os pontos para o WhatsApp
+   */
+  function exportarParaWhatsApp() {
+    if (pontos.length === 0) {
+      alert("Nenhum ponto marcado ainda!");
+      return;
+    }
+    let texto = "🚨 Mapa de Perigos Atualizado 🚨\n\n";
+    pontos.forEach((p, i) => {
+      texto += `${i + 1}. ${p.emoji} *${p.perigo}*\n📍 ${p.rua} - CEP: ${p.cep}\n🕒 ${p.hora}\n📝 ${p.obs || 'Nenhuma observação'}\n🔗 https://maps.google.com/?q=${p.lat},${p.lng}\n\n`;
+    });
+    const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+    window.open(url, '_blank');
+  }
+
+  // Localização inicial do usuário
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => iniciarMapa(pos.coords.latitude, pos.coords.longitude),
+      () => iniciarMapa(-23.5505, -46.6333) // fallback: São Paulo
+    );
+  } else {
+    iniciarMapa(-23.5505, -46.6333);
+  }
+</script>
+
+</body>
+</html>

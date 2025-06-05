@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EnfermeiroLog+ - Triagem Completa</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #3498db;
+      --primary-dark: #2980b9;
+      --secondary: #2ecc71;
+      --secondary-dark: #27ae60;
+      --accent: #e74c3c;
+      --light: #f8f9fa;
+      --light-gray: #e9ecef;
+      --dark-gray: #495057;
+      --dark: #212529;
+      --success: #28a745;
+      --warning: #ffc107;
+      --danger: #dc3545;
+      --border-radius: 10px;
+      --box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f0f4f8;
+      color: var(--dark);
+      line-height: 1.6;
+      padding: 1rem;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      padding: 1.5rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    h1 {
+      color: var(--primary);
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .subtitle {
+      color: var(--dark-gray);
+      font-size: 0.9rem;
+    }
+
+    .section {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px dashed var(--light-gray);
+    }
+
+    .section:last-child {
+      border-bottom: none;
+    }
+
+    .section h2 {
+      font-size: 1.2rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1rem;
+    }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 600;
+      color: var(--dark-gray);
+    }
+
+    .input-group {
+      position: relative;
+    }
+
+    .input-group i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--dark-gray);
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    input[type="time"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 0.8rem 1rem 0.8rem 2.5rem;
+      border: 1px solid var(--light-gray);
+      border-radius: var(--border-radius);
+      background: var(--light);
+      font-size: 0.95rem;
+      transition: var(--transition);
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+      background: white;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+      padding-left: 1rem !important;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-top: 1rem;
+    }
+
+    .checkbox-group label {
+      display: inline-flex;
+      align-items: center;
+      background: var(--light);
+      padding: 0.7rem 1.2rem;
+      border-radius: 30px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      margin: 0;
+    }
+
+    .checkbox-group input[type="checkbox"],
+    .checkbox-group input[type="radio"] {
+      margin-right: 0.6rem;
+      accent-color: var(--primary);
+    }
+
+    .checkbox-group label:hover {
+      background: #e9f5ff;
+    }
+
+    button {
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      font-weight: 600;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      width: 100%;
+      justify-content: center;
+      margin-top: 1.5rem;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    }
+
+    .btn-secondary {
+      background: var(--secondary);
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: var(--secondary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+    }
+
+    #msgStatus {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: var(--border-radius);
+      text-align: center;
+      font-weight: 600;
+      display: none;
+    }
+
+    .success {
+      background: rgba(40, 167, 69, 0.1);
+      color: var(--success);
+      border-left: 4px solid var(--success);
+    }
+
+    .error {
+      background: rgba(220, 53, 69, 0.1);
+      color: var(--danger);
+      border-left: 4px solid var(--danger);
+    }
+
+    @media (max-width: 768px) {
+      .grid-2,
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+      
+      .container {
+        padding: 1rem;
+      }
+      
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><i class="fas fa-user-nurse"></i> EnfermeiroLog+</h1>
+      <p class="subtitle">Triagem completa com parâmetros clínicos</p>
+    </header>
+
+    <div class="section">
+      <h2><i class="fas fa-user"></i> Dados do Paciente</h2>
+      <div class="grid-2">
+        <div class="input-group">
+          <i class="fas fa-signature"></i>
+          <input type="text" id="nomePaciente" placeholder="Nome completo">
+        </div>
+        <div class="input-group">
+          <i class="fas fa-birthday-cake"></i>
+          <input type="number" id="idadePaciente" placeholder="Idade">
+        </div>
+      </div>
+      
+      <label><i class="fas fa-venus-mars"></i> Sexo:</label>
+      <div class="checkbox-group">
+        <label><input type="radio" name="sexo" value="Masculino" checked> Masculino</label>
+        <label><input type="radio" name="sexo" value="Feminino"> Feminino</label>
+        <label><input type="radio" name="sexo" value="Outro"> Outro</label>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2><i class="fas fa-heartbeat"></i> Sinais Vitais</h2>
+      <div class="grid-3">
+        <div class="input-group">
+          <i class="fas fa-heart"></i>
+          <input type="text" id="pressaoArterial" placeholder="Pressão (ex: 120/80)">
+        </div>
+        <div class="input-group">
+          <i class="fas fa-lungs"></i>
+          <input type="number" id="oxigenacao" placeholder="SpO₂ (%)">
+        </div>
+        <div class="input-group">
+          <i class="fas fa-temperature-high"></i>
+          <input type="number" id="temperatura" placeholder="Temperatura (°C)">
+        </div>
+      </div>
+      
+      <div class="grid-3">
+        <div class="input-group">
+          <i class="fas fa-heartbeat"></i>
+          <input type="number" id="frequenciaCardiaca" placeholder="FC (bpm)">
+        </div>
+        <div class="input-group">
+          <i class="fas fa-wind"></i>
+          <input type="number" id="frequenciaRespiratoria" placeholder="FR (rpm)">
+        </div>
+        <div class="input-group">
+          <i class="fas fa-weight"></i>
+          <input type="number" id="peso" placeholder="Peso (kg)">
+        </div>
+      </div>
+      
+      <div class="grid-2">
+        <div class="input-group">
+          <i class="fas fa-ruler-vertical"></i>
+          <input type="number" id="altura" placeholder="Altura (cm)">
+        </div>
+        <div class="input-group">
+          <i class="fas fa-tint"></i>
+          <input type="number" id="glicemia" placeholder="Glicemia (mg/dL)">
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2><i class="fas fa-stethoscope"></i> Avaliação Clínica</h2>
+      <label><i class="fas fa-notes-medical"></i> Principais Sintomas:</label>
+      <div class="checkbox-group" id="sintomasCheckboxes">
+        <label><input type="checkbox" value="Febre"> Febre</label>
+        <label><input type="checkbox" value="Dor de cabeça"> Dor de cabeça</label>
+        <label><input type="checkbox" value="Falta de ar"> Falta de ar</label>
+        <label><input type="checkbox" value="Náuseas/Vômitos"> Náuseas/Vômitos</label>
+        <label><input type="checkbox" value="Tontura"> Tontura</label>
+        <label><input type="checkbox" value="Dor no peito"> Dor no peito</label>
+        <label><input type="checkbox" value="Dor abdominal"> Dor abdominal</label>
+        <label><input type="checkbox" value="Outros"> Outros</label>
+      </div>
+      
+      <label><i class="fas fa-comment-medical"></i> Histórico Relevante:</label>
+      <textarea id="historico" placeholder="Medicações em uso, alergias, doenças pré-existentes..."></textarea>
+    </div>
+
+    <div class="section">
+      <h2><i class="fas fa-exclamation-triangle"></i> Classificação de Risco</h2>
+      <div class="checkbox-group">
+        <label><input type="radio" name="prioridade" value="🟢 VERDE - Pouco urgente" checked> 🟢 VERDE - Pouco urgente</label>
+        <label><input type="radio" name="prioridade" value="🟡 AMARELO - Urgência moderada"> 🟡 AMARELO - Urgência moderada</label>
+        <label><input type="radio" name="prioridade" value="🔴 VERMELHO - Muito urgente"> 🔴 VERMELHO - Muito urgente</label>
+        <label><input type="radio" name="prioridade" value="⚫ PRETO - Emergência"> ⚫ PRETO - Emergência</label>
+      </div>
+      
+      <label><i class="fas fa-clipboard"></i> Observações Finais:</label>
+      <textarea id="observacoes" placeholder="Outras informações relevantes para o médico"></textarea>
+    </div>
+
+    <button class="btn-primary" onclick="enviarParaMedico()">
+      <i class="fab fa-whatsapp"></i> Encaminhar Triagem para o Médico
+    </button>
+
+    <div id="msgStatus"></div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+  <script>
+    // Elementos DOM
+    const msgStatus = document.getElementById('msgStatus');
+
+    // Função para enviar dados ao médico via WhatsApp
+    function enviarParaMedico() {
+      // Dados básicos
+      const nomePaciente = document.getElementById('nomePaciente').value.trim();
+      const idadePaciente = document.getElementById('idadePaciente').value.trim();
+      const sexo = document.querySelector('input[name="sexo"]:checked').value;
+      
+      // Sinais vitais
+      const pressaoArterial = document.getElementById('pressaoArterial').value.trim();
+      const oxigenacao = document.getElementById('oxigenacao').value.trim();
+      const temperatura = document.getElementById('temperatura').value.trim();
+      const frequenciaCardiaca = document.getElementById('frequenciaCardiaca').value.trim();
+      const frequenciaRespiratoria = document.getElementById('frequenciaRespiratoria').value.trim();
+      const peso = document.getElementById('peso').value.trim();
+      const altura = document.getElementById('altura').value.trim();
+      const glicemia = document.getElementById('glicemia').value.trim();
+      
+      // Avaliação clínica
+      const sintomasSelecionados = Array.from(document.querySelectorAll('#sintomasCheckboxes input:checked')).map(cb => cb.value);
+      const historico = document.getElementById('historico').value.trim();
+      
+      // Classificação de risco
+      const prioridade = document.querySelector('input[name="prioridade"]:checked').value;
+      const observacoes = document.getElementById('observacoes').value.trim();
+
+      // Validação mínima
+      if (!nomePaciente || !idadePaciente || !pressaoArterial || sintomasSelecionados.length === 0) {
+        showMessage('Preencha os campos obrigatórios!', 'error');
+        return;
+      }
+
+      // Calcular IMC se peso e altura estiverem preenchidos
+      let imc = '';
+      if (peso && altura) {
+        const alturaMetros = altura / 100;
+        imc = (peso / (alturaMetros * alturaMetros)).toFixed(1);
+      }
+
+      // Montar mensagem para WhatsApp
+      let mensagem = `🚑 *TRIAGEM COMPLETA* 🚑\n\n`;
+      mensagem += `👤 *PACIENTE:* ${nomePaciente}\n`;
+      mensagem += `📅 *Idade:* ${idadePaciente} anos | *Sexo:* ${sexo}\n`;
+      mensagem += `📌 *Prioridade:* ${prioridade}\n\n`;
+      
+      mensagem += `💓 *SINAIS VITAIS*\n`;
+      mensagem += `➤ Pressão Arterial: ${pressaoArterial || 'N/A'}\n`;
+      mensagem += `➤ SpO₂: ${oxigenacao ? oxigenacao + '%' : 'N/A'}\n`;
+      mensagem += `➤ Temperatura: ${temperatura ? temperatura + '°C' : 'N/A'}\n`;
+      mensagem += `➤ FC: ${frequenciaCardiaca ? frequenciaCardiaca + ' bpm' : 'N/A'}\n`;
+      mensagem += `➤ FR: ${frequenciaRespiratoria ? frequenciaRespiratoria + ' rpm' : 'N/A'}\n`;
+      mensagem += `➤ Peso: ${peso ? peso + ' kg' : 'N/A'}\n`;
+      mensagem += `➤ Altura: ${altura ? altura + ' cm' : 'N/A'}\n`;
+      mensagem += `➤ IMC: ${imc || 'N/A'}\n`;
+      mensagem += `➤ Glicemia: ${glicemia ? glicemia + ' mg/dL' : 'N/A'}\n\n`;
+      
+      mensagem += `🩺 *SINTOMAS PRINCIPAIS*\n`;
+      sintomasSelecionados.forEach(sintoma => {
+        mensagem += `➤ ${sintoma}\n`;
+      });
+      
+      if (historico) {
+        mensagem += `\n📋 *HISTÓRICO RELEVANTE*\n${historico}\n`;
+      }
+      
+      if (observacoes) {
+        mensagem += `\n📝 *OBSERVAÇÕES*\n${observacoes}\n`;
+      }
+      
+      mensagem += `\n*Triagem realizada por:* Enfermeiro(a) [Seu Nome]`;
+
+      // Abrir WhatsApp
+      const encoded = encodeURIComponent(mensagem);
+      window.open(`https://wa.me/?text=${encoded}`, '_blank');
+    }
+
+    // Mostrar mensagem de status
+    function showMessage(message, type) {
+      msgStatus.textContent = message;
+      msgStatus.className = type;
+      msgStatus.style.display = 'block';
+      
+      setTimeout(() => {
+        msgStatus.style.display = 'none';
+      }, 5000);
+    }
+  </script>
+</body>
+</html>

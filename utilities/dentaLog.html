@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DentaLog - Controle e Divulgação Odontológica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #00b4b3;
+    --primary-dark: #008a89;
+    --secondary: #ff7e5f;
+    --light: #f8f9fa;
+    --dark: #212529;
+    --success: #28a745;
+    --info: #17a2b8;
+  }
+  
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: #f5f9f8;
+    margin: 0;
+    padding: 2rem;
+    color: var(--dark);
+    line-height: 1.6;
+  }
+  
+  h1 {
+    text-align: center;
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .container {
+    max-width: 1000px;
+    margin: auto;
+    background: #ffffff;
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+  
+  .section {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .section:last-child {
+    border-bottom: none;
+  }
+  
+  .section h2 {
+    color: var(--primary-dark);
+    margin-bottom: 1.2rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .section h2 i {
+    font-size: 1.3em;
+  }
+  
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--dark);
+  }
+  
+  input[type="text"], textarea, select {
+    width: 100%;
+    padding: 0.8rem;
+    margin-bottom: 1.2rem;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-sizing: border-box;
+    background: #f9f9f9;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.3s;
+  }
+  
+  input[type="text"]:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(0, 180, 179, 0.1);
+    background: #fff;
+  }
+  
+  textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+  
+  .checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+  }
+  
+  .checkbox-group label {
+    display: inline-flex;
+    align-items: center;
+    background: #e0f7f7;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    margin: 0;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 400;
+  }
+  
+  .checkbox-group label:hover {
+    background: #c2f0f0;
+    transform: translateY(-2px);
+  }
+  
+  .checkbox-group input[type="checkbox"] {
+    margin-right: 0.5rem;
+    accent-color: var(--primary);
+  }
+  
+  .button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 1.5rem;
+  }
+  
+  button {
+    background: var(--primary);
+    color: #fff;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+  }
+  
+  button:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  button.secondary {
+    background: var(--secondary);
+  }
+  
+  button.secondary:hover {
+    background: #e06c4f;
+  }
+  
+  button.outline {
+    background: transparent;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+  }
+  
+  button.outline:hover {
+    background: rgba(0, 180, 179, 0.1);
+  }
+  
+  #dashboard-container {
+    margin-top: 2.5rem;
+    background: #f8fdfd;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid #e0f7f7;
+    position: relative;
+  }
+  
+  #dashboard {
+    max-width: 100%;
+  }
+  
+  .dashboard-title {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--primary-dark);
+    font-weight: 600;
+  }
+  
+  .clinic-info {
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: #666;
+  }
+  
+  .social-media {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 1rem;
+  }
+  
+  .social-icon {
+    color: var(--primary);
+    font-size: 1.2rem;
+  }
+  
+  .add-procedure-container {
+    display: flex;
+    gap: 10px;
+    margin-top: 1rem;
+  }
+  
+  .add-procedure-container input {
+    margin-bottom: 0;
+    flex-grow: 1;
+  }
+  
+  .rating-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1rem;
+  }
+  
+  .rating-star {
+    font-size: 1.8rem;
+    color: #ddd;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  
+  .rating-star.active {
+    color: #ffc107;
+  }
+  
+  @media (max-width: 768px) {
+    body {
+      padding: 1rem;
+    }
+    
+    .container {
+      padding: 1.5rem;
+    }
+    
+    .button-group {
+      flex-direction: column;
+    }
+    
+    button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+<div class="container">
+  <h1><i class="fas fa-tooth"></i> DentaLog</h1>
+  <p style="text-align: center; margin-bottom: 2rem; color: #555;">Sistema de registro e divulgação de atendimentos odontológicos</p>
+
+  <div class="section">
+    <h2><i class="fas fa-procedures"></i> Tipos de Procedimentos</h2>
+    <p>Marque os procedimentos realizados hoje e adicione novos conforme necessário:</p>
+    <div class="checkbox-group" id="procedimentosCheckboxes"></div>
+    <div class="add-procedure-container">
+      <input type="text" id="novoProcedimento" placeholder="Ex: Implante, Lente de contato...">
+      <button onclick="adicionarProcedimento()"><i class="fas fa-plus"></i> Adicionar</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><i class="fas fa-user-injured"></i> Detalhes do Atendimento</h2>
+    <label for="paciente">Paciente:</label>
+    <input type="text" id="paciente" placeholder="Nome do paciente">
+    
+    <label for="descricao">Descrição do Caso:</label>
+    <textarea id="descricao" placeholder="Descreva o caso clínico e as queixas do paciente"></textarea>
+    
+    <label for="diagnostico">Diagnóstico:</label>
+    <input type="text" id="diagnostico" placeholder="Diagnóstico estabelecido">
+    
+    <label for="tratamento">Tratamento Realizado:</label>
+    <textarea id="tratamento" placeholder="Detalhes do tratamento realizado e orientações"></textarea>
+    
+    <label>Avaliação do Paciente:</label>
+    <div class="rating-container">
+      <span class="rating-star" onclick="setRating(1)"><i class="far fa-star"></i></span>
+      <span class="rating-star" onclick="setRating(2)"><i class="far fa-star"></i></span>
+      <span class="rating-star" onclick="setRating(3)"><i class="far fa-star"></i></span>
+      <span class="rating-star" onclick="setRating(4)"><i class="far fa-star"></i></span>
+      <span class="rating-star" onclick="setRating(5)"><i class="far fa-star"></i></span>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><i class="fas fa-share-alt"></i> Exportar e Compartilhar</h2>
+    <div class="button-group">
+      <button onclick="exportarWhatsApp()"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+      <button onclick="gerarRelatorioPDF()" class="secondary"><i class="fas fa-file-pdf"></i> Gerar PDF</button>
+      <button onclick="gerarDashboard()"><i class="fas fa-chart-pie"></i> Dashboard</button>
+      <button onclick="exportarInstagram()" class="outline"><i class="fab fa-instagram"></i> Instagram</button>
+    </div>
+  </div>
+
+  <div id="dashboard-container" style="display: none;">
+    <div class="dashboard-title">Resumo dos Procedimentos Diários</div>
+    <div class="clinic-info" id="clinicInfo">Clínica Odontológica • Dra. Ana Silva • CRO/SP 12345</div>
+    <canvas id="dashboard"></canvas>
+    <div class="social-media">
+      <span class="social-icon"><i class="fab fa-instagram"></i></span>
+      <span class="social-icon"><i class="fab fa-facebook"></i></span>
+      <span class="social-icon"><i class="fab fa-whatsapp"></i></span>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+  // Configurações iniciais
+  let procedimentos = ["Limpeza", "Restauração", "Clareamento", "Ortodontia", "Extração"];
+  let rating = 0;
+  const checkboxesContainer = document.getElementById('procedimentosCheckboxes');
+  
+  // Configurações da clínica (pode ser editado)
+  const clinicInfo = {
+    name: "Clínica Odontológica",
+    dentist: "Dra. Ana Silva",
+    cro: "CRO/SP 12345",
+    phone: "(11) 98765-4321",
+    address: "Av. Paulista, 1000 - São Paulo/SP"
+  };
+
+  // Inicializa a página
+  document.addEventListener('DOMContentLoaded', function() {
+    renderizarCheckboxes();
+    document.getElementById('clinicInfo').textContent = `${clinicInfo.name} • ${clinicInfo.dentist} • ${clinicInfo.cro}`;
+  });
+
+  function renderizarCheckboxes() {
+    checkboxesContainer.innerHTML = '';
+    procedimentos.forEach(tipo => {
+      const label = document.createElement('label');
+      label.innerHTML = `<input type="checkbox" value="${tipo}"> ${tipo}`;
+      checkboxesContainer.appendChild(label);
+    });
+  }
+
+  function adicionarProcedimento() {
+    const novoTipo = document.getElementById('novoProcedimento').value.trim();
+    if (novoTipo && !procedimentos.includes(novoTipo)) {
+      procedimentos.push(novoTipo);
+      renderizarCheckboxes();
+      document.getElementById('novoProcedimento').value = '';
+    }
+  }
+
+  function setRating(stars) {
+    rating = stars;
+    const starsElements = document.querySelectorAll('.rating-star');
+    starsElements.forEach((star, index) => {
+      if (index < stars) {
+        star.innerHTML = '<i class="fas fa-star"></i>';
+        star.classList.add('active');
+      } else {
+        star.innerHTML = '<i class="far fa-star"></i>';
+        star.classList.remove('active');
+      }
+    });
+  }
+
+  function exportarWhatsApp() {
+    const procedimentosSelecionados = Array.from(checkboxesContainer.querySelectorAll('input:checked')).map(cb => `✅ ${cb.value}`);
+    const paciente = document.getElementById('paciente').value.trim();
+    const descricao = document.getElementById('descricao').value.trim();
+    const diagnostico = document.getElementById('diagnostico').value.trim();
+    const tratamento = document.getElementById('tratamento').value.trim();
+
+    let mensagem = `*🦷 Resumo do Atendimento Odontológico*\n\n`;
+    mensagem += `*${clinicInfo.dentist} - ${clinicInfo.cro}*\n\n`;
+    if (paciente) mensagem += `*👤 Paciente:* ${paciente}\n`;
+    if (procedimentosSelecionados.length) {
+      mensagem += `\n*📌 Procedimentos Realizados:*\n${procedimentosSelecionados.join('\n')}\n`;
+    }
+    if (descricao) mensagem += `\n*📝 Descrição do Caso:*\n${descricao}\n`;
+    if (diagnostico) mensagem += `\n*🔬 Diagnóstico:*\n${diagnostico}\n`;
+    if (tratamento) mensagem += `\n*💊 Tratamento Realizado:*\n${tratamento}\n`;
+    if (rating > 0) {
+      mensagem += `\n*⭐ Avaliação do Paciente:* ${'★'.repeat(rating)}${'☆'.repeat(5-rating)}\n`;
+    }
+    mensagem += `\n*📞 Agende seu horário:* ${clinicInfo.phone}\n`;
+    mensagem += `📍 ${clinicInfo.address}`;
+
+    const encoded = encodeURIComponent(mensagem);
+    const link = `https://wa.me/?text=${encoded}`;
+    window.open(link, '_blank');
+  }
+
+  function gerarRelatorioPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // Cabeçalho
+    doc.setFontSize(18);
+    doc.setTextColor(0, 180, 179);
+    doc.text('Relatório Odontológico', 105, 20, { align: 'center' });
+    
+    doc.setFontSize(12);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`${clinicInfo.dentist} - ${clinicInfo.cro}`, 105, 28, { align: 'center' });
+    
+    // Data
+    const today = new Date();
+    doc.text(`Data: ${today.toLocaleDateString('pt-BR')}`, 105, 35, { align: 'center' });
+    
+    // Linha divisória
+    doc.setDrawColor(0, 180, 179);
+    doc.setLineWidth(0.5);
+    doc.line(20, 40, 190, 40);
+    
+    // Conteúdo
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 0);
+    let yPosition = 50;
+    
+    // Paciente
+    const paciente = document.getElementById('paciente').value.trim();
+    if (paciente) {
+      doc.text(`Paciente: ${paciente}`, 20, yPosition);
+      yPosition += 10;
+    }
+    
+    // Procedimentos
+    const procedimentosSelecionados = Array.from(checkboxesContainer.querySelectorAll('input:checked')).map(cb => `• ${cb.value}`);
+    if (procedimentosSelecionados.length) {
+      doc.text('Procedimentos Realizados:', 20, yPosition);
+      yPosition += 10;
+      procedimentosSelecionados.forEach(proc => {
+        doc.text(proc, 25, yPosition);
+        yPosition += 8;
+      });
+    }
+    
+    // Descrição
+    const descricao = document.getElementById('descricao').value.trim();
+    if (descricao) {
+      yPosition += 5;
+      doc.text('Descrição do Caso:', 20, yPosition);
+      yPosition += 8;
+      const descLines = doc.splitTextToSize(descricao, 170);
+      descLines.forEach(line => {
+        doc.text(line, 20, yPosition);
+        yPosition += 8;
+      });
+    }
+    
+    // Diagnóstico
+    const diagnostico = document.getElementById('diagnostico').value.trim();
+    if (diagnostico) {
+      yPosition += 5;
+      doc.text('Diagnóstico:', 20, yPosition);
+      yPosition += 8;
+      const diagLines = doc.splitTextToSize(diagnostico, 170);
+      diagLines.forEach(line => {
+        doc.text(line, 20, yPosition);
+        yPosition += 8;
+      });
+    }
+    
+    // Tratamento
+    const tratamento = document.getElementById('tratamento').value.trim();
+    if (tratamento) {
+      yPosition += 5;
+      doc.text('Tratamento Realizado:', 20, yPosition);
+      yPosition += 8;
+      const tratLines = doc.splitTextToSize(tratamento, 170);
+      tratLines.forEach(line => {
+        doc.text(line, 20, yPosition);
+        yPosition += 8;
+      });
+    }
+    
+    // Avaliação
+    if (rating > 0) {
+      yPosition += 5;
+      doc.text(`Avaliação do Paciente: ${'★'.repeat(rating)}${'☆'.repeat(5-rating)}`, 20, yPosition);
+      yPosition += 10;
+    }
+    
+    // Rodapé
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Gerado em ${today.toLocaleString('pt-BR')} pelo DentaLog`, 105, 280, { align: 'center' });
+    
+    doc.save(`relatorio_odontologico_${paciente || 'atendimento'}.pdf`);
+  }
+
+  function gerarDashboard() {
+    const ctx = document.getElementById('dashboard').getContext('2d');
+    const dados = procedimentos.map(tipo => {
+      const checkbox = Array.from(checkboxesContainer.querySelectorAll(`input[value="${tipo}"]`))[0];
+      return checkbox && checkbox.checked ? 1 : 0;
+    });
+
+    // Filtra apenas os procedimentos selecionados
+    const labelsSelecionados = [];
+    const dadosSelecionados = [];
+    const coresSelecionadas = [];
+    
+    procedimentos.forEach((tipo, index) => {
+      if (dados[index] > 0) {
+        labelsSelecionados.push(tipo);
+        dadosSelecionados.push(dados[index]);
+        coresSelecionadas.push(getColorForChart(index));
+      }
+    });
+
+    if (labelsSelecionados.length === 0) {
+      alert('Selecione pelo menos um procedimento para gerar o dashboard.');
+      return;
+    }
+
+    if (window.myChart) {
+      window.myChart.destroy();
+    }
+
+    document.getElementById('dashboard-container').style.display = 'block';
+
+    window.myChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: labelsSelecionados,
+        datasets: [{
+          label: 'Procedimentos do Dia',
+          data: dadosSelecionados,
+          backgroundColor: coresSelecionadas,
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { 
+            position: 'right',
+            labels: {
+              font: {
+                family: 'Poppins',
+                size: 12
+              },
+              padding: 20
+            }
+          },
+          title: { 
+            display: true, 
+            text: 'Diversidade de Serviços Realizados',
+            font: {
+              family: 'Poppins',
+              size: 16,
+              weight: '600'
+            },
+            padding: {
+              top: 10,
+              bottom: 20
+            }
+          },
+          tooltip: {
+            bodyFont: {
+              family: 'Poppins',
+              size: 12
+            }
+          }
+        },
+        cutout: '60%',
+        animation: {
+          animateScale: true,
+          animateRotate: true
+        }
+      }
+    });
+  }
+
+  function getColorForChart(index) {
+    const colors = [
+      '#00b4b3', '#ff7e5f', '#4e79a7', '#f28e2b', '#e15759', 
+      '#76b7b2', '#59a14f', '#edc948', '#b07aa1', '#ff9da7'
+    ];
+    return colors[index % colors.length];
+  }
+
+  function exportarInstagram() {
+    const dashboardContainer = document.getElementById('dashboard-container');
+    
+    if (dashboardContainer.style.display === 'none') {
+      alert('Por favor, gere o dashboard primeiro clicando no botão "Dashboard".');
+      return;
+    }
+
+    html2canvas(dashboardContainer, {
+      scale: 2,
+      logging: false,
+      useCORS: true,
+      allowTaint: true
+    }).then(canvas => {
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
+      link.download = 'dentista_dashboard_instagram.png';
+      link.click();
+      
+      // Mensagem de instrução
+      setTimeout(() => {
+        alert('Imagem salva com sucesso! Agora você pode:\n\n1. Abrir o Instagram\n2. Criar uma nova publicação\n3. Selecionar a imagem salva\n4. Adicionar hashtags como #odontologia #dentista #saúdebucal');
+      }, 500);
+    });
+  }
+</script>
+</body>
+</html>

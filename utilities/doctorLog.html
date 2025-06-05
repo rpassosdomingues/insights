@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DoctorLog+ - Diário Médico Inteligente</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root {
+    --primary: #2a7fba;
+    --primary-light: #5dade2;
+    --primary-dark: #1a5f8b;
+    --secondary: #00b894;
+    --secondary-dark: #019875;
+    --accent: #e74c3c;
+    --light: #f8f9fa;
+    --light-gray: #e9ecef;
+    --medium-gray: #ced4da;
+    --dark-gray: #495057;
+    --dark: #212529;
+    --success: #28a745;
+    --warning: #ffc107;
+    --danger: #dc3545;
+    --border-radius: 12px;
+    --box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    --transition: all 0.3s ease;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 1rem;
+    background: #f0f4f8;
+    color: var(--dark);
+    line-height: 1.6;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+  }
+
+  h1 {
+    font-size: 2rem;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+  }
+
+  .subtitle {
+    color: var(--dark-gray);
+    font-size: 0.9rem;
+  }
+
+  .section {
+    background: white;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    position: relative;
+  }
+
+  .section h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  label {
+    display: block;
+    margin-top: 1.2rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+  }
+
+  .input-group {
+    position: relative;
+    margin-top: 0.5rem;
+  }
+
+  .input-group i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--medium-gray);
+  }
+
+  input[type="text"],
+  input[type="date"],
+  input[type="time"],
+  textarea,
+  select {
+    width: 100%;
+    padding: 0.8rem 1rem 0.8rem 2.5rem;
+    border: 1px solid var(--light-gray);
+    border-radius: var(--border-radius);
+    background: var(--light);
+    font-size: 0.95rem;
+    transition: var(--transition);
+  }
+
+  input[type="text"]:focus,
+  input[type="date"]:focus,
+  input[type="time"]:focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(42, 127, 186, 0.2);
+    background: white;
+  }
+
+  textarea {
+    min-height: 100px;
+    resize: vertical;
+    padding-left: 1rem !important;
+  }
+
+  .checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-top: 1rem;
+  }
+
+  .checkbox-group label {
+    display: inline-flex;
+    align-items: center;
+    background: var(--light);
+    padding: 0.7rem 1.2rem;
+    border-radius: 30px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    margin: 0;
+  }
+
+  .checkbox-group input[type="checkbox"] {
+    margin-right: 0.6rem;
+    accent-color: var(--primary);
+  }
+
+  .checkbox-group label:hover {
+    background: #e9f5ff;
+  }
+
+  .button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin-top: 1.5rem;
+  }
+
+  button {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-grow: 1;
+    justify-content: center;
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(42, 127, 186, 0.3);
+  }
+
+  .btn-secondary {
+    background: var(--secondary);
+    color: white;
+  }
+
+  .btn-secondary:hover {
+    background: var(--secondary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 184, 148, 0.3);
+  }
+
+  .btn-accent {
+    background: var(--accent);
+    color: white;
+  }
+
+  .btn-accent:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+  }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--primary);
+    color: var(--primary);
+  }
+
+  .btn-outline:hover {
+    background: rgba(42, 127, 186, 0.1);
+  }
+
+  #dashboard {
+    width: 100%;
+    margin-top: 1.5rem;
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    box-shadow: var(--box-shadow);
+  }
+
+  .stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .stat-card {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    box-shadow: var(--box-shadow);
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 0.3rem;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    color: var(--dark-gray);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--light-gray);
+    margin-bottom: 1.5rem;
+  }
+
+  .tab {
+    padding: 0.8rem 1.5rem;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--dark-gray);
+    transition: var(--transition);
+    border-bottom: 3px solid transparent;
+  }
+
+  .tab.active {
+    color: var(--primary);
+    border-bottom: 3px solid var(--primary);
+  }
+
+  .tab-content {
+    display: none;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+
+  #msgStatus {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    text-align: center;
+    font-weight: 600;
+    display: none;
+  }
+
+  .success {
+    background: rgba(40, 167, 69, 0.1);
+    color: var(--success);
+    border-left: 4px solid var(--success);
+  }
+
+  .error {
+    background: rgba(220, 53, 69, 0.1);
+    color: var(--danger);
+    border-left: 4px solid var(--danger);
+  }
+
+  @media (max-width: 600px) {
+    .container {
+      padding: 0.5rem;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+    }
+
+    .section {
+      padding: 1.2rem;
+    }
+
+    .button-group {
+      flex-direction: column;
+    }
+
+    .checkbox-group {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .stats-container {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1><i class="fas fa-user-md"></i> DoctorLog+</h1>
+    <p class="subtitle">Diário médico inteligente para registro e análise de atendimentos</p>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" onclick="openTab('tab1')"><i class="fas fa-clipboard-list"></i> Registro</div>
+    <div class="tab" onclick="openTab('tab2')"><i class="fas fa-chart-line"></i> Estatísticas</div>
+    <div class="tab" onclick="openTab('tab3')"><i class="fas fa-cog"></i> Configurações</div>
+  </div>
+
+  <div id="tab1" class="tab-content active">
+    <div class="section">
+      <h2><i class="fas fa-calendar-day"></i> Dados do Turno</h2>
+      
+      <div class="input-group">
+        <i class="fas fa-calendar-alt"></i>
+        <input type="date" id="dataAtendimento">
+      </div>
+      
+      <div class="input-group" style="margin-top: 1rem;">
+        <i class="fas fa-clock"></i>
+        <input type="time" id="horaAtendimento">
+      </div>
+    </div>
+
+    <div class="section">
+      <h2><i class="fas fa-procedures"></i> Tipos de Atendimentos</h2>
+      <div class="checkbox-group" id="atendimentosCheckboxes"></div>
+      
+      <div style="display: flex; gap: 0.8rem; margin-top: 1rem;">
+        <div class="input-group" style="flex-grow: 1;">
+          <i class="fas fa-plus"></i>
+          <input type="text" id="novoAtendimento" placeholder="Novo tipo de atendimento">
+        </div>
+        <button class="btn-outline" onclick="adicionarAtendimento()"><i class="fas fa-plus-circle"></i> Adicionar</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2><i class="fas fa-file-medical"></i> Detalhes do Atendimento</h2>
+      
+      <div class="input-group">
+        <i class="fas fa-stethoscope"></i>
+        <input type="text" id="caso" placeholder="Descrição do caso (ex.: Dor de cabeça persistente)">
+      </div>
+      
+      <label for="caracteristicas"><i class="fas fa-notes-medical"></i> Características:</label>
+      <textarea id="caracteristicas" placeholder="Descreva os sintomas, sinais clínicos, histórico, etc."></textarea>
+      
+      <div class="input-group">
+        <i class="fas fa-diagnoses"></i>
+        <input type="text" id="diagnostico" placeholder="Diagnóstico (ex.: Enxaqueca crônica)">
+      </div>
+      
+      <label for="tratamento"><i class="fas fa-prescription-bottle-alt"></i> Tratamento:</label>
+      <textarea id="tratamento" placeholder="Prescrição de medicamentos, recomendações, encaminhamentos, etc."></textarea>
+      
+      <label for="observacoes"><i class="fas fa-comment-medical"></i> Observações Adicionais:</label>
+      <textarea id="observacoes" placeholder="Outras informações relevantes"></textarea>
+    </div>
+
+    <div class="section">
+      <h2><i class="fas fa-share-alt"></i> Exportar</h2>
+      <div class="button-group">
+        <button class="btn-primary" onclick="exportarWhatsApp()"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+        <button class="btn-secondary" onclick="gerarRelatorio()"><i class="fas fa-file-pdf"></i> Gerar PDF</button>
+        <button class="btn-accent" onclick="salvarAtendimento()"><i class="fas fa-save"></i> Salvar</button>
+      </div>
+      <div id="msgStatus"></div>
+    </div>
+  </div>
+
+  <div id="tab2" class="tab-content">
+    <div class="section">
+      <h2><i class="fas fa-chart-pie"></i> Dashboard de Atendimentos</h2>
+      <canvas id="dashboard"></canvas>
+      
+      <div class="button-group">
+        <button class="btn-primary" onclick="gerarDashboard()"><i class="fas fa-sync-alt"></i> Atualizar</button>
+        <button class="btn-secondary" onclick="exportarDashboard()"><i class="fas fa-download"></i> Exportar</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2><i class="fas fa-chart-bar"></i> Estatísticas</h2>
+      <div class="stats-container">
+        <div class="stat-card">
+          <div class="stat-value" id="totalAtendimentos">0</div>
+          <div class="stat-label">Atendimentos</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="totalDiagnosticos">0</div>
+          <div class="stat-label">Diagnósticos</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="mediaTempo">0</div>
+          <div class="stat-label">Min/Atend.</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="taxaRetorno">0%</div>
+          <div class="stat-label">Taxa Retorno</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab3" class="tab-content">
+    <div class="section">
+      <h2><i class="fas fa-user-cog"></i> Configurações</h2>
+      
+      <label for="nomeMedico"><i class="fas fa-user-md"></i> Seu Nome:</label>
+      <input type="text" id="nomeMedico" placeholder="Dr. João Silva">
+      
+      <label for="especialidade"><i class="fas fa-briefcase-medical"></i> Especialidade:</label>
+      <input type="text" id="especialidade" placeholder="Clínico Geral">
+      
+      <label for="instituicao"><i class="fas fa-hospital"></i> Instituição:</label>
+      <input type="text" id="instituicao" placeholder="Hospital Municipal">
+      
+      <div class="button-group">
+        <button class="btn-primary" onclick="salvarConfiguracoes()"><i class="fas fa-save"></i> Salvar Configurações</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+<script>
+  // Inicializa jsPDF
+  const { jsPDF } = window.jspdf;
+  
+  // Dados da aplicação
+  let atendimentos = ["Consulta Geral", "Pediatria", "Dermatologia", "Ginecologia", "Cardiologia"];
+  let historicoAtendimentos = [];
+  let configuracoes = {
+    nomeMedico: "",
+    especialidade: "",
+    instituicao: ""
+  };
+
+  // Elementos DOM
+  const checkboxesContainer = document.getElementById('atendimentosCheckboxes');
+  const msgStatus = document.getElementById('msgStatus');
+  
+  // Inicialização
+  document.addEventListener('DOMContentLoaded', function() {
+    carregarConfiguracoes();
+    renderizarCheckboxes();
+    atualizarDataHoraAtual();
+    gerarDashboard();
+  });
+
+  // Função para abrir abas
+  function openTab(tabId) {
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabs.forEach(tab => tab.classList.remove('active'));
+    tabContents.forEach(content => content.classList.remove('active'));
+    
+    document.getElementById(tabId).classList.add('active');
+    document.querySelector(`.tab[onclick="openTab('${tabId}')"]`).classList.add('active');
+    
+    if(tabId === 'tab2') {
+      gerarDashboard();
+    }
+  }
+
+  // Renderizar checkboxes de atendimentos
+  function renderizarCheckboxes() {
+    checkboxesContainer.innerHTML = '';
+    atendimentos.forEach(tipo => {
+      const label = document.createElement('label');
+      label.innerHTML = `<input type="checkbox" value="${tipo}"> <i class="fas fa-check-circle"></i> ${tipo}`;
+      checkboxesContainer.appendChild(label);
+    });
+  }
+
+  // Adicionar novo tipo de atendimento
+  function adicionarAtendimento() {
+    const novoTipo = document.getElementById('novoAtendimento').value.trim();
+    if (novoTipo && !atendimentos.includes(novoTipo)) {
+      atendimentos.push(novoTipo);
+      renderizarCheckboxes();
+      document.getElementById('novoAtendimento').value = '';
+      showMessage(`"${novoTipo}" adicionado aos tipos de atendimento`, 'success');
+    } else if (atendimentos.includes(novoTipo)) {
+      showMessage('Este tipo de atendimento já existe!', 'error');
+    }
+  }
+
+  // Atualizar data e hora atuais
+  function atualizarDataHoraAtual() {
+    const hoje = new Date();
+    const dataFormatada = hoje.toISOString().split('T')[0];
+    const horaFormatada = hoje.toTimeString().substring(0, 5);
+    
+    document.getElementById('dataAtendimento').value = dataFormatada;
+    document.getElementById('horaAtendimento').value = horaFormatada;
+  }
+
+  // Exportar para WhatsApp
+  function exportarWhatsApp() {
+    const atendimentosSelecionados = Array.from(checkboxesContainer.querySelectorAll('input:checked')).map(cb => `✅ ${cb.value}`);
+    const caso = document.getElementById('caso').value.trim();
+    const caracteristicas = document.getElementById('caracteristicas').value.trim();
+    const diagnostico = document.getElementById('diagnostico').value.trim();
+    const tratamento = document.getElementById('tratamento').value.trim();
+    const observacoes = document.getElementById('observacoes').value.trim();
+    const dataAtendimento = document.getElementById('dataAtendimento').value;
+    const horaAtendimento = document.getElementById('horaAtendimento').value;
+
+    if (!atendimentosSelecionados.length && !caso && !caracteristicas && !diagnostico && !tratamento) {
+      showMessage('Nenhum dado para exportar! Preencha pelo menos um campo.', 'error');
+      return;
+    }
+
+    let mensagem = `👨‍⚕️ *Relatório Médico - ${configuracoes.nomeMedico || 'Médico'}*\n\n`;
+    mensagem += `📅 *Data:* ${formatarData(dataAtendimento)} ${horaAtendimento ? `às ${horaAtendimento}` : ''}\n\n`;
+    
+    if (atendimentosSelecionados.length) {
+      mensagem += `📌 *Atendimentos Realizados:*\n${atendimentosSelecionados.join('\n')}\n\n`;
+    }
+    if (caso) mensagem += `🩺 *Caso Clínico:* ${caso}\n`;
+    if (caracteristicas) mensagem += `📝 *Características:* ${caracteristicas}\n`;
+    if (diagnostico) mensagem += `🔬 *Diagnóstico:* ${diagnostico}\n`;
+    if (tratamento) mensagem += `💊 *Tratamento Prescrito:* ${tratamento}\n`;
+    if (observacoes) mensagem += `📋 *Observações:* ${observacoes}\n`;
+
+    mensagem += `\n🏥 *${configuracoes.instituicao || 'Instituição'}*`;
+    mensagem += `\n${configuracoes.especialidade ? `*Especialidade:* ${configuracoes.especialidade}` : ''}`;
+
+    const encoded = encodeURIComponent(mensagem);
+    window.open(`https://wa.me/?text=${encoded}`, '_blank');
+  }
+
+  // Gerar relatório PDF
+  function gerarRelatorio() {
+    const doc = new jsPDF();
+    
+    // Cabeçalho
+    doc.setFontSize(18);
+    doc.setTextColor(42, 127, 186);
+    doc.text('Relatório Médico - DoctorLog+', 105, 20, { align: 'center' });
+    
+    doc.setFontSize(12);
+    doc.setTextColor(100, 100, 100);
+    doc.text(configuracoes.nomeMedico || 'Médico', 105, 30, { align: 'center' });
+    
+    if(configuracoes.especialidade || configuracoes.instituicao) {
+      doc.setFontSize(10);
+      doc.text(`${configuracoes.especialidade || ''} ${configuracoes.especialidade && configuracoes.instituicao ? '|' : ''} ${configuracoes.instituicao || ''}`, 105, 36, { align: 'center' });
+    }
+    
+    // Linha divisória
+    doc.setDrawColor(42, 127, 186);
+    doc.setLineWidth(0.5);
+    doc.line(20, 42, 190, 42);
+    
+    // Dados do atendimento
+    const dataAtendimento = document.getElementById('dataAtendimento').value;
+    const horaAtendimento = document.getElementById('horaAtendimento').value;
+    
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Data do Atendimento: ${formatarData(dataAtendimento)} ${horaAtendimento ? `- ${horaAtendimento}` : ''}`, 20, 52);
+    
+    // Tipos de atendimento
+    const atendimentosSelecionados = Array.from(checkboxesContainer.querySelectorAll('input:checked')).map(cb => cb.value);
+    if(atendimentosSelecionados.length) {
+      doc.setFontSize(14);
+      doc.text('Tipos de Atendimento:', 20, 62);
+      
+      doc.setFontSize(12);
+      atendimentosSelecionados.forEach((atendimento, index) => {
+        doc.text(`• ${atendimento}`, 25, 70 + (index * 7));
+      });
+    }
+    
+    // Caso clínico
+    const caso = document.getElementById('caso').value;
+    if(caso) {
+      doc.setFontSize(14);
+      doc.text('Caso Clínico:', 20, 100);
+      
+      doc.setFontSize(12);
+      doc.text(caso, 20, 108);
+    }
+    
+    // Características
+    const caracteristicas = document.getElementById('caracteristicas').value;
+    if(caracteristicas) {
+      doc.setFontSize(14);
+      doc.text('Características:', 20, 120);
+      
+      doc.setFontSize(12);
+      const splitText = doc.splitTextToSize(caracteristicas, 170);
+      doc.text(splitText, 20, 128);
+    }
+    
+    // Diagnóstico
+    const diagnostico = document.getElementById('diagnostico').value;
+    if(diagnostico) {
+      doc.setFontSize(14);
+      doc.text('Diagnóstico:', 20, 160);
+      
+      doc.setFontSize(12);
+      doc.text(diagnostico, 20, 168);
+    }
+    
+    // Tratamento
+    const tratamento = document.getElementById('tratamento').value;
+    if(tratamento) {
+      doc.setFontSize(14);
+      doc.text('Tratamento Prescrito:', 20, 180);
+      
+      doc.setFontSize(12);
+      const splitText = doc.splitTextToSize(tratamento, 170);
+      doc.text(splitText, 20, 188);
+    }
+    
+    // Observações
+    const observacoes = document.getElementById('observacoes').value;
+    if(observacoes) {
+      doc.setFontSize(14);
+      doc.text('Observações:', 20, 220);
+      
+      doc.setFontSize(12);
+      const splitText = doc.splitTextToSize(observacoes, 170);
+      doc.text(splitText, 20, 228);
+    }
+    
+    // Rodapé
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Relatório gerado pelo DoctorLog+ em ' + new Date().toLocaleDateString(), 105, 280, { align: 'center' });
+    
+    // Salvar PDF
+    doc.save(`relatorio_medico_${dataAtendimento || 'sem_data'}.pdf`);
+  }
+
+  // Gerar dashboard
+  function gerarDashboard() {
+    const ctx = document.getElementById('dashboard').getContext('2d');
+    const dados = atendimentos.map(tipo => {
+      const checkbox = Array.from(checkboxesContainer.querySelectorAll(`input[value="${tipo}"]`))[0];
+      return checkbox && checkbox.checked ? 1 : 0;
+    });
+
+    if (window.myChart) {
+      window.myChart.destroy();
+    }
+
+    window.myChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: atendimentos,
+        datasets: [{
+          label: 'Atendimentos do Dia',
+          data: dados,
+          backgroundColor: [
+            '#2a7fba', '#00b894', '#f39c12', '#e74c3c', '#9b59b6',
+            '#1abc9c', '#3498db', '#e67e22', '#e74c3c', '#34495e'
+          ]
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { position: 'bottom' },
+          title: { 
+            display: true, 
+            text: 'Distribuição de Atendimentos',
+            font: { size: 16 }
+          }
+        }
+      }
+    });
+
+    // Atualizar estatísticas
+    document.getElementById('totalAtendimentos').textContent = dados.reduce((a, b) => a + b, 0);
+    document.getElementById('totalDiagnosticos').textContent = document.getElementById('diagnostico').value ? 1 : 0;
+    document.getElementById('mediaTempo').textContent = '25'; // Simulado
+    document.getElementById('taxaRetorno').textContent = '15%'; // Simulado
+  }
+
+  // Exportar dashboard como imagem
+  function exportarDashboard() {
+    const canvas = document.getElementById('dashboard');
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL('image/png');
+    link.download = 'dashboard_atendimentos.png';
+    link.click();
+  }
+
+  // Salvar atendimento no histórico
+  function salvarAtendimento() {
+    const atendimento = {
+      data: document.getElementById('dataAtendimento').value,
+      hora: document.getElementById('horaAtendimento').value,
+      tipos: Array.from(checkboxesContainer.querySelectorAll('input:checked')).map(cb => cb.value),
+      caso: document.getElementById('caso').value,
+      caracteristicas: document.getElementById('caracteristicas').value,
+      diagnostico: document.getElementById('diagnostico').value,
+      tratamento: document.getElementById('tratamento').value,
+      observacoes: document.getElementById('observacoes').value,
+      timestamp: new Date()
+    };
+
+    if (!atendimento.tipos.length && !atendimento.caso && !atendimento.caracteristicas && 
+        !atendimento.diagnostico && !atendimento.tratamento) {
+      showMessage('Nenhum dado para salvar! Preencha pelo menos um campo.', 'error');
+      return;
+    }
+
+    historicoAtendimentos.push(atendimento);
+    localStorage.setItem('historicoAtendimentos', JSON.stringify(historicoAtendimentos));
+    
+    // Limpar formulário
+    document.getElementById('caso').value = '';
+    document.getElementById('caracteristicas').value = '';
+    document.getElementById('diagnostico').value = '';
+    document.getElementById('tratamento').value = '';
+    document.getElementById('observacoes').value = '';
+    checkboxesContainer.querySelectorAll('input').forEach(cb => cb.checked = false);
+    
+    showMessage('Atendimento salvo com sucesso no histórico!', 'success');
+    atualizarDataHoraAtual();
+  }
+
+  // Carregar configurações
+  function carregarConfiguracoes() {
+    const configSalvas = localStorage.getItem('configuracoes');
+    if (configSalvas) {
+      configuracoes = JSON.parse(configSalvas);
+      document.getElementById('nomeMedico').value = configuracoes.nomeMedico || '';
+      document.getElementById('especialidade').value = configuracoes.especialidade || '';
+      document.getElementById('instituicao').value = configuracoes.instituicao || '';
+    }
+  }
+
+  // Salvar configurações
+  function salvarConfiguracoes() {
+    configuracoes = {
+      nomeMedico: document.getElementById('nomeMedico').value.trim(),
+      especialidade: document.getElementById('especialidade').value.trim(),
+      instituicao: document.getElementById('instituicao').value.trim()
+    };
+    
+    localStorage.setItem('configuracoes', JSON.stringify(configuracoes));
+    showMessage('Configurações salvas com sucesso!', 'success');
+  }
+
+  // Mostrar mensagem de status
+  function showMessage(message, type) {
+    msgStatus.textContent = message;
+    msgStatus.className = type;
+    msgStatus.style.display = 'block';
+    
+    setTimeout(() => {
+      msgStatus.style.display = 'none';
+    }, 5000);
+  }
+
+  // Formatar data para DD/MM/AAAA
+  function formatarData(dataString) {
+    if (!dataString) return '';
+    const [ano, mes, dia] = dataString.split('-');
+    return `${dia}/${mes}/${ano}`;
+  }
+</script>
+</body>
+</html>

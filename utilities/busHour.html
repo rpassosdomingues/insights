@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>BusOn Pro - Horários Inteligentes de Ônibus</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.1/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+  :root {
+    --primary-color: #1e88e5;
+    --primary-dark: #1565c0;
+    --secondary-color: #43a047;
+    --warning-color: #fb8c00;
+    --danger-color: #e53935;
+    --light-gray: #f5f7fa;
+    --dark-gray: #333;
+    --text-color: #2d3748;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+  }
+  
+  * {
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
+    background: var(--light-gray);
+    color: var(--text-color);
+    line-height: 1.6;
+    display: flex; 
+    flex-direction: column; 
+    min-height: 100vh;
+  }
+  
+  header {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    padding: 1.2rem;
+    text-align: center;
+    box-shadow: var(--box-shadow);
+    position: relative;
+    z-index: 10;
+  }
+  
+  .header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  
+  nav {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+  
+  nav button {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: white;
+    padding: 0.7rem 1.3rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    backdrop-filter: blur(5px);
+  }
+  
+  nav button:hover,
+  nav button.active {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+  }
+  
+  nav button:active {
+    transform: translateY(0);
+  }
+  
+  nav button i {
+    font-size: 1.1em;
+  }
+  
+  main {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 1.5rem;
+    gap: 1.5rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  
+  #map {
+    flex: 2 1 600px;
+    min-height: 450px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    z-index: 1;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  
+  #info {
+    flex: 1 1 350px;
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--box-shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+  
+  #info h2 {
+    color: var(--primary-color);
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  #nextBus {
+    font-size: 1.1rem;
+    padding: 1.2rem;
+    border-radius: var(--border-radius);
+    background: linear-gradient(to right, #e3f2fd, #f0f7ff);
+    border-left: 4px solid var(--primary-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+  
+  .bus-line {
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 0.5rem;
+  }
+  
+  .next-time {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--dark-gray);
+    margin: 0.5rem 0;
+  }
+  
+  .stop-info {
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px dashed #ccc;
+  }
+  
+  #schedule-list {
+    list-style: none;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    flex-grow: 1;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-color) #f1f1f1;
+  }
+  
+  #schedule-list::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  #schedule-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+  
+  #schedule-list::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color);
+    border-radius: 10px;
+  }
+  
+  #schedule-list li {
+    margin-bottom: 0.6rem;
+    padding: 0.8rem;
+    border-radius: var(--border-radius);
+    background: #f8fafc;
+    font-weight: 600;
+    color: var(--text-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: var(--transition);
+  }
+  
+  #schedule-list li:hover {
+    background: #e3f2fd;
+    transform: translateX(3px);
+  }
+  
+  .time-badge {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+  }
+  
+  .search-container {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+  
+  .search-container input {
+    flex: 1;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: var(--transition);
+  }
+  
+  .search-container input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.2);
+  }
+  
+  .search-container button {
+    padding: 0 1.5rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+  }
+  
+  .search-container button:hover {
+    background: var(--primary-dark);
+  }
+  
+  #locationStatus {
+    font-size: 0.95rem;
+    color: #555;
+    padding: 0.8rem;
+    background: #f8f9fa;
+    border-radius: var(--border-radius);
+    text-align: center;
+  }
+  
+  .location-actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+  
+  .location-actions button {
+    flex: 1;
+    padding: 0.8rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  
+  .btn-confirm {
+    background: var(--secondary-color);
+    color: white;
+    border: none;
+  }
+  
+  .btn-confirm:hover {
+    background: #388e3c;
+  }
+  
+  .btn-alert {
+    background: var(--danger-color);
+    color: white;
+    border: none;
+  }
+  
+  .btn-alert:hover {
+    background: #c62828;
+  }
+  
+  .notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 1rem 1.5rem;
+    background: var(--primary-color);
+    color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    z-index: 1000;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  
+  .notification.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  
+  .notification i {
+    font-size: 1.2rem;
+  }
+  
+  .draggable-marker {
+    background: var(--primary-color);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 0 4px rgba(30, 136, 229, 0.5);
+    cursor: move;
+  }
+  
+  .address-info {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: #f0f7ff;
+    border-radius: var(--border-radius);
+    font-size: 0.9rem;
+  }
+  
+  .address-info div {
+    margin-bottom: 0.3rem;
+  }
+  
+  @media (max-width: 900px) {
+    main {
+      flex-direction: column;
+      padding: 1rem;
+    }
+    
+    #map, #info {
+      flex: unset;
+      width: 100%;
+      min-height: 350px;
+    }
+    
+    #schedule-list {
+      max-height: 250px;
+    }
+    
+    nav button {
+      padding: 0.6rem 1rem;
+      font-size: 0.9rem;
+    }
+  }
+  
+  @media (max-width: 500px) {
+    h1 {
+      font-size: 1.5rem;
+    }
+    
+    nav {
+      gap: 0.5rem;
+    }
+    
+    nav button {
+      padding: 0.5rem 0.8rem;
+      font-size: 0.85rem;
+    }
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .loading {
+    display: inline-block;
+    width: 1.2rem;
+    height: 1.2rem;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-content">
+    <h1><i class="fas fa-bus"></i> BusOn Pro</h1>
+    <p>Horários inteligentes baseados em sua localização</p>
+    
+    <nav id="linesNav">
+      <button id="btn-location" onclick="getUserLocation()">
+        <i class="fas fa-location-arrow"></i> Minha Localização
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div id="map"></div>
+  
+  <section id="info">
+    <h2><i class="fas fa-clock"></i> Próximo Ônibus</h2>
+    <div id="nextBus">
+      <div class="bus-line" id="busLine">Selecione uma linha para ver os horários</div>
+      <div class="next-time" id="nextTime">--:--</div>
+      <div id="timeRemaining"></div>
+      <div class="stop-info">
+        <div id="stopName">Parada: --</div>
+        <div id="stopDistance">Distância: --</div>
+      </div>
+    </div>
+    
+    <div class="address-info">
+      <div id="addressStreet">Rua: --</div>
+      <div id="addressNeighborhood">Bairro: --</div>
+      <div id="addressCEP">CEP: --</div>
+    </div>
+    
+    <h2><i class="fas fa-list-alt"></i> Horários de Partida</h2>
+    <ul id="schedule-list"></ul>
+    
+    <div class="search-container">
+      <input type="text" id="addressInput" placeholder="Digite seu endereço">
+      <button id="btn-search" onclick="searchByAddress()">
+        <i class="fas fa-search"></i> Buscar
+      </button>
+    </div>
+    
+    <div id="locationStatus">
+      <i class="fas fa-info-circle"></i> Clique em "Minha Localização" para começar
+    </div>
+    
+    <div class="location-actions">
+      <button id="btn-confirm" class="btn-confirm" onclick="confirmLocation()" disabled>
+        <i class="fas fa-check-circle"></i> Confirmar
+      </button>
+      <button id="btn-adjust" class="btn-alert" onclick="enablePositionAdjustment()" disabled>
+        <i class="fas fa-arrows-alt"></i> Ajustar Posição
+      </button>
+    </div>
+  </section>
+</main>
+
+<div id="notification" class="notification">
+  <i class="fas fa-check-circle"></i>
+  <span id="notificationText">Notificação</span>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.1/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+<script>
+  // Dados das linhas de ônibus (simulados - na prática, buscar da Alfetur)
+  const busLines = {
+    '001': {
+      nome: 'Jardim Alvorada',
+      itinerario: ['Terminal Urbano', 'Jardim Alvorada', 'Campus Unifenas'],
+      horarios: {
+        dias_uteis: ['6:15', '7:15', '8:15', '9:15', '10:15', '11:15', '12:15', '13:15', '14:15', '15:15', '16:15', '17:15', '18:15', '19:15', '20:15', '21:15', '22:15', '23:00'],
+        sabado: ['6:15', '7:15', '8:15', '9:15', '10:15', '11:15', '12:15', '13:15', '14:15', '15:15', '16:15', '17:15', '18:15', '19:15', '20:15', '21:15', '22:15', '23:00'],
+        domingo: ['6:15', '7:15', '8:15', '9:15', '10:15', '11:15', '12:15', '13:15', '14:15', '15:15', '16:15', '17:15', '18:15', '19:15', '20:15', '21:15', '22:15', '23:00'],
+        feriado: ['6:15', '7:15', '8:15', '9:15', '10:15', '11:15', '12:15', '13:15', '14:15', '15:15', '16:15', '17:15', '18:15', '19:15', '20:15', '21:15', '22:15', '23:00']
+      },
+      cor: '#1e88e5',
+      paradas: [
+        { lat: -21.425, lng: -45.937, name: "Terminal Urbano" },
+        { lat: -21.426, lng: -45.938, name: "Av. Principal" },
+        { lat: -21.427, lng: -45.940, name: "Jardim Alvorada" }
+      ]
+    },
+    '002': {
+      nome: 'Pinheirinho',
+      itinerario: ['Terminal Urbano', 'Pinheirinho', 'Vila Formosa'],
+      horarios: {
+        dias_uteis: ['4:50', '5:15', '6:15', '7:15', '8:15', '9:15', '10:15', '11:15', '12:15', '13:15', '14:15', '15:15', '16:15', '17:15', '18:15', '19:15', '21:15', '22:15'],
+        sabado: ['4:50', '5:15', '6:15', '7:15', '8:15', '9:15', '10:15', '11:15', '12:15', '13:15', '14:15', '15:15', '16:15', '17:15', '18:15', '19:15'],
+        domingo: ['4:50', '5:15', '6:15', '7:15', '8:15', '9:15', '10:15', '11:15', '12:15', '13:15', '14:15', '16:15', '17:15', '18:15', '19:15'],
+        feriado: ['4:50', '5:15', '6:15', '7:15', '8:15', '9:15', '11:15', '12:15', '13:15', '14:15', '16:15', '17:15', '18:15', '19:15']
+      },
+      cor: '#43a047',
+      paradas: [
+        { lat: -21.425, lng: -45.937, name: "Terminal Urbano" },
+        { lat: -21.426, lng: -45.939, name: "Centro Comercial" },
+        { lat: -21.428, lng: -45.942, name: "Pinheirinho" }
+      ]
+    },
+    '006': {
+      nome: 'Jardim Primavera',
+      itinerario: ['Terminal Urbano', 'Jardim Primavera', 'Campus Unifenas'],
+      horarios: {
+        dias_uteis: ['6:30', '7:00', '7:30', '8:00', '8:30', '9:00', '9:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '21:00', '21:30', '22:00', '22:30', '23:00'],
+        sabado: ['6:30', '7:00', '7:30', '8:00', '8:30', '9:00', '9:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '21:00', '21:30', '22:00', '22:30', '23:00'],
+        domingo: ['6:30', '7:00', '7:30', '8:00', '8:30', '9:00', '9:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '21:00', '21:30', '22:00', '22:30', '23:00'],
+        feriado: ['6:30', '7:00', '7:30', '8:00', '8:30', '9:00', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '21:00', '21:30', '22:00', '22:30', '23:00']
+      },
+      cor: '#8e24aa',
+      paradas: [
+        { lat: -21.425, lng: -45.937, name: "Terminal Urbano" },
+        { lat: -21.4245, lng: -45.936, name: "Rua das Flores" },
+        { lat: -21.424, lng: -45.935, name: "Jardim Primavera" }
+      ]
+    }
+  };
+
+  // Mapeamento de bairros para linhas
+  const neighborhoodLines = {
+    'Jardim Alvorada': ['001'],
+    'Pinheirinho': ['002'],
+    'Vila Formosa': ['002'],
+    'Jardim Primavera': ['006'],
+    'Campus Unifenas': ['001', '006']
+  };
+
+  // Inicializa mapa
+  const map = L.map("map").setView([-21.425, -45.937], 13);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  }).addTo(map);
+
+  // Variáveis globais
+  let markers = [];
+  let userMarker = null;
+  let currentLine = null;
+  let userLocation = null;
+  let selectedStop = null;
+  let routeLayer = null;
+  let updateInterval = null;
+  let isAdjustingPosition = false;
+  let draggableMarker = null;
+  let currentAddress = null;
+
+  // Função para limpar marcadores e rotas
+  function clearMap() {
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
+    
+    if (routeLayer) {
+      map.removeLayer(routeLayer);
+      routeLayer = null;
+    }
+    
+    if (draggableMarker) {
+      map.removeLayer(draggableMarker);
+      draggableMarker = null;
+    }
+  }
+
+  // Mostrar linhas disponíveis para um bairro
+  function showAvailableLines(neighborhood) {
+    const linesNav = document.getElementById("linesNav");
+    const lines = neighborhoodLines[neighborhood] || Object.keys(busLines);
+    
+    // Limpa botões existentes (exceto o de localização)
+    const locationBtn = document.getElementById("btn-location");
+    linesNav.innerHTML = '';
+    linesNav.appendChild(locationBtn);
+    
+    // Adiciona botões para cada linha disponível
+    lines.forEach(lineId => {
+      const line = busLines[lineId];
+      const button = document.createElement("button");
+      button.innerHTML = `<i class="fas fa-bus" style="color: ${line.cor}"></i> Linha ${lineId}: ${line.itinerario.join(' → ')}`;
+      button.onclick = () => showLine(lineId);
+      button.style.borderLeft = `3px solid ${line.cor}`;
+      linesNav.appendChild(button);
+    });
+  }
+
+  // Mostrar uma linha específica no mapa
+  function showLine(lineId) {
+    if (!busLines[lineId]) return;
+    
+    currentLine = lineId;
+    clearMap();
+    
+    // Desenhar rota no mapa
+    const routeCoordinates = busLines[lineId].paradas.map(stop => [stop.lat, stop.lng]);
+    routeLayer = L.polyline(routeCoordinates, {
+      color: busLines[lineId].cor,
+      weight: 4,
+      opacity: 0.7,
+      dashArray: '5, 5'
+    }).addTo(map);
+    
+    // Adicionar marcadores das paradas
+    busLines[lineId].paradas.forEach((stop, i) => {
+      const marker = L.marker([stop.lat, stop.lng], {
+        icon: L.divIcon({
+          className: 'bus-stop-icon',
+          html: `<div style="background: ${busLines[lineId].cor}; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px;">${i+1}</div>`,
+          iconSize: [24, 24]
+        })
+      })
+      .addTo(map)
+      .bindPopup(`<b>${stop.name}</b><br>Linha ${lineId}: ${busLines[lineId].itinerario.join(' → ')}`)
+      .on('click', () => {
+        selectedStop = stop;
+        updateNextBusInfo();
+        updateActiveStopMarker();
+      });
+      
+      markers.push(marker);
+    });
+
+    // Atualizar lista de horários
+    updateScheduleList();
+    
+    // Se já tiver localização do usuário, atualizar informações
+    if (userLocation) {
+      findNearestStop();
+    }
+    
+    // Ajustar visualização do mapa para mostrar toda a rota
+    if (routeLayer) {
+      map.fitBounds(routeLayer.getBounds(), { padding: [50, 50] });
+    }
+    
+    // Ativar botões de ação
+    document.getElementById("btn-confirm").disabled = false;
+    document.getElementById("btn-adjust").disabled = false;
+    
+    // Mostrar notificação
+    showNotification(`Linha ${lineId} carregada: ${busLines[lineId].itinerario.join(' → ')}`);
+  }
+
+  // Atualiza a lista de horários
+  function updateScheduleList() {
+    const scheduleList = document.getElementById("schedule-list");
+    scheduleList.innerHTML = "";
+    
+    if (!currentLine) return;
+    
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+    const dayType = getDayType();
+    
+    busLines[currentLine].horarios[dayType].forEach(time => {
+      const [h, m] = time.split(':').map(Number);
+      const li = document.createElement("li");
+      
+      // Calcular tempo restante
+      const timeDiff = (h * 60 + m) - (currentHour * 60 + currentMinute);
+      const isFuture = timeDiff >= 0;
+      
+      li.innerHTML = `
+        <span>${time}</span>
+        ${isFuture ? `<span class="time-badge" style="background: ${busLines[currentLine].cor}">${formatTimeRemaining(timeDiff)}</span>` : ''}
+      `;
+      
+      // Destacar horários futuros
+      if (isFuture) {
+        li.style.borderLeft = `3px solid ${busLines[currentLine].cor}`;
+      }
+      
+      scheduleList.appendChild(li);
+    });
+  }
+
+  // Determina o tipo de dia (útil, sábado, domingo, feriado)
+  function getDayType() {
+    const hoje = new Date();
+    const diaSemana = hoje.getDay();
+    
+    // Simulação - na prática, verificar uma lista de feriados
+    const isFeriado = false;
+    
+    if (isFeriado) return 'feriado';
+    if (diaSemana === 0) return 'domingo';
+    if (diaSemana === 6) return 'sabado';
+    return 'dias_uteis';
+  }
+
+  // Formatar tempo restante (em minutos)
+  function formatTimeRemaining(minutes) {
+    if (minutes < 60) {
+      return `${minutes} min`;
+    } else {
+      const hours = Math.floor(minutes / 60);
+      const mins = minutes % 60;
+      return `${hours}h${mins > 0 ? ` ${mins}min` : ''}`;
+    }
+  }
+
+  // Busca localização do usuário
+  function getUserLocation() {
+    const btn = document.getElementById("btn-location");
+    const statusEl = document.getElementById("locationStatus");
+    
+    if (!navigator.geolocation) {
+      statusEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Geolocalização não suportada pelo seu navegador.`;
+      return;
+    }
+    
+    btn.innerHTML = '<span class="loading"></span> Buscando...';
+    btn.disabled = true;
+    statusEl.innerHTML = `<i class="fas fa-spinner fa-pulse"></i> Detectando sua localização...`;
+    
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        userLocation = {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracy: pos.coords.accuracy
+        };
+        
+        // Atualizar marcador do usuário
+        updateUserMarker();
+        
+        // Buscar informações de endereço
+        reverseGeocode(userLocation.lat, userLocation.lng);
+        
+        statusEl.innerHTML = `<i class="fas fa-check-circle"></i> Localização detectada (precisão: ${userLocation.accuracy.toFixed(0)}m)`;
+        btn.innerHTML = '<i class="fas fa-location-arrow"></i> Minha Localização';
+        btn.disabled = false;
+        
+        // Habilitar botão de confirmar
+        document.getElementById("btn-confirm").disabled = false;
+        document.getElementById("btn-adjust").disabled = false;
+        
+        // Mostrar notificação
+        showNotification('Localização encontrada com sucesso');
+      },
+      (error) => {
+        console.error("Erro ao obter localização:", error);
+        let errorMessage = "Não foi possível obter sua localização.";
+        
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = "Permissão de localização negada. Ative nas configurações do seu navegador.";
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = "Informações de localização indisponíveis.";
+            break;
+          case error.TIMEOUT:
+            errorMessage = "Tempo esgotado ao tentar obter localização.";
+            break;
+        }
+        
+        statusEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${errorMessage}`;
+        btn.innerHTML = '<i class="fas fa-location-arrow"></i> Minha Localização';
+        btn.disabled = false;
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }
+
+  // Atualiza o marcador do usuário no mapa
+  function updateUserMarker() {
+    if (!userLocation) return;
+    
+    if (userMarker) {
+      map.removeLayer(userMarker);
+    }
+    
+    userMarker = L.circleMarker([userLocation.lat, userLocation.lng], {
+      radius: 8,
+      color: "#1e88e5",
+      fillColor: "#1e88e5",
+      fillOpacity: 0.9,
+      weight: 2,
+    })
+    .addTo(map)
+    .bindPopup("<b>Sua localização</b>")
+    .openPopup();
+    
+    // Centralizar mapa na localização do usuário
+    map.setView([userLocation.lat, userLocation.lng], 15);
+  }
+
+  // Ativa o modo de ajuste de posição
+  function enablePositionAdjustment() {
+    if (!userLocation) return;
+    
+    isAdjustingPosition = true;
+    
+    // Remove o marcador normal
+    if (userMarker) {
+      map.removeLayer(userMarker);
+      userMarker = null;
+    }
+    
+    // Adiciona marcador arrastável
+    draggableMarker = L.marker([userLocation.lat, userLocation.lng], {
+      draggable: true,
+      icon: L.divIcon({
+        className: 'draggable-marker',
+        html: '<i class="fas fa-arrows-alt" style="color: white; font-size: 12px;"></i>',
+        iconSize: [20, 20]
+      })
+    }).addTo(map);
+    
+    draggableMarker.bindPopup("<b>Ajuste sua posição</b><br>Arraste o marcador para a localização correta").openPopup();
+    
+    // Atualiza a localização quando o marcador é arrastado
+    draggableMarker.on('dragend', function(e) {
+      userLocation = {
+        lat: e.target.getLatLng().lat,
+        lng: e.target.getLatLng().lng,
+        accuracy: 10 // Precisão alta quando ajustado manualmente
+      };
+      
+      // Atualiza geocodificação reversa
+      reverseGeocode(userLocation.lat, userLocation.lng);
+      
+      // Encontra a parada mais próxima novamente
+      if (currentLine) {
+        findNearestStop();
+      }
+    });
+    
+    document.getElementById("btn-adjust").innerHTML = '<i class="fas fa-check"></i> Concluir Ajuste';
+    document.getElementById("btn-adjust").onclick = finishPositionAdjustment;
+    
+    showNotification('Arraste o marcador para ajustar sua posição');
+  }
+
+  // Finaliza o ajuste de posição
+  function finishPositionAdjustment() {
+    isAdjustingPosition = false;
+    
+    // Remove o marcador arrastável
+    if (draggableMarker) {
+      map.removeLayer(draggableMarker);
+      draggableMarker = null;
+    }
+    
+    // Adiciona o marcador normal novamente
+    updateUserMarker();
+    
+    document.getElementById("btn-adjust").innerHTML = '<i class="fas fa-arrows-alt"></i> Ajustar Posição';
+    document.getElementById("btn-adjust").onclick = enablePositionAdjustment;
+    
+    showNotification('Posição ajustada com sucesso');
+  }
+
+  // Atualiza o marcador da parada ativa
+  function updateActiveStopMarker() {
+    if (!selectedStop || !currentLine) return;
+    
+    markers.forEach(marker => {
+      const latLng = marker.getLatLng();
+      if (latLng.lat === selectedStop.lat && latLng.lng === selectedStop.lng) {
+        marker.setIcon(L.divIcon({
+          className: 'selected-stop-icon',
+          html: `<div style="background: ${busLines[currentLine].cor}; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; border: 2px solid white; box-shadow: 0 0 0 3px ${busLines[currentLine].cor}80">⭐</div>`,
+          iconSize: [28, 28]
+        }));
+      } else {
+        const index = busLines[currentLine].paradas.findIndex(s => s.lat === latLng.lat && s.lng === latLng.lng);
+        if (index !== -1) {
+          marker.setIcon(L.divIcon({
+            className: 'bus-stop-icon',
+            html: `<div style="background: ${busLines[currentLine].cor}; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px;">${index+1}</div>`,
+            iconSize: [24, 24]
+          }));
+        }
+      }
+    });
+  }
+
+  // Encontra a parada mais próxima do usuário
+  function findNearestStop() {
+    if (!userLocation || !currentLine || !busLines[currentLine]) return;
+    
+    let minDistance = Infinity;
+    let nearestStop = null;
+    
+    busLines[currentLine].paradas.forEach(stop => {
+      const distance = calculateDistance(
+        userLocation.lat, userLocation.lng,
+        stop.lat, stop.lng
+      );
+      
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestStop = stop;
+      }
+    });
+    
+    selectedStop = nearestStop;
+    updateNextBusInfo();
+    updateActiveStopMarker();
+  }
+
+  // Atualiza as informações do próximo ônibus
+  function updateNextBusInfo() {
+    if (!selectedStop || !currentLine || !busLines[currentLine]) return;
+    
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+    const dayType = getDayType();
+    
+    // Encontrar próximo horário
+    let nextTime = null;
+    let nextTimeDiff = Infinity;
+    
+    busLines[currentLine].horarios[dayType].forEach(time => {
+      const [h, m] = time.split(':').map(Number);
+      const timeDiff = (h * 60 + m) - (currentHour * 60 + currentMinute);
+      
+      if (timeDiff >= 0 && timeDiff < nextTimeDiff) {
+        nextTime = time;
+        nextTimeDiff = timeDiff;
+      }
+    });
+    
+    // Atualizar elementos da interface
+    document.getElementById("busLine").textContent = 
+      `Linha ${currentLine}: ${busLines[currentLine].itinerario.join(' → ')}`;
+    document.getElementById("busLine").style.color = busLines[currentLine].cor;
+    
+    const distance = userLocation ? 
+      calculateDistance(
+        userLocation.lat, userLocation.lng,
+        selectedStop.lat, selectedStop.lng
+      ).toFixed(0) : '--';
+    
+    document.getElementById("stopName").textContent = `Parada: ${selectedStop.name}`;
+    document.getElementById("stopDistance").textContent = `Distância: ${distance}m`;
+    
+    if (nextTime) {
+      document.getElementById("nextTime").textContent = nextTime;
+      document.getElementById("timeRemaining").innerHTML = 
+        `<small>Chega em ${formatTimeRemaining(nextTimeDiff)}</small>`;
+    } else {
+      document.getElementById("nextTime").textContent = "Fim do dia";
+      document.getElementById("timeRemaining").innerHTML = 
+        `<small>Não há mais ônibus hoje</small>`;
+    }
+    
+    // Atualizar contagem regressiva em tempo real
+    if (updateInterval) clearInterval(updateInterval);
+    
+    if (nextTime && nextTimeDiff >= 0) {
+      updateInterval = setInterval(() => {
+        const now = new Date();
+        const currentHour = now.getHours();
+        const currentMinute = now.getMinutes();
+        const [h, m] = nextTime.split(':').map(Number);
+        const newDiff = (h * 60 + m) - (currentHour * 60 + currentMinute);
+        
+        if (newDiff <= 0) {
+          clearInterval(updateInterval);
+          document.getElementById("timeRemaining").innerHTML = 
+            `<small>Ônibus já passou</small>`;
+        } else {
+          document.getElementById("timeRemaining").innerHTML = 
+            `<small>Chega em ${formatTimeRemaining(newDiff)}</small>`;
+        }
+      }, 60000); // Atualizar a cada minuto
+    }
+  }
+
+  // Geocodificação reversa para obter endereço a partir de coordenadas
+  async function reverseGeocode(lat, lng) {
+    const statusEl = document.getElementById("locationStatus");
+    
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
+      const data = await response.json();
+      
+      if (data.address) {
+        currentAddress = {
+          street: data.address.road || 'Rua não identificada',
+          neighborhood: data.address.neighbourhood || data.address.suburb || 'Bairro não identificado',
+          city: data.address.city || data.address.town || '',
+          state: data.address.state || '',
+          postcode: data.address.postcode || 'CEP não identificado'
+        };
+        
+        // Atualiza a interface com as informações do endereço
+        document.getElementById("addressStreet").textContent = `Rua: ${currentAddress.street}`;
+        document.getElementById("addressNeighborhood").textContent = `Bairro: ${currentAddress.neighborhood}`;
+        document.getElementById("addressCEP").textContent = `CEP: ${currentAddress.postcode}`;
+        
+        // Mostra linhas disponíveis para o bairro
+        showAvailableLines(currentAddress.neighborhood);
+        
+        // Se não tiver linha selecionada, sugere a primeira disponível
+        if (!currentLine && neighborhoodLines[currentAddress.neighborhood] && neighborhoodLines[currentAddress.neighborhood].length > 0) {
+          showLine(neighborhoodLines[currentAddress.neighborhood][0]);
+        }
+      }
+    } catch (error) {
+      console.error("Erro na geocodificação reversa:", error);
+      document.getElementById("addressStreet").textContent = `Rua: --`;
+      document.getElementById("addressNeighborhood").textContent = `Bairro: --`;
+      document.getElementById("addressCEP").textContent = `CEP: --`;
+    }
+  }
+
+  // Busca por endereço
+  async function searchByAddress() {
+    const addressInput = document.getElementById("addressInput");
+    const address = addressInput.value.trim();
+    const statusEl = document.getElementById("locationStatus");
+    const btn = document.getElementById("btn-search");
+    
+    if (address.length < 3) {
+      statusEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Digite um endereço válido`;
+      return;
+    }
+    
+    btn.innerHTML = '<span class="loading"></span> Buscando...';
+    btn.disabled = true;
+    statusEl.innerHTML = `<i class="fas fa-spinner fa-pulse"></i> Buscando localização...`;
+    
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`);
+      const data = await response.json();
+      
+      if (data.length > 0) {
+        userLocation = {
+          lat: parseFloat(data[0].lat),
+          lng: parseFloat(data[0].lon),
+          accuracy: 50 // Valor estimado para busca por endereço
+        };
+        
+        // Atualiza o marcador no mapa
+        updateUserMarker();
+        
+        // Busca informações de endereço
+        reverseGeocode(userLocation.lat, userLocation.lng);
+        
+        statusEl.innerHTML = `<i class="fas fa-check-circle"></i> Localização encontrada para: ${address}`;
+        showNotification('Localização encontrada com sucesso');
+      } else {
+        throw new Error("Endereço não encontrado");
+      }
+    } catch (error) {
+      console.error("Erro ao buscar endereço:", error);
+      statusEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Não foi possível encontrar este endereço`;
+    } finally {
+      btn.innerHTML = '<i class="fas fa-search"></i> Buscar';
+      btn.disabled = false;
+      document.getElementById("btn-confirm").disabled = false;
+      document.getElementById("btn-adjust").disabled = false;
+    }
+  }
+
+  // Confirma a localização selecionada
+  function confirmLocation() {
+    if (!selectedStop) return;
+    
+    const statusEl = document.getElementById("locationStatus");
+    statusEl.innerHTML = `<i class="fas fa-check-circle"></i> Local confirmado: ${selectedStop.name}`;
+    
+    updateActiveStopMarker();
+    showNotification(`Parada ${selectedStop.name} confirmada`);
+  }
+
+  // Mostrar notificação
+  function showNotification(message) {
+    const notification = document.getElementById("notification");
+    const notificationText = document.getElementById("notificationText");
+    
+    notificationText.textContent = message;
+    notification.classList.add("show");
+    
+    setTimeout(() => {
+      notification.classList.remove("show");
+    }, 3000);
+  }
+
+  // Calcula distância entre dois pontos em metros
+  function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371e3; // metros
+    const φ1 = lat1 * Math.PI/180;
+    const φ2 = lat2 * Math.PI/180;
+    const Δφ = (lat2-lat1) * Math.PI/180;
+    const Δλ = (lon2-lon1) * Math.PI/180;
+
+    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+              Math.cos(φ1) * Math.cos(φ2) *
+              Math.sin(Δλ/2) * Math.sin(Δλ/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+    return R * c;
+  }
+
+  // Inicializa a aplicação
+  function init() {
+    // Configura evento de clique no mapa para ajuste manual
+    map.on('click', function(e) {
+      if (isAdjustingPosition) {
+        userLocation = {
+          lat: e.latlng.lat,
+          lng: e.latlng.lng,
+          accuracy: 10
+        };
+        
+        if (draggableMarker) {
+          draggableMarker.setLatLng(e.latlng);
+        } else {
+          updateUserMarker();
+        }
+        
+        reverseGeocode(userLocation.lat, userLocation.lng);
+        
+        if (currentLine) {
+          findNearestStop();
+        }
+      }
+    });
+    
+    // Mostra mensagem inicial
+    showNotification('Bem-vindo ao BusOn Pro. Use sua localização para começar.');
+  }
+
+  // Inicia a aplicação quando o DOM estiver pronto
+  document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

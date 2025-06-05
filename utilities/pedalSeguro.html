@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>🚴‍♂️ PedalSeguro - Planejamento de Rotas para Ciclistas</title>
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<!-- Leaflet Routing Machine CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<style>
+  :root {
+    --primary: #00a859;
+    --primary-dark: #008548;
+    --secondary: #007bff;
+    --secondary-dark: #0062cc;
+    --danger: #dc3545;
+    --warning: #ffc107;
+    --light: #f8f9fa;
+    --dark: #343a40;
+    --background: #f5f5f5;
+    --text: #212529;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    --transition: all 0.3s ease;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body {
+    height: 100%;
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+    background: var(--background);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  header {
+    background: var(--primary);
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 1000;
+  }
+
+  header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .app-container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 60px);
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+  }
+
+  .btn {
+    background: var(--secondary);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 180px;
+    justify-content: center;
+  }
+
+  .btn:hover {
+    background: var(--secondary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+
+  .btn-primary {
+    background: var(--primary);
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-dark);
+  }
+
+  .btn-danger {
+    background: var(--danger);
+  }
+
+  .btn-danger:hover {
+    background: #c82333;
+  }
+
+  .btn-warning {
+    background: var(--warning);
+    color: var(--dark);
+  }
+
+  .btn-warning:hover {
+    background: #e0a800;
+  }
+
+  #map {
+    flex: 1;
+    width: 100%;
+    border-radius: var(--border-radius);
+    margin: 0 auto;
+    z-index: 1;
+  }
+
+  .stats-panel {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    z-index: 1000;
+    max-width: 300px;
+  }
+
+  .stats-panel h3 {
+    margin-bottom: 10px;
+    color: var(--primary);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .stats-panel p {
+    margin: 5px 0;
+    font-size: 0.9rem;
+  }
+
+  .legend {
+    position: absolute;
+    top: 80px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    z-index: 1000;
+    max-width: 200px;
+  }
+
+  .legend h3 {
+    margin-bottom: 10px;
+    color: var(--primary);
+    font-size: 1rem;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+  }
+
+  .legend-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .leaflet-popup-content {
+    min-width: 250px;
+  }
+
+  .leaflet-popup-content label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    display: block;
+    color: var(--dark);
+  }
+
+  .leaflet-popup-content select,
+  .leaflet-popup-content textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: var(--transition);
+  }
+
+  .leaflet-popup-content select:focus,
+  .leaflet-popup-content textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(0, 168, 89, 0.2);
+  }
+
+  .leaflet-popup-content textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  .leaflet-popup-content .popup-btn {
+    width: 100%;
+    padding: 8px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+  }
+
+  .leaflet-popup-content .popup-btn:hover {
+    background: var(--primary-dark);
+  }
+
+  @media (max-width: 768px) {
+    header h1 {
+      font-size: 1.2rem;
+    }
+    
+    .controls {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 0.7rem;
+    }
+    
+    .legend {
+      top: auto;
+      bottom: 120px;
+      right: 10px;
+      max-width: 160px;
+      font-size: 0.8rem;
+    }
+    
+    .stats-panel {
+      bottom: 10px;
+      left: 10px;
+      right: 10px;
+      max-width: none;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1><i class="fas fa-bicycle"></i> PedalSeguro - Planejamento de Rotas</h1>
+</header>
+
+<div class="app-container">
+  <div class="controls">
+    <button class="btn btn-primary" onclick="ativarAdicaoDeRota()">
+      <i class="fas fa-route"></i> Iniciar Rota
+    </button>
+    <button class="btn btn-warning" onclick="adicionarPerigo()">
+      <i class="fas fa-exclamation-triangle"></i> Adicionar Perigo
+    </button>
+    <button class="btn" onclick="exportarParaWhatsApp()">
+      <i class="fab fa-whatsapp"></i> Compartilhar Rota
+    </button>
+    <button class="btn btn-danger" onclick="limparRota()">
+      <i class="fas fa-trash-alt"></i> Limpar Rota
+    </button>
+  </div>
+
+  <div id="map"></div>
+
+  <div class="stats-panel" id="statsPanel" style="display: none;">
+    <h3><i class="fas fa-chart-line"></i> Estatísticas da Rota</h3>
+    <p><i class="fas fa-ruler"></i> Distância: <span id="distancia">0</span> km</p>
+    <p><i class="fas fa-clock"></i> Tempo estimado: <span id="tempo">0</span> min</p>
+    <p><i class="fas fa-exclamation-circle"></i> Perigos: <span id="totalPerigos">0</span></p>
+  </div>
+
+  <div class="legend">
+    <h3><i class="fas fa-key"></i> Legenda</h3>
+    <div class="legend-item">
+      <div class="legend-icon"><i class="fas fa-play" style="color: var(--primary);"></i></div>
+      <span>Início da rota</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-icon"><i class="fas fa-flag" style="color: var(--danger);"></i></div>
+      <span>Fim da rota</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-icon"><i class="fas fa-exclamation-triangle" style="color: var(--warning);"></i></div>
+      <span>Perigo</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-icon"><i class="fas fa-circle" style="color: var(--secondary); font-size: 12px;"></i></div>
+      <span>Ponto intermediário</span>
+    </div>
+  </div>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Leaflet Routing Machine JS -->
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+<!-- Font Awesome JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+<script>
+  // Variáveis globais
+  let map;
+  let routingControl;
+  let adicionandoRota = false;
+  let adicionandoPerigo = false;
+  const waypoints = [];
+  const perigos = [];
+  let startMarker, endMarker;
+
+  // Inicializa o mapa
+  function iniciarMapa(lat, lng) {
+    map = L.map('map').setView([lat, lng], 14);
+
+    // Camada base do OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    // Evento de clique no mapa
+    map.on('click', (e) => {
+      if (adicionandoRota) {
+        adicionarPontoDeRota(e.latlng);
+      } else if (adicionandoPerigo) {
+        abrirFormularioPerigo(e.latlng);
+      }
+    });
+
+    // Centraliza no usuário
+    centralizarNoUsuario();
+  }
+
+  // Centraliza o mapa na localização do usuário
+  function centralizarNoUsuario() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          map.setView([pos.coords.latitude, pos.coords.longitude], 14);
+          if (!startMarker) {
+            adicionarPontoDeRota(L.latLng(pos.coords.latitude, pos.coords.longitude));
+          }
+        },
+        (err) => {
+          console.error("Erro de geolocalização:", err);
+        },
+        { enableHighAccuracy: true, timeout: 5000 }
+      );
+    }
+  }
+
+  // Ativa o modo de adição de rota
+  function ativarAdicaoDeRota() {
+    adicionandoRota = true;
+    adicionandoPerigo = false;
+    alert('Modo de adição de rota ativado. Clique no mapa para adicionar pontos da sua rota. O primeiro ponto será o início e o último o final.');
+  }
+
+  // Ativa o modo de adição de perigo
+  function adicionarPerigo() {
+    adicionandoPerigo = true;
+    adicionandoRota = false;
+    alert('Modo de adição de perigos ativado. Clique no mapa para marcar locais perigosos para ciclistas.');
+  }
+
+  // Adiciona um ponto de rota
+  function adicionarPontoDeRota(latlng) {
+    waypoints.push(L.Routing.waypoint(latlng));
+    
+    // Atualiza marcadores de início e fim
+    if (waypoints.length === 1) {
+      if (startMarker) map.removeLayer(startMarker);
+      startMarker = L.marker(latlng, {
+        icon: L.divIcon({
+          html: '<i class="fas fa-play" style="color: #00a859; font-size: 24px;"></i>',
+          className: 'start-icon',
+          iconSize: [24, 24]
+        })
+      }).addTo(map).bindPopup("Ponto de partida");
+    } else {
+      if (endMarker) map.removeLayer(endMarker);
+      endMarker = L.marker(latlng, {
+        icon: L.divIcon({
+          html: '<i class="fas fa-flag" style="color: #dc3545; font-size: 24px;"></i>',
+          className: 'end-icon',
+          iconSize: [24, 24]
+        })
+      }).addTo(map).bindPopup("Ponto de chegada");
+    }
+
+    atualizarRota();
+  }
+
+  // Atualiza a rota no mapa
+  function atualizarRota() {
+    if (routingControl) {
+      map.removeControl(routingControl);
+    }
+
+    if (waypoints.length < 2) return;
+
+    routingControl = L.Routing.control({
+      waypoints: waypoints.map(wp => wp.latLng),
+      routeWhileDragging: true,
+      draggableWaypoints: true,
+      addWaypoints: false,
+      show: false,
+      createMarker: (i, wp, n) => {
+        if (i === 0) return null; // Já temos o marcador de início
+        if (i === n - 1) return null; // Já temos o marcador de fim
+        
+        // Marcadores intermediários
+        return L.marker(wp.latLng, {
+          draggable: true,
+          icon: L.divIcon({
+            html: '<i class="fas fa-circle" style="color: #007bff; font-size: 16px;"></i>',
+            className: 'waypoint-icon',
+            iconSize: [16, 16]
+          })
+        }).bindPopup(`Ponto ${i + 1}`);
+      },
+      lineOptions: {
+        styles: [{ color: '#00a859', weight: 5, opacity: 0.7 }]
+      },
+      plan: L.Routing.plan(waypoints, {
+        draggableWaypoints: true,
+        addWaypoints: false
+      })
+    }).addTo(map);
+
+    // Atualiza estatísticas quando a rota é calculada
+    routingControl.on('routesfound', function(e) {
+      const routes = e.routes;
+      const distancia = (routes[0].summary.totalDistance / 1000).toFixed(1);
+      const tempo = Math.round(routes[0].summary.totalTime / 60);
+      
+      document.getElementById('distancia').textContent = distancia;
+      document.getElementById('tempo').textContent = tempo;
+      document.getElementById('totalPerigos').textContent = perigos.length;
+      document.getElementById('statsPanel').style.display = 'block';
+    });
+  }
+
+  // Abre formulário para adicionar perigo
+  function abrirFormularioPerigo(latlng) {
+    const popupContent = document.createElement('div');
+    popupContent.className = 'popup-form';
+
+    popupContent.innerHTML = `
+      <label for="tipoPerigo">Tipo de Perigo:</label>
+      <select id="tipoPerigo">
+        <option value="Buraco">🕳️ Buraco na pista</option>
+        <option value="Falta de Acostamento">🚧 Falta de acostamento/ciclovia</option>
+        <option value="Alta Velocidade">🚗 Tráfego em alta velocidade</option>
+        <option value="Rua Escura">🌑 Iluminação inadequada</option>
+        <option value="Cachorro Solto">🐕 Cachorro solto</option>
+        <option value="Pavimento Irregular">🔄 Pavimento irregular</option>
+        <option value="Obras">🚧 Obras na pista</option>
+        <option value="Outros">❓ Outros perigos</option>
+      </select>
+
+      <label for="gravidade">Gravidade:</label>
+      <select id="gravidade">
+        <option value="Baixa">🟢 Baixa</option>
+        <option value="Média">🟡 Média</option>
+        <option value="Alta">🔴 Alta</option>
+      </select>
+
+      <label for="observacoes">Observações:</label>
+      <textarea id="observacoes" placeholder="Descreva o perigo com detalhes..."></textarea>
+
+      <button class="popup-btn" onclick="salvarPerigo(${latlng.lat}, ${latlng.lng}, this.parentElement)">
+        <i class="fas fa-save"></i> Salvar Perigo
+      </button>
+    `;
+
+    L.popup()
+      .setLatLng(latlng)
+      .setContent(popupContent)
+      .openOn(map);
+  }
+
+  // Salva um perigo no mapa
+  function salvarPerigo(lat, lng, content) {
+    const tipoPerigo = content.querySelector('#tipoPerigo').value;
+    const gravidade = content.querySelector('#gravidade').value;
+    const observacoes = content.querySelector('#observacoes').value.trim();
+    const emoji = content.querySelector('#tipoPerigo').options[content.querySelector('#tipoPerigo').selectedIndex].text.split(' ')[0];
+
+    // Determina a cor do ícone baseado na gravidade
+    let cor;
+    if (gravidade === 'Baixa') cor = '#28a745';
+    else if (gravidade === 'Média') cor = '#ffc107';
+    else cor = '#dc3545';
+
+    const marcador = L.marker([lat, lng], {
+      icon: L.divIcon({
+        html: `<i class="fas fa-exclamation-triangle" style="color: ${cor}; font-size: 24px;"></i>`,
+        className: 'danger-icon',
+        iconSize: [24, 24]
+      })
+    }).addTo(map);
+
+    marcador.bindPopup(`
+      <b>${emoji} ${tipoPerigo}</b><br>
+      <small>Gravidade: ${gravidade}</small><br><br>
+      ${observacoes || 'Nenhuma observação adicional'}
+    `);
+
+    perigos.push({ 
+      emoji, 
+      tipoPerigo, 
+      gravidade, 
+      observacoes, 
+      lat, 
+      lng,
+      cor
+    });
+
+    map.closePopup();
+    document.getElementById('totalPerigos').textContent = perigos.length;
+  }
+
+  // Exporta rota para WhatsApp
+  function exportarParaWhatsApp() {
+    if (waypoints.length < 2) {
+      alert('⚠️ Você precisa ter pelo menos dois pontos (início e fim) para criar uma rota!');
+      return;
+    }
+
+    const distancia = document.getElementById('distancia').textContent;
+    const tempo = document.getElementById('tempo').textContent;
+    
+    let texto = `🚴‍♂️ *Planejamento de Rota Ciclística - PedalSeguro* 🚴‍♀️\n\n`;
+    texto += `📏 *Distância:* ${distancia} km\n`;
+    texto += `⏱️ *Tempo estimado:* ${tempo} min\n\n`;
+    
+    texto += `📍 *Pontos da Rota:*\n`;
+    waypoints.forEach((wp, i) => {
+      const tipo = i === 0 ? 'Partida' : 
+                  i === waypoints.length - 1 ? 'Chegada' : `Ponto ${i}`;
+      texto += `${i + 1}. ${tipo}: https://maps.google.com/?q=${wp.latLng.lat},${wp.latLng.lng}\n`;
+    });
+
+    if (perigos.length > 0) {
+      texto += `\n⚠️ *Perigos no trajeto (${perigos.length}):*\n`;
+      perigos.forEach((p, i) => {
+        texto += `\n${i + 1}. ${p.emoji} *${p.tipoPerigo}* (${p.gravidade})\n`;
+        texto += `📍 Local: https://maps.google.com/?q=${p.lat},${p.lng}\n`;
+        texto += `📝 ${p.observacoes || 'Sem observações adicionais'}\n`;
+      });
+    }
+
+    texto += `\n📅 *Planejamento gerado em:* ${new Date().toLocaleString()}\n`;
+    texto += `🔗 *Compartilhado via PedalSeguro*`;
+
+    const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+    window.open(url, '_blank');
+  }
+
+  // Limpa a rota atual
+  function limparRota() {
+    if (confirm('Tem certeza que deseja limpar toda a rota e perigos mapeados?')) {
+      if (routingControl) {
+        map.removeControl(routingControl);
+        routingControl = null;
+      }
+      
+      waypoints.length = 0;
+      perigos.length = 0;
+      
+      if (startMarker) map.removeLayer(startMarker);
+      if (endMarker) map.removeLayer(endMarker);
+      
+      map.eachLayer(layer => {
+        if (layer instanceof L.Marker && layer !== startMarker && layer !== endMarker) {
+          map.removeLayer(layer);
+        }
+      });
+      
+      document.getElementById('statsPanel').style.display = 'none';
+      document.getElementById('totalPerigos').textContent = '0';
+    }
+  }
+
+  // Inicializa o mapa com localização padrão ou do usuário
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => iniciarMapa(pos.coords.latitude, pos.coords.longitude),
+      () => iniciarMapa(-23.5505, -46.6333) // Fallback para São Paulo
+    );
+  } else {
+    iniciarMapa(-23.5505, -46.6333);
+  }
+</script>
+
+</body>
+</html>

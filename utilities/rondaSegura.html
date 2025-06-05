@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RondaSeg - Sistema de Relatórios para Seguranças</title>
+<!-- Bibliotecas externas -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+  :root {
+    /* Cores principais */
+    --primary-color: #2c3e50;       /* Azul escuro para elementos primários */
+    --primary-dark: #1a252f;        /* Azul mais escuro para hover */
+    --secondary-color: #e74c3c;     /* Vermelho para alertas graves */
+    --warning-color: #f39c12;       /* Laranja para alertas médios */
+    --info-color: #3498db;          /* Azul claro para alertas leves */
+    --success-color: #2ecc71;       /* Verde para elementos positivos */
+    --text-color: #333;             /* Cor principal do texto */
+    --light-gray: #f5f5f5;          /* Cor de fundo */
+    --border-radius: 8px;           /* Arredondamento de bordas */
+    --box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Sombra padrão */
+  }
+  
+  body {
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    margin: 0;
+    padding: 1rem;
+    background: var(--light-gray);
+    color: var(--text-color);
+    line-height: 1.6;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  h1 {
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  #map {
+    height: 500px;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--box-shadow);
+    border: 1px solid #ddd;
+  }
+  
+  .info-panel {
+    background: white;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--box-shadow);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .alert {
+    color: var(--secondary-color);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .status-info {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .status-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.9rem;
+  }
+  
+  .button-group {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  
+  button {
+    padding: 0.8rem 1.2rem;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .btn-primary {
+    background: var(--primary-color);
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+  }
+  
+  .btn-danger {
+    background: var(--secondary-color);
+    color: white;
+  }
+  
+  .btn-danger:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+  }
+  
+  .btn-accent {
+    background: var(--info-color);
+    color: white;
+  }
+  
+  .btn-accent:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+  }
+  
+  .btn-outline {
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+  }
+  
+  .btn-outline:hover {
+    background: var(--primary-color);
+    color: white;
+  }
+  
+  .legend {
+    background: white;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    position: absolute;
+    bottom: 30px;
+    right: 10px;
+    z-index: 1000;
+    font-size: 0.9rem;
+    max-width: 200px;
+  }
+  
+  .legend h3 {
+    margin-top: 0;
+    margin-bottom: 0.8rem;
+    font-size: 1rem;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    gap: 0.5rem;
+  }
+  
+  .legend-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.8rem;
+  }
+  
+  /* Painel de seleção de incidentes */
+  .incident-panel {
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--box-shadow);
+    display: none;
+    position: relative;
+    z-index: 1001;
+  }
+  
+  .incident-types {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.8rem;
+    margin: 1rem 0;
+  }
+  
+  .incident-type {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid #ddd;
+  }
+  
+  .incident-type:hover {
+    background: #f8f9fa;
+  }
+  
+  .incident-type input {
+    margin: 0;
+  }
+  
+  /* Cores de gravidade */
+  .incident-type.grave {
+    border-left: 4px solid var(--secondary-color);
+  }
+  
+  .incident-type.media {
+    border-left: 4px solid var(--warning-color);
+  }
+  
+  .incident-type.leve {
+    border-left: 4px solid var(--info-color);
+  }
+  
+  /* Seletor de gravidade para incidentes "outros" */
+  .severity-selector {
+    display: none;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: var(--border-radius);
+  }
+  
+  .severity-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .severity-option:hover {
+    background: #e9ecef;
+  }
+  
+  .severity-option input {
+    margin: 0;
+  }
+  
+  /* Campo de descrição para incidentes "outros" */
+  .other-description {
+    display: none;
+    margin-top: 1rem;
+  }
+  
+  .other-description textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-family: inherit;
+  }
+  
+  @media (max-width: 768px) {
+    header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .info-panel {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .button-group {
+      flex-direction: column;
+    }
+    
+    .legend {
+      position: relative;
+      bottom: auto;
+      right: auto;
+      margin-top: 1rem;
+      max-width: 100%;
+    }
+    
+    #map {
+      height: 400px;
+    }
+    
+    .incident-types {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Cabeçalho com título e informações de status -->
+  <header>
+    <h1><i class="fas fa-shield-alt"></i> RondaSeg</h1>
+    <div class="status-info">
+      <div class="status-item">
+        <i class="fas fa-map-marker-alt" style="color: var(--secondary-color);"></i>
+        <span>Pontos: <strong id="contador">0</strong></span>
+      </div>
+      <div class="status-item">
+        <i class="far fa-clock" style="color: var(--primary-color);"></i>
+        <span id="hora-atual">--:--:--</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Painel de informações principais -->
+  <div class="info-panel">
+    <p class="alert"><i class="fas fa-exclamation-circle"></i> Clique no mapa para registrar ocorrências durante sua ronda</p>
+    <button class="btn-primary" onclick="mostrarPainelIncidentes()">
+      <i class="fas fa-edit"></i> Selecionar Tipos de Incidente
+    </button>
+  </div>
+
+  <!-- Painel de seleção de tipos de incidentes (inicialmente oculto) -->
+  <div class="incident-panel" id="incidentPanel">
+    <h3><i class="fas fa-clipboard-list"></i> Selecione os tipos de incidentes:</h3>
+    
+    <!-- Grid de tipos de incidentes - preenchido via JavaScript -->
+    <div class="incident-types" id="incidentTypes"></div>
+
+    <!-- Campo de descrição para incidentes "outros" -->
+    <div class="other-description" id="otherDescription">
+      <label for="incidentDetails">Descreva detalhadamente o incidente:</label>
+      <textarea id="incidentDetails" placeholder="Forneça todos os detalhes relevantes sobre o incidente..."></textarea>
+    </div>
+
+    <!-- Seletor de gravidade para incidentes "outros" -->
+    <div class="severity-selector" id="severitySelector">
+      <h4><i class="fas fa-exclamation-triangle"></i> Nível de Gravidade:</h4>
+      <div class="severity-option">
+        <input type="radio" id="severity-high" name="severity" value="grave">
+        <label for="severity-high"><span style="color: var(--secondary-color);">Grave</span> (Assalto, agressão, risco imediato)</label>
+      </div>
+      <div class="severity-option">
+        <input type="radio" id="severity-medium" name="severity" value="media">
+        <label for="severity-medium"><span style="color: var(--warning-color);">Média</span> (Situação preocupante que requer atenção)</label>
+      </div>
+      <div class="severity-option">
+        <input type="radio" id="severity-low" name="severity" value="leve">
+        <label for="severity-low"><span style="color: var(--info-color);">Leve</span> (Problema menor que precisa ser registrado)</label>
+      </div>
+    </div>
+
+    <!-- Botões de ação do painel -->
+    <div class="button-group">
+      <button class="btn-accent" onclick="confirmarSelecao()">
+        <i class="fas fa-check"></i> Confirmar Seleção
+      </button>
+      <button class="btn-outline" onclick="fecharPainelIncidentes()">
+        <i class="fas fa-times"></i> Cancelar
+      </button>
+    </div>
+  </div>
+
+  <!-- Mapa Leaflet -->
+  <div id="map"></div>
+
+  <!-- Legenda do mapa -->
+  <div class="legend">
+    <h3><i class="fas fa-key"></i> Legenda</h3>
+    <div class="legend-item">
+      <span class="legend-icon" style="background: #2ecc70;"><i class="fas fa-user"></i></span>
+      <span>Sua posição</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-icon" style="background: #e74c3c;"><i class="fas fa-exclamation"></i></span>
+      <span>Incidente grave</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-icon" style="background: #f39c12;"><i class="fas fa-door-open"></i></span>
+      <span>Porta/janela aberta</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-icon" style="background: #3498db;"><i class="fas fa-lightbulb"></i></span>
+      <span>Lâmpada queimada</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-icon" style="background: #9b59b6;"><i class="fas fa-video"></i></span>
+      <span>Câmera com defeito</span>
+    </div>
+  </div>
+</div>
+
+<!-- Bibliotecas JavaScript -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+<script>
+  /**
+   * VARIÁVEIS GLOBAIS
+   */
+  const incidentes = []; // Armazena todos os incidentes registrados
+  let map; // Objeto do mapa Leaflet
+  let usuarioMarcador; // Marcador da posição do usuário
+  let currentLatLng = null; // Última posição clicada no mapa
+
+  // Tipos de incidentes com classificação de gravidade
+  const incidentTypes = [
+    // Incidentes graves (vermelho)
+    { id: 'assalto', name: 'Assalto/Roubo', severity: 'grave', icon: 'user-shield' },
+    { id: 'furto', name: 'Furto', severity: 'grave', icon: 'hand-holding' },
+    { id: 'drogas', name: 'Tráfico de Drogas', severity: 'grave', icon: 'pills' },
+    { id: 'violencia', name: 'Violência/Confronto', severity: 'grave', icon: 'fist-raised' },
+    { id: 'vandalismo', name: 'Vandalismo', severity: 'grave', icon: 'spray-can' },
+    
+    // Incidentes médios (laranja)
+    { id: 'movimentacao', name: 'Movimentação Estranha', severity: 'media', icon: 'user-secret' },
+    { id: 'camera', name: 'Câmera com Defeito', severity: 'media', icon: 'video' },
+    { id: 'alarme', name: 'Alarme Acionado', severity: 'media', icon: 'bell' },
+    { id: 'pessoa', name: 'Pessoa Não Autorizada', severity: 'media', icon: 'user-times' },
+    
+    // Incidentes leves (azul)
+    { id: 'porta', name: 'Porta Aberta', severity: 'leve', icon: 'door-open' },
+    { id: 'janela', name: 'Janela Aberta', severity: 'leve', icon: 'window-maximize' },
+    { id: 'lampada', name: 'Lâmpada Queimada', severity: 'leve', icon: 'lightbulb' },
+    
+    // Outros (usuário define gravidade)
+    { id: 'outro', name: 'Outro Incidente', severity: null, icon: 'question-circle' }
+  ];
+
+  let selectedIncidentTypes = []; // Tipos selecionados no painel
+  let selectedSeverity = ''; // Gravidade selecionada para incidentes "outros"
+
+  /**
+   * FUNÇÕES DE INTERFACE
+   */
+
+  // Atualiza contador de pontos na interface
+  function atualizarContador() {
+    document.getElementById('contador').textContent = incidentes.length;
+  }
+
+  // Atualiza relógio em tempo real
+  function atualizarRelogio() {
+    const agora = new Date();
+    const horas = String(agora.getHours()).padStart(2, '0');
+    const minutos = String(agora.getMinutes()).padStart(2, '0');
+    const segundos = String(agora.getSeconds()).padStart(2, '0');
+    document.getElementById('hora-atual').textContent = `${horas}:${minutos}:${segundos}`;
+  }
+
+  // Formata data/hora para formato legível
+  function formatarTimestamp(data) {
+    const d = new Date(data);
+    const dia = String(d.getDate()).padStart(2, '0');
+    const mes = String(d.getMonth() + 1).padStart(2, '0');
+    const ano = d.getFullYear();
+    const hora = String(d.getHours()).padStart(2, '0');
+    const min = String(d.getMinutes()).padStart(2, '0');
+    return `${dia}/${mes}/${ano} ${hora}:${min}`;
+  }
+
+  // Mostra o painel de seleção de incidentes
+  function mostrarPainelIncidentes() {
+    document.getElementById('incidentPanel').style.display = 'block';
+    document.getElementById('otherDescription').style.display = 'none';
+    document.getElementById('severitySelector').style.display = 'none';
+    selectedIncidentTypes = [];
+    selectedSeverity = '';
+    
+    // Desmarca todas as seleções anteriores
+    document.querySelectorAll('#incidentTypes input[type="checkbox"]').forEach(checkbox => {
+      checkbox.checked = false;
+    });
+  }
+
+  // Fecha o painel de seleção de incidentes
+  function fecharPainelIncidentes() {
+    document.getElementById('incidentPanel').style.display = 'none';
+  }
+
+  // Carrega os tipos de incidentes no painel
+  function loadIncidentTypes() {
+    const container = document.getElementById('incidentTypes');
+    container.innerHTML = '';
+    
+    incidentTypes.forEach(type => {
+      const div = document.createElement('div');
+      div.className = `incident-type ${type.severity || ''}`;
+      div.innerHTML = `
+        <input type="checkbox" id="type_${type.id}" value="${type.id}">
+        <label for="type_${type.id}">
+          <i class="fas fa-${type.icon}"></i> ${type.name}
+        </label>
+      `;
+      
+      // Evento para quando um tipo é selecionado/deselecionado
+      div.querySelector('input').addEventListener('change', function() {
+        if (this.checked) {
+          // Se for "outro", mostra campos adicionais
+          if (type.id === 'outro') {
+            document.getElementById('otherDescription').style.display = 'block';
+            document.getElementById('severitySelector').style.display = 'block';
+          }
+          selectedIncidentTypes.push(type.id);
+        } else {
+          // Se for "outro", esconde campos adicionais
+          if (type.id === 'outro') {
+            document.getElementById('otherDescription').style.display = 'none';
+            document.getElementById('severitySelector').style.display = 'none';
+            document.getElementById('incidentDetails').value = '';
+            selectedSeverity = '';
+          }
+          selectedIncidentTypes = selectedIncidentTypes.filter(t => t !== type.id);
+        }
+      });
+      
+      container.appendChild(div);
+    });
+
+    // Configura seleção de gravidade para incidentes "outros"
+    document.querySelectorAll('input[name="severity"]').forEach(radio => {
+      radio.addEventListener('change', function() {
+        selectedSeverity = this.value;
+      });
+    });
+  }
+
+  // Confirma a seleção e cria o marcador
+  async function confirmarSelecao() {
+    if (selectedIncidentTypes.length === 0) {
+      alert("Selecione pelo menos um tipo de incidente.");
+      return;
+    }
+
+    // Validação para incidentes "outros"
+    if (selectedIncidentTypes.includes('outro')) {
+      const details = document.getElementById('incidentDetails').value.trim();
+      if (!details) {
+        alert("Por favor, descreva detalhadamente o incidente.");
+        return;
+      }
+      if (!selectedSeverity) {
+        alert("Selecione o nível de gravidade para este incidente.");
+        return;
+      }
+    }
+
+    // Fecha o painel e cria o marcador
+    fecharPainelIncidentes();
+    await criarMarcador(currentLatLng);
+  }
+
+  /**
+   * FUNÇÕES DO MAPA
+   */
+
+  // Busca endereço reverso (de coordenadas para endereço)
+  async function buscarEndereco(lat, lng) {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`;
+    try {
+      const resposta = await fetch(url, { 
+        headers: { 
+          'Accept-Language': 'pt-BR',
+          'User-Agent': 'RondaSeg/1.0' 
+        }
+      });
+      const dados = await resposta.json();
+
+      // Extrai dados do endereço
+      const endereco = dados.address || {};
+      return {
+        rua: endereco.road || endereco.pedestrian || endereco.neighbourhood || "Local desconhecido",
+        cep: endereco.postcode || "CEP não encontrado",
+        bairro: endereco.suburb || endereco.neighbourhood || "Bairro desconhecido",
+        cidade: endereco.city || endereco.town || endereco.village || "Cidade desconhecida"
+      };
+    } catch (erro) {
+      console.error("Erro ao buscar endereço:", erro);
+      return { 
+        rua: "Local desconhecido", 
+        cep: "CEP não encontrado",
+        bairro: "Bairro desconhecido",
+        cidade: "Cidade desconhecida"
+      };
+    }
+  }
+
+  // Retorna ícone e cor baseado no tipo e gravidade do incidente
+  function getIncidentIcon(typeId, severity) {
+    const type = incidentTypes.find(t => t.id === typeId);
+    
+    // Cores baseadas na gravidade
+    const colors = {
+      'grave': '#e74c3c',    // Vermelho
+      'media': '#f39c12',    // Laranja
+      'leve': '#3498db'      // Azul
+    };
+    
+    return {
+      icon: type ? type.icon : 'exclamation',
+      color: colors[severity] || '#95a5a6'  // Cinza para indefinido
+    };
+  }
+
+  // Inicializa o mapa Leaflet
+  function iniciarMapa(lat, lng) {
+    map = L.map('map').setView([lat, lng], 18); // Zoom 18 para áreas menores
+
+    // Camada do mapa (OpenStreetMap)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
+
+    // Marcador do usuário (verde)
+    usuarioMarcador = L.marker([lat, lng], {
+      title: "Sua posição",
+      icon: L.divIcon({
+        html: '<i class="fas fa-user" style="color: #2ecc70; font-size: 24px;"></i>',
+        className: 'user-marker',
+        iconSize: [24, 24]
+      })
+    }).addTo(map);
+    
+    usuarioMarcador.bindPopup("<b>Sua posição atual</b>").openPopup();
+
+    // Atualiza posição do usuário periodicamente (simulação de movimento)
+    setInterval(() => {
+      navigator.geolocation.getCurrentPosition(pos => {
+        const newLatLng = L.latLng(pos.coords.latitude, pos.coords.longitude);
+        usuarioMarcador.setLatLng(newLatLng);
+        // Centraliza o mapa se o usuário sair da área visível
+        if (map.getBounds().contains(newLatLng) === false) {
+          map.setView(newLatLng, map.getZoom());
+        }
+      });
+    }, 30000); // Atualiza a cada 30 segundos
+
+    // Evento de clique no mapa para registrar incidentes
+    map.on('click', async e => {
+      currentLatLng = e.latlng;
+      mostrarPainelIncidentes();
+    });
+  }
+
+  // Cria um marcador de incidente no mapa
+  async function criarMarcador(latlng) {
+    // Busca endereço pelas coordenadas
+    const { rua, cep, bairro, cidade } = await buscarEndereco(latlng.lat, latlng.lng);
+
+    // Determina a gravidade com base nos tipos selecionados
+    let severity = selectedSeverity;
+    if (!severity) {
+      // Se não foi definido (não é "outro"), pega a maior gravidade dos tipos selecionados
+      const severities = selectedIncidentTypes.map(typeId => {
+        const type = incidentTypes.find(t => t.id === typeId);
+        return type ? type.severity : null;
+      }).filter(s => s);
+      
+      if (severities.includes('grave')) severity = 'grave';
+      else if (severities.includes('media')) severity = 'media';
+      else severity = 'leve';
+    }
+
+    // Determina o tipo principal (priorizando os mais graves)
+    let mainType = selectedIncidentTypes[0];
+    if (selectedIncidentTypes.includes('assalto')) mainType = 'assalto';
+    else if (selectedIncidentTypes.includes('drogas')) mainType = 'drogas';
+    else if (selectedIncidentTypes.includes('furto')) mainType = 'furto';
+    else if (selectedIncidentTypes.includes('vandalismo')) mainType = 'vandalismo';
+
+    // Obtém ícone e cor para o marcador
+    const { icon, color } = getIncidentIcon(mainType, severity);
+
+    // Descrição do incidente (para "outros" pega do textarea)
+    let descricao = '';
+    if (selectedIncidentTypes.includes('outro')) {
+      descricao = document.getElementById('incidentDetails').value.trim();
+    } else {
+      // Para outros tipos, pede uma descrição complementar
+      descricao = prompt(
+        `📝 Descreva o incidente em:\n\n📍 Local: ${rua}\n🏘️ Bairro: ${bairro}\n🏙️ Cidade: ${cidade}\n📮 CEP: ${cep}`,
+        selectedIncidentTypes.map(t => {
+          const type = incidentTypes.find(it => it.id === t);
+          return type ? type.name : '';
+        }).join(', ')
+      );
+      
+      if (descricao === null) return; // Usuário cancelou
+      if (!descricao) descricao = "Sem descrição detalhada";
+    }
+
+    const timestamp = new Date();
+
+    // Cria o marcador no mapa com ícone personalizado
+    const marcador = L.marker(latlng, { 
+      draggable: true,
+      icon: L.divIcon({
+        html: `<i class="fas fa-${icon}" style="color: ${color}; font-size: 24px;"></i>`,
+        className: 'incident-marker',
+        iconSize: [24, 24]
+      })
+    }).addTo(map);
+
+    // Texto para os tipos selecionados
+    const tiposTexto = selectedIncidentTypes.map(t => {
+      const type = incidentTypes.find(it => it.id === t);
+      return type ? type.name : '';
+    }).filter(t => t).join(', ');
+
+    // Conteúdo do popup do marcador
+    marcador.bindPopup(
+      `<b><i class="fas fa-${icon}"></i> Incidente:</b><br>
+      <small>${formatarTimestamp(timestamp)}</small><br><br>
+      <b>📍 Local:</b> ${rua}<br>
+      <b>🏘️ Bairro:</b> ${bairro}<br>
+      <b>🏙️ Cidade:</b> ${cidade}<br>
+      <b>📮 CEP:</b> ${cep}<br><br>
+      <b>⚠️ Tipo(s):</b> ${tiposTexto}<br>
+      <b>📝 Descrição:</b> ${descricao}<br><br>
+      <small>(Arraste para ajustar posição | Delete para remover)</small>`
+    ).openPopup();
+
+    // Atualiza popup e dados quando o marcador é movido
+    marcador.on('dragend', async () => {
+      const pos = marcador.getLatLng();
+      const { rua: novaRua, cep: novoCep, bairro: novoBairro, cidade: novaCidade } = await buscarEndereco(pos.lat, pos.lng);
+      
+      marcador.setPopupContent(
+        `<b><i class="fas fa-${icon}"></i> Incidente:</b><br>
+        <small>${formatarTimestamp(timestamp)}</small><br><br>
+        <b>📍 Local:</b> ${novaRua}<br>
+        <b>🏘️ Bairro:</b> ${novoBairro}<br>
+        <b>🏙️ Cidade:</b> ${novaCidade}<br>
+        <b>📮 CEP:</b> ${novoCep}<br><br>
+        <b>⚠️ Tipo(s):</b> ${tiposTexto}<br>
+        <b>📝 Descrição:</b> ${descricao}<br><br>
+        <small>(Arraste para ajustar posição | Delete para remover)</small>`
+      ).openPopup();
+
+      // Atualiza dados no array de incidentes
+      const index = incidentes.findIndex(e => e.marcador === marcador);
+      if (index !== -1) {
+        incidentes[index].latlng = pos;
+        incidentes[index].rua = novaRua;
+        incidentes[index].cep = novoCep;
+        incidentes[index].bairro = novoBairro;
+        incidentes[index].cidade = novaCidade;
+      }
+    });
+
+    // Permite remover marcador com tecla Delete
+    marcador.on('popupopen', () => {
+      document.addEventListener('keydown', function removerMarcador(e) {
+        if (e.key === 'Delete') {
+          map.removeLayer(marcador);
+          const index = incidentes.findIndex(p => p.marcador === marcador);
+          if (index !== -1) {
+            incidentes.splice(index, 1);
+            atualizarContador();
+          }
+          document.removeEventListener('keydown', removerMarcador);
+        }
+      });
+    });
+
+    // Adiciona o incidente ao array global
+    incidentes.push({ 
+      marcador, 
+      latlng, 
+      rua, 
+      cep, 
+      bairro, 
+      cidade, 
+      descricao, 
+      timestamp,
+      tipos: selectedIncidentTypes,
+      tiposTexto,
+      severity
+    });
+    
+    atualizarContador();
+    selectedIncidentTypes = []; // Reseta seleção
+  }
+
+  /**
+   * FUNÇÕES DE EXPORTAÇÃO
+   */
+
+  // Exporta relatório para WhatsApp
+  function exportarWhatsApp() {
+    if (incidentes.length === 0) {
+      alert("Nenhum incidente registrado.");
+      return;
+    }
+
+    let texto = "🚨 *Relatório de Ronda - Segurança*\n\n";
+    
+    // Cabeçalho
+    texto += `🛡️ *Relatório de Segurança*\n`;
+    texto += `👤 *Vigilante:* [Seu Nome]\n`;
+    texto += `📅 *Data:* ${formatarTimestamp(new Date())}\n\n`;
+    
+    // Resumo por gravidade
+    const resumoGravidade = { grave: 0, media: 0, leve: 0 };
+    incidentes.forEach(inc => {
+      resumoGravidade[inc.severity]++;
+    });
+    
+    texto += `📊 *Resumo por Gravidade:*\n`;
+    texto += `   🔴 Grave: ${resumoGravidade.grave}\n`;
+    texto += `   🟠 Média: ${resumoGravidade.media}\n`;
+    texto += `   🔵 Leve: ${resumoGravidade.leve}\n\n`;
+    
+    // Detalhes dos incidentes
+    texto += `🔍 *Detalhes dos Incidentes:*\n\n`;
+    incidentes.forEach((inc, i) => {
+      texto += `📍 *Incidente ${i + 1}:*\n`;
+      texto += `   🏷️ Tipo(s): ${inc.tiposTexto}\n`;
+      texto += `   ${inc.severity === 'grave' ? '🔴' : inc.severity === 'media' ? '🟠' : '🔵'} Gravidade: ${inc.severity}\n`;
+      texto += `   🏠 Local: ${inc.rua}\n`;
+      texto += `   🏘️ Bairro: ${inc.bairro}\n`;
+      texto += `   🏙️ Cidade: ${inc.cidade}\n`;
+      texto += `   📮 CEP: ${inc.cep}\n`;
+      texto += `   ⚠️ Descrição: ${inc.descricao}\n`;
+      texto += `   🕒 Horário: ${formatarTimestamp(inc.timestamp)}\n`;
+      texto += `   📍 Coordenadas: (Lat: ${inc.latlng.lat.toFixed(5)}, Lng: ${inc.latlng.lng.toFixed(5)})\n\n`;
+    });
+
+    texto += "\n⚠️ *Atenção:* Verificar todos os incidentes reportados e tomar as providências necessárias.";
+
+    // Abre o WhatsApp com o texto formatado
+    const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+    window.open(url, '_blank');
+  }
+
+  // Exporta relatório completo para texto
+  function exportarRelatorio() {
+    if (incidentes.length === 0) {
+      alert("Nenhum incidente registrado.");
+      return;
+    }
+
+    let texto = "=== RELATÓRIO DE RONDA - SEGURANÇA ===\n\n";
+    texto += `Vigilante: [Seu Nome]\n`;
+    texto += `Data do relatório: ${formatarTimestamp(new Date())}\n\n`;
+    
+    // Resumo por gravidade
+    const resumoGravidade = { grave: 0, media: 0, leve: 0 };
+    incidentes.forEach(inc => {
+      resumoGravidade[inc.severity]++;
+    });
+    
+    texto += "RESUMO POR GRAVIDADE:\n";
+    texto += `- Grave: ${resumoGravidade.grave}\n`;
+    texto += `- Média: ${resumoGravidade.media}\n`;
+    texto += `- Leve: ${resumoGravidade.leve}\n\n`;
+    
+    // Detalhes dos incidentes
+    texto += "DETALHES DOS INCIDENTES:\n\n";
+    incidentes.forEach((inc, i) => {
+      texto += `INCIDENTE ${i + 1}:\n`;
+      texto += `- Tipo(s): ${inc.tiposTexto}\n`;
+      texto += `- Gravidade: ${inc.severity}\n`;
+      texto += `- Local: ${inc.rua}\n`;
+      texto += `- Bairro: ${inc.bairro}\n`;
+      texto += `- Cidade: ${inc.cidade}\n`;
+      texto += `- CEP: ${inc.cep}\n`;
+      texto += `- Descrição: ${inc.descricao}\n`;
+      texto += `- Horário: ${formatarTimestamp(inc.timestamp)}\n`;
+      texto += `- Coordenadas: (Lat: ${inc.latlng.lat.toFixed(5)}, Lng: ${inc.latlng.lng.toFixed(5)})\n\n`;
+    });
+
+    texto += "\nOBSERVAÇÕES: Verificar todos os incidentes reportados e tomar as providências necessárias.";
+
+    // Cria e faz download do arquivo de texto
+    const blob = new Blob([texto], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `relatorio_ronda_${new Date().toISOString().slice(0,10)}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // Limpa todos os registros
+  function limparRegistros() {
+    if (incidentes.length === 0 || confirm("Tem certeza que deseja apagar todos os registros?")) {
+      incidentes.forEach(inc => {
+        map.removeLayer(inc.marcador);
+      });
+      incidentes.length = 0;
+      atualizarContador();
+    }
+  }
+
+  /**
+   * INICIALIZAÇÃO
+   */
+  document.addEventListener('DOMContentLoaded', function() {
+    // Carrega os tipos de incidentes no painel
+    loadIncidentTypes();
+    
+    // Inicia o relógio
+    setInterval(atualizarRelogio, 1000);
+    atualizarRelogio();
+
+    // Tenta obter a localização do usuário
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        iniciarMapa(pos.coords.latitude, pos.coords.longitude);
+      }, err => {
+        console.error("Erro de geolocalização:", err);
+        alert("Não foi possível obter sua localização. Por favor, verifique as permissões de geolocalização.");
+      }, {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      });
+    } else {
+      alert("Seu navegador não suporta geolocalização. O sistema não funcionará corretamente.");
+    }
+  });
+</script>
+</body>
+</html>
