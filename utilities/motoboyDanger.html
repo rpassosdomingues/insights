@@ -3,23 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mapa de Perigos para Motoboy</title>
+<title>🚨 Mapa Seguro para Motoboys</title>
 <!-- Leaflet -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<!-- Leaflet MarkerCluster -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <!-- Estilo personalizado -->
 <style>
   :root {
-    --primary: #ff4500;
-    --secondary: #333;
-    --background: #f9f9f9;
-    --accent: #0055ff;
+    --primary: #e63946;
+    --secondary: #1d3557;
+    --background: #f1faee;
+    --accent: #457b9d;
+    --warning: #f4a261;
+    --success: #2a9d8f;
   }
 
   html, body {
     height: 100%;
     margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: 'Roboto', Arial, sans-serif;
     background: var(--background);
     color: var(--secondary);
   }
@@ -29,7 +37,7 @@
     width: 100%;
     margin: 0 auto;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   }
 
   header {
@@ -37,15 +45,27 @@
     text-align: center;
     background: var(--primary);
     color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   }
 
   h1 {
     margin: 0;
     font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .app-container {
+    padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
   }
 
   .controls {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     gap: 1rem;
     margin: 1rem 0;
@@ -56,14 +76,59 @@
     color: white;
     border: none;
     padding: 0.75rem 1.25rem;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
     font-weight: bold;
-    transition: background 0.3s;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   }
 
   button:hover {
-    background: #0040c0;
+    background: var(--secondary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+
+  button.warning {
+    background: var(--warning);
+  }
+
+  button.success {
+    background: var(--success);
+  }
+
+  .stats {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin: 1rem 0;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+
+  .stat-card {
+    text-align: center;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    background: var(--background);
+    min-width: 120px;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary);
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    color: var(--secondary);
   }
 
   @media (max-width: 600px) {
@@ -72,11 +137,15 @@
     }
     .controls {
       flex-direction: column;
-      gap: 0.5rem;
+      align-items: stretch;
     }
     button {
       width: 100%;
     }
+  }
+
+  .leaflet-popup-content {
+    min-width: 250px;
   }
 
   .leaflet-popup-content input,
@@ -84,8 +153,8 @@
   .leaflet-popup-content textarea {
     width: 100%;
     margin-bottom: 0.5rem;
-    padding: 0.4rem;
-    border: 1px solid #ccc;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 0.9rem;
   }
@@ -94,38 +163,153 @@
     font-size: 0.8rem;
     font-weight: bold;
     display: block;
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.3rem;
+    color: var(--secondary);
+  }
+
+  .leaflet-popup-content .form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+  }
+
+  .leaflet-popup-content .form-actions button {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .legend {
+    padding: 0.5rem;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    line-height: 1.5;
+  }
+
+  .legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.8;
+  }
+
+  .marker-cluster-small {
+    background-color: rgba(181, 226, 140, 0.6);
+  }
+  .marker-cluster-small div {
+    background-color: rgba(110, 204, 57, 0.6);
+  }
+
+  .marker-cluster-medium {
+    background-color: rgba(241, 211, 87, 0.6);
+  }
+  .marker-cluster-medium div {
+    background-color: rgba(240, 194, 12, 0.6);
+  }
+
+  .marker-cluster-large {
+    background-color: rgba(253, 156, 115, 0.6);
+  }
+  .marker-cluster-large div {
+    background-color: rgba(241, 128, 23, 0.6);
   }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>🚨 Mapa de Perigos para Motoboy</h1>
+  <h1><i class="fas fa-motorcycle"></i> Mapa Seguro para Motoboys</h1>
 </header>
 
-<div class="controls">
-  <button onclick="exportarParaWhatsApp()">Exportar para WhatsApp</button>
+<div class="app-container">
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-value" id="total-perigos">0</div>
+      <div class="stat-label">Perigos Registrados</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="perigo-hoje">0</div>
+      <div class="stat-label">Hoje</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="perigo-assalto">0</div>
+      <div class="stat-label">Assaltos</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="perigo-buraco">0</div>
+      <div class="stat-label">Buracos</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button onclick="exportarParaWhatsApp()"><i class="fab fa-whatsapp"></i> Compartilhar</button>
+    <button onclick="exportarParaPDF()"><i class="fas fa-file-pdf"></i> Gerar PDF</button>
+    <button class="warning" onclick="limparMapa()"><i class="fas fa-trash-alt"></i> Limpar Mapa</button>
+    <button class="success" onclick="mostrarLegenda()"><i class="fas fa-info-circle"></i> Legenda</button>
+  </div>
+
+  <div id="map"></div>
 </div>
 
-<div id="map"></div>
-
 <script>
+  // Configurações globais
   let map;
+  let markersCluster;
   const pontos = [];
+  const perigos = {
+    'Buraco': { emoji: '🕳️', color: '#ff9f1c', icon: 'road' },
+    'Pista Molhada': { emoji: '💧', color: '#00b4d8', icon: 'tint' },
+    'Trânsito Intenso': { emoji: '🚗', color: '#0077b6', icon: 'traffic-light' },
+    'Assalto': { emoji: '⚠️', color: '#e63946', icon: 'exclamation-triangle' },
+    'Outros': { emoji: '❓', color: '#6c757d', icon: 'question' }
+  };
+
+  // Ícones personalizados
+  function criarIcone(tipo) {
+    return L.divIcon({
+      html: `<div style="background-color: ${perigos[tipo].color}; 
+                width: 30px; 
+                height: 30px; 
+                border-radius: 50%; 
+                display: flex; 
+                align-items: center; 
+                justify-content: center;
+                color: white;
+                font-size: 16px;
+                box-shadow: 0 0 5px rgba(0,0,0,0.3);">
+              <i class="fas fa-${perigos[tipo].icon}"></i>
+            </div>`,
+      className: 'custom-icon',
+      iconSize: [30, 30],
+      iconAnchor: [15, 15]
+    });
+  }
 
   /**
    * Inicializa o mapa com a localização fornecida
    */
   function iniciarMapa(lat, lng) {
     map = L.map('map').setView([lat, lng], 15);
-
+    
+    // Camada base
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
     }).addTo(map);
-
+    
+    // Cluster de marcadores
+    markersCluster = L.markerClusterGroup();
+    map.addLayer(markersCluster);
+    
+    // Evento de clique no mapa
     map.on('click', (e) => abrirFormulario(e.latlng));
+    
+    // Adiciona legenda
+    adicionarLegenda();
+    
+    // Centraliza no usuário periodicamente
+    setInterval(centralizarNoUsuario, 30000);
   }
 
   /**
@@ -133,70 +317,189 @@
    */
   function abrirFormulario(latlng) {
     const popupContent = document.createElement('div');
+    popupContent.className = 'form-popup';
 
     popupContent.innerHTML = `
-      <label for="perigo">Perigo:</label>
+      <label for="perigo"><i class="fas fa-exclamation-triangle"></i> Tipo de Perigo:</label>
       <select id="perigo">
-        <option value="Buraco">🕳️ Buraco</option>
-        <option value="Pista Molhada">💧 Pista Molhada</option>
-        <option value="Trânsito Intenso">🚗 Trânsito Intenso</option>
-        <option value="Assalto">⚠️ Assalto</option>
-        <option value="Outros">❓ Outros</option>
+        ${Object.entries(perigos).map(([key, val]) => 
+          `<option value="${key}">${val.emoji} ${key}</option>`).join('')}
       </select>
 
-      <label for="obs">Observações:</label>
-      <textarea id="obs" rows="2" placeholder="Detalhe aqui..."></textarea>
+      <label for="gravidade"><i class="fas fa-bolt"></i> Gravidade:</label>
+      <select id="gravidade">
+        <option value="Baixa">🟢 Baixa</option>
+        <option value="Média">🟡 Média</option>
+        <option value="Alta">🔴 Alta</option>
+      </select>
+
+      <label for="obs"><i class="fas fa-comment"></i> Observações:</label>
+      <textarea id="obs" rows="3" placeholder="Descreva o perigo com detalhes..."></textarea>
+      
+      <div class="form-actions">
+        <button onclick="salvarPonto(event)" style="background: ${perigos['Buraco'].color}">
+          <i class="fas fa-save"></i> Salvar
+        </button>
+        <button onclick="map.closePopup()" style="background: var(--secondary)">
+          <i class="fas fa-times"></i> Cancelar
+        </button>
+      </div>
     `;
 
     const popup = L.popup()
       .setLatLng(latlng)
       .setContent(popupContent)
       .openOn(map);
+  }
 
-    const perigoSelect = popupContent.querySelector('#perigo');
-    const obsTextarea = popupContent.querySelector('#obs');
-
-    popupContent.addEventListener('submit', (e) => e.preventDefault());
-
-    const savePoint = () => {
-      const perigo = perigoSelect.value;
-      const emoji = perigoSelect.options[perigoSelect.selectedIndex].text.split(' ')[0];
-      const obs = obsTextarea.value.trim();
-      const hora = formatarHora();
-
-      obterEndereco(latlng.lat, latlng.lng, (rua, cep) => {
-        const marcador = L.marker(latlng, { draggable: true }).addTo(map);
-        marcador.bindPopup(`<b>${emoji} ${perigo}</b><br>${rua}<br>CEP: ${cep}<br>🕒 ${hora}<br>📝 ${obs || 'Nenhuma observação'}`);
-        pontos.push({ emoji, perigo, rua, cep, hora, obs, lat: latlng.lat, lng: latlng.lng });
+  /**
+   * Salva um novo ponto de perigo
+   */
+  function salvarPonto(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const popup = document.querySelector('.leaflet-popup');
+    if (!popup) return;
+    
+    const latlng = map.getPopup().getLatLng();
+    const perigo = popup.querySelector('#perigo').value;
+    const gravidade = popup.querySelector('#gravidade').value;
+    const obs = popup.querySelector('#obs').value.trim();
+    const hora = formatarHora();
+    const data = formatarData();
+    
+    obterEndereco(latlng.lat, latlng.lng, (rua, cep, bairro, cidade) => {
+      const marcador = L.marker(latlng, {
+        icon: criarIcone(perigo),
+        draggable: true
+      }).addTo(map);
+      
+      marcador.on('dragend', function() {
+        const newLatLng = this.getLatLng();
+        obterEndereco(newLatLng.lat, newLatLng.lng, (newRua, newCep, newBairro, newCidade) => {
+          const pontoIndex = pontos.findIndex(p => 
+            p.marcador._leaflet_id === this._leaflet_id);
+          if (pontoIndex !== -1) {
+            pontos[pontoIndex].lat = newLatLng.lat;
+            pontos[pontoIndex].lng = newLatLng.lng;
+            pontos[pontoIndex].rua = newRua;
+            pontos[pontoIndex].cep = newCep;
+            pontos[pontoIndex].bairro = newBairro;
+            pontos[pontoIndex].cidade = newCidade;
+            
+            this.setPopupContent(criarPopupContent(pontos[pontoIndex]));
+          }
+        });
       });
+      
+      const ponto = {
+        emoji: perigos[perigo].emoji,
+        perigo,
+        gravidade,
+        rua,
+        cep,
+        bairro,
+        cidade,
+        hora,
+        data,
+        obs,
+        lat: latlng.lat,
+        lng: latlng.lng,
+        marcador
+      };
+      
+      marcador.bindPopup(criarPopupContent(ponto));
+      markersCluster.addLayer(marcador);
+      pontos.push(ponto);
+      atualizarEstatisticas();
       map.closePopup();
-    };
+    });
+  }
 
-    // Confirmação ao clicar fora do popup
-    popupContent.addEventListener('mouseleave', savePoint);
+  /**
+   * Cria conteúdo do popup para um ponto
+   */
+  function criarPopupContent(ponto) {
+    return `
+      <div style="max-width: 250px;">
+        <h4 style="margin: 0 0 5px 0; color: ${perigos[ponto.perigo].color}">
+          ${ponto.emoji} ${ponto.perigo} (${ponto.gravidade.split(' ')[0]})
+        </h4>
+        <p style="margin: 5px 0;">
+          <i class="fas fa-map-marker-alt"></i> ${ponto.rua}<br>
+          ${ponto.bairro ? `<i class="fas fa-map-pin"></i> ${ponto.bairro}<br>` : ''}
+          <i class="fas fa-mail-bulk"></i> CEP: ${ponto.cep}<br>
+          <i class="fas fa-calendar-day"></i> ${ponto.data}<br>
+          <i class="fas fa-clock"></i> ${ponto.hora}
+        </p>
+        ${ponto.obs ? `<p style="margin: 5px 0;"><i class="fas fa-comment"></i> ${ponto.obs}</p>` : ''}
+        <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+          <a href="https://maps.google.com/?q=${ponto.lat},${ponto.lng}" 
+             target="_blank" 
+             style="padding: 3px 8px; background: #4285F4; color: white; text-decoration: none; border-radius: 3px;">
+            <i class="fas fa-map-marked-alt"></i> Google Maps
+          </a>
+          <button onclick="removerPonto(${pontos.findIndex(p => p.marcador._leaflet_id === ponto.marcador._leaflet_id)})" 
+                  style="padding: 3px 8px; background: #e63946; color: white; border: none; border-radius: 3px; cursor: pointer;">
+            <i class="fas fa-trash-alt"></i> Remover
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Remove um ponto do mapa
+   */
+  function removerPonto(index) {
+    if (index >= 0 && index < pontos.length) {
+      map.removeLayer(pontos[index].marcador);
+      pontos.splice(index, 1);
+      atualizarEstatisticas();
+    }
   }
 
   /**
    * Obtém o endereço usando Nominatim
    */
   function obterEndereco(lat, lng, callback) {
-    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
     fetch(url)
       .then(response => response.json())
       .then(data => {
-        const rua = data.address.road || data.display_name || "Endereço não encontrado";
+        const rua = data.address.road || "Rua não identificada";
         const cep = data.address.postcode || "CEP não encontrado";
-        callback(rua, cep);
+        const bairro = data.address.suburb || data.address.neighbourhood || "";
+        const cidade = data.address.city || data.address.town || data.address.village || "";
+        callback(rua, cep, bairro, cidade);
       })
-      .catch(() => callback("Endereço não encontrado", "CEP não encontrado"));
+      .catch(() => callback("Endereço não encontrado", "CEP não encontrado", "", ""));
   }
 
   /**
    * Formata a hora atual
    */
   function formatarHora() {
-    const agora = new Date();
-    return agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  /**
+   * Formata a data atual
+   */
+  function formatarData() {
+    return new Date().toLocaleDateString('pt-BR');
+  }
+
+  /**
+   * Atualiza as estatísticas na interface
+   */
+  function atualizarEstatisticas() {
+    const hoje = new Date().toLocaleDateString('pt-BR');
+    document.getElementById('total-perigos').textContent = pontos.length;
+    document.getElementById('perigo-hoje').textContent = pontos.filter(p => p.data === hoje).length;
+    document.getElementById('perigo-assalto').textContent = pontos.filter(p => p.perigo === 'Assalto').length;
+    document.getElementById('perigo-buraco').textContent = pontos.filter(p => p.perigo === 'Buraco').length;
   }
 
   /**
@@ -204,26 +507,201 @@
    */
   function exportarParaWhatsApp() {
     if (pontos.length === 0) {
-      alert("Nenhum ponto marcado ainda!");
+      alert("Nenhum ponto de perigo registrado ainda!");
       return;
     }
-    let texto = "🚨 Mapa de Perigos Atualizado 🚨\n\n";
-    pontos.forEach((p, i) => {
-      texto += `${i + 1}. ${p.emoji} *${p.perigo}*\n📍 ${p.rua} - CEP: ${p.cep}\n🕒 ${p.hora}\n📝 ${p.obs || 'Nenhuma observação'}\n🔗 https://maps.google.com/?q=${p.lat},${p.lng}\n\n`;
+    
+    let texto = "*🚨 MAPA DE PERIGOS PARA MOTOBOYS 🚨*\n\n";
+    texto += `📅 Relatório gerado em: ${formatarData()} ${formatarHora()}\n\n`;
+    
+    // Agrupa por tipo de perigo
+    const perigosAgrupados = {};
+    pontos.forEach(p => {
+      if (!perigosAgrupados[p.perigo]) {
+        perigosAgrupados[p.perigo] = [];
+      }
+      perigosAgrupados[p.perigo].push(p);
     });
+    
+    // Adiciona cada tipo de perigo
+    Object.entries(perigosAgrupados).forEach(([perigo, pontos]) => {
+      texto += `*${perigos[perigo].emoji} ${perigo} (${pontos.length})*\n`;
+      
+      pontos.forEach((p, i) => {
+        texto += `${i + 1}. ${p.gravidade.split(' ')[0]} - ${p.rua}`;
+        if (p.bairro) texto += ` (${p.bairro})`;
+        texto += `\n🕒 ${p.data} ${p.hora}`;
+        if (p.obs) texto += `\n📝 ${p.obs}`;
+        texto += `\n📍 https://maps.google.com/?q=${p.lat},${p.lng}\n\n`;
+      });
+    });
+    
+    texto += `\nTotal de perigos registrados: ${pontos.length}`;
+    
     const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
     window.open(url, '_blank');
   }
 
-  // Localização inicial do usuário
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => iniciarMapa(pos.coords.latitude, pos.coords.longitude),
-      () => iniciarMapa(-23.5505, -46.6333) // fallback: São Paulo
-    );
-  } else {
-    iniciarMapa(-23.5505, -46.6333);
+  /**
+   * Exporta para PDF
+   */
+  function exportarParaPDF() {
+    if (pontos.length === 0) {
+      alert("Nenhum ponto de perigo registrado ainda!");
+      return;
+    }
+    
+    // Cria um novo PDF
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // Cabeçalho
+    doc.setFontSize(18);
+    doc.setTextColor(230, 57, 70);
+    doc.text('🚨 Mapa de Perigos para Motoboys', 105, 15, { align: 'center' });
+    
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Relatório gerado em: ${formatarData()} ${formatarHora()}`, 14, 25);
+    
+    // Linha divisória
+    doc.setDrawColor(230, 57, 70);
+    doc.setLineWidth(0.5);
+    doc.line(14, 30, 196, 30);
+    
+    // Estatísticas
+    doc.setFontSize(14);
+    doc.text('📊 Estatísticas', 14, 40);
+    
+    doc.setFontSize(10);
+    doc.text(`Total de perigos registrados: ${pontos.length}`, 14, 50);
+    
+    const hoje = new Date().toLocaleDateString('pt-BR');
+    doc.text(`Perigos registrados hoje: ${pontos.filter(p => p.data === hoje).length}`, 14, 55);
+    
+    // Lista de perigos
+    doc.setFontSize(14);
+    doc.text('📌 Pontos de Perigo', 14, 70);
+    
+    let y = 80;
+    pontos.forEach((p, i) => {
+      if (y > 270) {
+        doc.addPage();
+        y = 20;
+      }
+      
+      doc.setFontSize(10);
+      doc.setTextColor(230, 57, 70);
+      doc.text(`${i + 1}. ${p.perigo} (${p.gravidade})`, 14, y);
+      
+      doc.setTextColor(0, 0, 0);
+      doc.text(`📍 ${p.rua}${p.bairro ? `, ${p.bairro}` : ''}`, 20, y + 5);
+      doc.text(`📅 ${p.data} 🕒 ${p.hora}`, 20, y + 10);
+      
+      if (p.obs) {
+        const splitText = doc.splitTextToSize(`📝 ${p.obs}`, 180);
+        doc.text(splitText, 20, y + 15);
+        y += splitText.length * 5;
+      }
+      
+      doc.text(`🔗 https://maps.google.com/?q=${p.lat},${p.lng}`, 20, y + 20);
+      
+      y += 30;
+    });
+    
+    // Salva o PDF
+    doc.save(`mapa_perigos_motoboy_${new Date().toISOString().slice(0,10)}.pdf`);
   }
+
+  /**
+   * Limpa todos os pontos do mapa
+   */
+  function limparMapa() {
+    if (pontos.length === 0 || confirm("Tem certeza que deseja remover TODOS os pontos do mapa?")) {
+      markersCluster.clearLayers();
+      pontos.length = 0;
+      atualizarEstatisticas();
+    }
+  }
+
+  /**
+   * Centraliza o mapa na localização do usuário
+   */
+  function centralizarNoUsuario() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        pos => map.setView([pos.coords.latitude, pos.coords.longitude], 15),
+        err => console.log("Erro ao obter localização:", err)
+      );
+    }
+  }
+
+  /**
+   * Adiciona legenda ao mapa
+   */
+  function adicionarLegenda() {
+    const legend = L.control({ position: 'bottomright' });
+    
+    legend.onAdd = function() {
+      const div = L.DomUtil.create('div', 'legend');
+      div.innerHTML = '<h4 style="margin:0 0 5px 0;"><i class="fas fa-map-key"></i> Legenda</h4>';
+      
+      Object.entries(perigos).forEach(([key, val]) => {
+        div.innerHTML += `
+          <div style="margin: 3px 0;">
+            <i style="background:${val.color}; width:18px; height:18px; display:inline-block; border-radius:50%; text-align:center; line-height:18px; color:white;">
+              <i class="fas fa-${val.icon}" style="font-size:12px;"></i>
+            </i>
+            ${val.emoji} ${key}
+          </div>
+        `;
+      });
+      
+      return div;
+    };
+    
+    legend.addTo(map);
+  }
+
+  /**
+   * Mostra a legenda em um popup
+   */
+  function mostrarLegenda() {
+    let content = '<h4 style="margin:0 0 10px 0;"><i class="fas fa-map-key"></i> Legenda dos Perigos</h4>';
+    
+    Object.entries(perigos).forEach(([key, val]) => {
+      content += `
+        <div style="margin: 5px 0; display: flex; align-items: center;">
+          <div style="background:${val.color}; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-right:8px; color:white;">
+            <i class="fas fa-${val.icon}" style="font-size:14px;"></i>
+          </div>
+          <div>${val.emoji} ${key}</div>
+        </div>
+      `;
+    });
+    
+    content += `<p style="margin:10px 0 0 0; font-size:12px; color:#666;">Clique no mapa para adicionar um novo ponto de perigo</p>`;
+    
+    L.popup()
+      .setLatLng(map.getCenter())
+      .setContent(content)
+      .openOn(map);
+  }
+
+  // Inicializa o mapa quando a página carrega
+  document.addEventListener('DOMContentLoaded', () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        pos => iniciarMapa(pos.coords.latitude, pos.coords.longitude),
+        err => {
+          console.log("Erro ao obter localização:", err);
+          iniciarMapa(-23.5505, -46.6333); // Fallback para São Paulo
+        }
+      );
+    } else {
+      iniciarMapa(-23.5505, -46.6333);
+    }
+  });
 </script>
 
 </body>
