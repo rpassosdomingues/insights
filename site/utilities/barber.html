@@ -3,135 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Agendamento online para barbearia - Corte de cabelo, barba e serviços completos">
+    <meta name="description" content="Agendamento online para Barbearia Costa - Corte de cabelo, barba e serviços completos">
     <title>💈 Barbearia Costa - Agendamento Online</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary: #2c3e50;
-            --secondary: #3498db;
+            --secondary: #25D366; /* Verde WhatsApp */
             --accent: #e74c3c;
             --light: #ecf0f1;
             --dark: #2c3e50;
             --success: #27ae60;
+            --whatsapp: #25D366;
         }
         
         body {
             font-family: 'Segoe UI', Roboto, Arial, sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             margin: 0;
-            padding: 1rem;
+            padding: 0.5rem;
             color: var(--dark);
             line-height: 1.6;
             min-height: 100vh;
+            -webkit-text-size-adjust: 100%;
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 100%;
             margin: 0 auto;
-            padding: 0 1rem;
+            padding: 0 0.5rem;
         }
         
         header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             padding: 1rem;
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(255, 255, 255, 0.95);
             border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         
         h1 {
             color: var(--primary);
             margin-bottom: 0.5rem;
-            font-size: 2.2rem;
+            font-size: 1.8rem;
         }
         
         .subtitle {
             color: var(--secondary);
-            font-size: 1.1rem;
+            font-size: 1rem;
             margin-top: 0;
         }
         
         .form-container {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 2rem;
+            background: rgba(255, 255, 255, 0.98);
+            padding: 1.2rem;
             border-radius: 10px;
             max-width: 500px;
-            margin: 0 auto 2rem;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
-        
-        .form-container:hover {
-            transform: translateY(-5px);
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
         
         label {
             display: block;
-            margin-top: 1.5rem;
+            margin-top: 1.2rem;
             font-weight: 600;
             color: var(--primary);
+            font-size: 0.95rem;
         }
         
-        input, select {
+        input, select, textarea {
             width: 100%;
-            margin-top: 0.5rem;
-            padding: 0.8rem;
+            margin-top: 0.4rem;
+            padding: 0.7rem;
             border: 2px solid #ddd;
             border-radius: 6px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            box-sizing: border-box;
         }
         
-        input:focus, select:focus {
+        input:focus, select:focus, textarea:focus {
             border-color: var(--secondary);
             outline: none;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.2);
         }
         
-        .checkbox-group {
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .checkbox-group, .radio-group {
             display: flex;
             flex-direction: column;
-            margin-top: 0.5rem;
-            gap: 0.8rem;
+            margin-top: 0.4rem;
+            gap: 0.6rem;
         }
         
-        .checkbox-group label {
+        .checkbox-group label, .radio-group label {
             display: flex;
             align-items: center;
-            gap: 0.8rem;
-            padding: 0.8rem;
+            gap: 0.6rem;
+            padding: 0.7rem;
             background-color: var(--light);
             border-radius: 6px;
             margin-top: 0;
             font-weight: normal;
             cursor: pointer;
             transition: all 0.2s;
+            font-size: 0.9rem;
         }
         
-        .checkbox-group label:hover {
+        .checkbox-group label:hover, .radio-group label:hover {
             background-color: #dfe6e9;
-            transform: translateX(5px);
         }
         
-        .checkbox-group input[type="checkbox"] {
+        .checkbox-group input[type="checkbox"], 
+        .radio-group input[type="radio"] {
             width: auto;
             margin: 0;
-            transform: scale(1.3);
+            min-width: 18px;
+            min-height: 18px;
         }
         
         button {
-            margin-top: 2rem;
-            background: var(--primary);
+            margin-top: 1.5rem;
+            background: var(--whatsapp);
             color: white;
             border: none;
-            padding: 1rem;
+            padding: 0.9rem;
             border-radius: 6px;
             cursor: pointer;
             width: 100%;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: bold;
-            transition: all 0.3s;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -139,25 +146,19 @@
         }
         
         button:hover {
-            background: var(--secondary);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        button:active {
-            transform: translateY(0);
+            background: #128C7E;
         }
         
         .whatsapp-icon {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
         }
         
         footer {
             text-align: center;
-            margin-top: 3rem;
-            padding: 1.5rem;
+            margin-top: 2rem;
+            padding: 1rem;
             color: #7f8c8d;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
         
         .required::after {
@@ -165,21 +166,69 @@
             color: var(--accent);
         }
         
-        @media (max-width: 600px) {
-            .form-container {
+        .troco-container {
+            display: none;
+            margin-top: 0.5rem;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .payment-icon {
+            margin-right: 5px;
+            font-size: 1em;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Melhorias para telas maiores */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 600px;
+                padding: 1rem;
+            }
+            
+            header {
                 padding: 1.5rem;
+                margin-bottom: 2rem;
             }
             
             h1 {
-                font-size: 1.8rem;
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .form-container {
+                padding: 1.8rem;
+            }
+            
+            label {
+                font-size: 1rem;
+                margin-top: 1.5rem;
+            }
+            
+            input, select, textarea {
+                padding: 0.8rem;
+                font-size: 1rem;
+            }
+            
+            button {
+                padding: 1rem;
+                font-size: 1.1rem;
             }
         }
         
         /* Animação de loading */
         .loading {
             display: none;
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             border: 3px solid rgba(255,255,255,.3);
             border-radius: 50%;
             border-top-color: #fff;
@@ -203,27 +252,39 @@
                 <label for="nomeCliente" class="required">Seu nome completo:</label>
                 <input type="text" id="nomeCliente" required placeholder="Ex: João da Silva">
                 
-                <label for="telefone">Telefone para contato:</label>
-                <input type="tel" id="telefone" placeholder="(00) 00000-0000">
+                <label for="telefone" class="required">Telefone para contato:</label>
+                <input type="tel" id="telefone" required placeholder="(00) 00000-0000">
                 
                 <label class="required">Escolha os serviços:</label>
                 <div class="checkbox-group">
-                    <label><input type="checkbox" value="Corte de cabelo 💇‍♂️ (R$30)"> Corte de cabelo 💇‍♂️ (R$30)</label>
-                    <label><input type="checkbox" value="Barba 🧔 (R$20)"> Barba 🧔 (R$20)</label>
-                    <label><input type="checkbox" value="Combo Corte + Barba ✂️🧔 (R$45)"> Combo Corte + Barba ✂️🧔 (R$45)</label>
+                    <label><input type="checkbox" value="Corte de cabelo 💇‍♂️"> Corte de cabelo 💇‍♂️</label>
+                    <label><input type="checkbox" value="Barba 🧔"> Barba 🧔</label>
+                    <label><input type="checkbox" value="Combo Corte + Barba ✂️🧔"> Combo Corte + Barba ✂️🧔</label>
+                </div>
+                
+                <label class="required">Forma de pagamento:</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="pagamento" value="Dinheiro"> <i class="fas fa-money-bill-wave payment-icon"></i> Dinheiro</label>
+                    <label><input type="radio" name="pagamento" value="PIX"> <i class="fas fa-qrcode payment-icon"></i> PIX</label>
+                    <label><input type="radio" name="pagamento" value="Cartão"> <i class="fas fa-credit-card payment-icon"></i> Cartão</label>
+                </div>
+                
+                <div id="trocoField" class="troco-container">
+                    <label for="troco">Vai precisar de troco? Se sim, para quanto?</label>
+                    <input type="text" id="troco" placeholder="Ex: R$50,00">
                 </div>
                 
                 <label for="data" class="required">Data desejada:</label>
                 <input type="date" id="data" required min="">
                 
                 <label for="hora" class="required">Horário desejado:</label>
-                <input type="time" id="hora" required min="09:00" max="19:00" step="1800">
+                <input type="time" id="hora" required min="18:00" max="20:00" step="1800">
                 
                 <label for="observacoes">Observações ou preferências:</label>
                 <textarea id="observacoes" rows="3" placeholder="Ex: Quero um corte mais social"></textarea>
                 
                 <button type="button" onclick="enviarAgendamento()">
-                    <span class="whatsapp-icon">📲</span> Agendar via WhatsApp
+                    <i class="fab fa-whatsapp whatsapp-icon"></i> Agendar via WhatsApp
                     <span class="loading" id="loading"></span>
                 </button>
             </form>
@@ -256,21 +317,40 @@
             e.target.value = value.substring(0, 15);
         });
         
+        // Mostrar campo de troco se pagamento for em dinheiro
+        document.querySelectorAll('input[name="pagamento"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const trocoField = document.getElementById('trocoField');
+                if (this.value === 'Dinheiro') {
+                    trocoField.style.display = 'block';
+                } else {
+                    trocoField.style.display = 'none';
+                    document.getElementById('troco').value = '';
+                }
+            });
+        });
+        
         function enviarAgendamento() {
             const nome = document.getElementById('nomeCliente').value.trim();
             const telefone = document.getElementById('telefone').value.trim();
             const data = document.getElementById('data').value;
             const hora = document.getElementById('hora').value;
             const observacoes = document.getElementById('observacoes').value.trim();
+            const troco = document.getElementById('troco').value.trim();
+            
             const servicosSelecionados = Array.from(
                 document.querySelectorAll('.checkbox-group input[type="checkbox"]:checked')
             ).map(el => el.value);
             
+            const pagamentoSelecionado = document.querySelector('input[name="pagamento"]:checked');
+            
             // Validação dos campos obrigatórios
-            if (!nome || !data || !hora || servicosSelecionados.length === 0) {
-                alert('Por favor, preencha todos os campos obrigatórios (*) e selecione pelo menos um serviço.');
+            if (!nome || !telefone || !data || !hora || servicosSelecionados.length === 0 || !pagamentoSelecionado) {
+                alert('Por favor, preencha todos os campos obrigatórios (*) e selecione pelo menos um serviço e forma de pagamento.');
                 return;
             }
+            
+            const pagamento = pagamentoSelecionado.value;
             
             // Mostra o loading
             const btn = document.querySelector('button');
@@ -278,13 +358,13 @@
             btn.disabled = true;
             loading.style.display = 'inline-block';
             
-            // Simula um delay para melhor UX (pode remover em produção)
+            // Simula um delay para melhor UX
             setTimeout(() => {
                 const texto = 
-`💈 *NOVO AGENDAMENTO - BARBEARIA MODERNA* 💈
+`💈 *NOVO AGENDAMENTO - BARBEARIA COSTA* 💈
 
 👤 *Cliente:* ${nome}
-📞 *Telefone:* ${telefone || 'Não informado'}
+📞 *Telefone:* ${telefone}
 
 📅 *Data:* ${new Date(data).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
 ⏰ *Horário:* ${hora.substring(0, 5)}
@@ -292,12 +372,15 @@
 ✂️ *Serviços selecionados:*
 ${servicosSelecionados.map(s => `- ${s}`).join('\n')}
 
+💵 *Forma de pagamento:* ${pagamento}
+${pagamento === 'Dinheiro' && troco ? `🪙 *Troco para:* ${troco}` : ''}
+
 📝 *Observações:*
 ${observacoes || 'Nenhuma observação'}
 
 _Agendamento realizado via site em ${new Date().toLocaleDateString('pt-BR')}_`;
 
-                // Número do WhatsApp do barbeiro (substitua pelo número real)
+                // Número do WhatsApp do barbeiro
                 const numeroBarbeiro = '5535910140086';
                 const link = `https://wa.me/${numeroBarbeiro}?text=${encodeURIComponent(texto)}`;
                 
@@ -307,8 +390,9 @@ _Agendamento realizado via site em ${new Date().toLocaleDateString('pt-BR')}_`;
                 document.getElementById('formAgendamento').reset();
                 btn.disabled = false;
                 loading.style.display = 'none';
+                document.getElementById('trocoField').style.display = 'none';
                 
-            }, 1000); // Delay intencional para melhor UX
+            }, 800);
         }
     </script>
 </body>

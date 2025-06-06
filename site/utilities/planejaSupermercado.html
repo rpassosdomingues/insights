@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Compras Inteligente</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --primary-light: #a29bfe;
+            --secondary: #00b894;
+            --danger: #d63031;
+            --light: #f5f6fa;
+            --dark: #2d3436;
+            --gray: #636e72;
+            --white: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        @media (min-width: 768px) {
+            .app-container {
+                flex-direction: row;
+            }
+        }
+
+        .categories-section {
+            flex: 1;
+            background: var(--white);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .cart-section {
+            flex: 1;
+            background: var(--white);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .section-title i {
+            font-size: 1.3rem;
+        }
+
+        .category-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .category-tab {
+            padding: 8px 15px;
+            background: var(--light);
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+            color: var(--gray);
+        }
+
+        .category-tab.active {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .category-tab:hover:not(.active) {
+            background: var(--primary-light);
+            color: var(--white);
+        }
+
+        .category-content {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .category-content.active {
+            display: block;
+        }
+
+        .items-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .item-card {
+            background: var(--light);
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: var(--transition);
+            border-left: 4px solid var(--primary);
+        }
+
+        .item-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-name {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .item-price {
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .item-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary);
+            color: var(--white);
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .quantity-btn:hover {
+            background: var(--primary-light);
+            transform: scale(1.1);
+        }
+
+        .quantity-value {
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .add-to-cart-btn {
+            padding: 5px 10px;
+            background: var(--secondary);
+            color: var(--white);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .add-to-cart-btn:hover {
+            background: #00a884;
+            transform: translateY(-2px);
+        }
+
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 10px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .cart-item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .cart-item-name {
+            font-weight: 600;
+        }
+
+        .cart-item-quantity {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .cart-item-price {
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .remove-item-btn {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: var(--transition);
+        }
+
+        .remove-item-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .cart-summary {
+            border-top: 2px solid #eee;
+            padding-top: 15px;
+            margin-top: auto;
+        }
+
+        .total-price {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .total-label {
+            color: var(--dark);
+        }
+
+        .total-value {
+            color: var(--secondary);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 120px;
+        }
+
+        .action-btn i {
+            font-size: 1.1rem;
+        }
+
+        .whatsapp-btn {
+            background: #25D366;
+            color: white;
+        }
+
+        .whatsapp-btn:hover {
+            background: #128C7E;
+            transform: translateY(-2px);
+        }
+
+        .export-btn {
+            background: var(--primary);
+            color: white;
+        }
+
+        .export-btn:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .clear-btn {
+            background: var(--danger);
+            color: white;
+        }
+
+        .clear-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--gray);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .empty-cart i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--primary-light);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .items-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .action-btn {
+                width: 100%;
+            }
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 5px;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .toast i {
+            font-size: 1.2rem;
+        }
+
+        .toast.success {
+            background: var(--secondary);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-shopping-cart"></i> Lista de Compras Inteligente</h1>
+            <p class="subtitle">Planeje suas compras, economize tempo e dinheiro</p>
+        </header>
+
+        <div class="app-container">
+            <section class="categories-section">
+                <h2 class="section-title"><i class="fas fa-store"></i> Seções do Supermercado</h2>
+                
+                <div class="category-tabs">
+                    <button class="category-tab active" data-category="hortifruti">🥦 Hortifrúti</button>
+                    <button class="category-tab" data-category="acougue">🍗 Açougue</button>
+                    <button class="category-tab" data-category="laticinios">🧀 Laticínios</button>
+                    <button class="category-tab" data-category="mercearia">🍚 Mercearia</button>
+                    <button class="category-tab" data-category="bebidas">🥤 Bebidas</button>
+                    <button class="category-tab" data-category="limpeza">🧼 Limpeza</button>
+                    <button class="category-tab" data-category="higiene">🧴 Higiene</button>
+                </div>
+
+                <div class="category-content active" id="hortifruti">
+                    <div class="items-list">
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Tomate</span>
+                                <span class="item-price">R$ 8,99/kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Tomate">-</button>
+                                    <span class="quantity-value" data-item="Tomate">0</span>
+                                    <button class="quantity-btn plus" data-item="Tomate">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Tomate" data-price="8.99" data-unit="kg">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Alface</span>
+                                <span class="item-price">R$ 2,50/un</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Alface">-</button>
+                                    <span class="quantity-value" data-item="Alface">0</span>
+                                    <button class="quantity-btn plus" data-item="Alface">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Alface" data-price="2.50" data-unit="un">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Cenoura</span>
+                                <span class="item-price">R$ 3,99/kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Cenoura">-</button>
+                                    <span class="quantity-value" data-item="Cenoura">0</span>
+                                    <button class="quantity-btn plus" data-item="Cenoura">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Cenoura" data-price="3.99" data-unit="kg">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Banana</span>
+                                <span class="item-price">R$ 5,99/kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Banana">-</button>
+                                    <span class="quantity-value" data-item="Banana">0</span>
+                                    <button class="quantity-btn plus" data-item="Banana">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Banana" data-price="5.99" data-unit="kg">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Maçã</span>
+                                <span class="item-price">R$ 7,50/kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Maçã">-</button>
+                                    <span class="quantity-value" data-item="Maçã">0</span>
+                                    <button class="quantity-btn plus" data-item="Maçã">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Maçã" data-price="7.50" data-unit="kg">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Batata</span>
+                                <span class="item-price">R$ 4,29/kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Batata">-</button>
+                                    <span class="quantity-value" data-item="Batata">0</span>
+                                    <button class="quantity-btn plus" data-item="Batata">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Batata" data-price="4.29" data-unit="kg">Adicionar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="category-content" id="acougue">
+                    <div class="items-list">
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Peito de Frango</span>
+                                <span class="item-price">R$ 16,90/kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Peito de Frango">-</button>
+                                    <span class="quantity-value" data-item="Peito de Frango">0</span>
+                                    <button class="quantity-btn plus" data-item="Peito de Frango">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Peito de Frango" data-price="16.90" data-unit="kg">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Carne Moída</span>
+                                <span class="item-price">R$ 28,50/kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Carne Moída">-</button>
+                                    <span class="quantity-value" data-item="Carne Moída">0</span>
+                                    <button class="quantity-btn plus" data-item="Carne Moída">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Carne Moída" data-price="28.50" data-unit="kg">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Coxa de Frango</span>
+                                <span class="item-price">R$ 12,90/kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Coxa de Frango">-</button>
+                                    <span class="quantity-value" data-item="Coxa de Frango">0</span>
+                                    <button class="quantity-btn plus" data-item="Coxa de Frango">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Coxa de Frango" data-price="12.90" data-unit="kg">Adicionar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="category-content" id="laticinios">
+                    <div class="items-list">
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Leite</span>
+                                <span class="item-price">R$ 4,89/L</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Leite">-</button>
+                                    <span class="quantity-value" data-item="Leite">0</span>
+                                    <button class="quantity-btn plus" data-item="Leite">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Leite" data-price="4.89" data-unit="L">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Queijo Mussarela</span>
+                                <span class="item-price">R$ 28,90/kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Queijo Mussarela">-</button>
+                                    <span class="quantity-value" data-item="Queijo Mussarela">0</span>
+                                    <button class="quantity-btn plus" data-item="Queijo Mussarela">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Queijo Mussarela" data-price="28.90" data-unit="kg">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Iogurte Natural</span>
+                                <span class="item-price">R$ 6,50/un</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Iogurte Natural">-</button>
+                                    <span class="quantity-value" data-item="Iogurte Natural">0</span>
+                                    <button class="quantity-btn plus" data-item="Iogurte Natural">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Iogurte Natural" data-price="6.50" data-unit="un">Adicionar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="category-content" id="mercearia">
+                    <div class="items-list">
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Arroz</span>
+                                <span class="item-price">R$ 22,90/5kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Arroz">-</button>
+                                    <span class="quantity-value" data-item="Arroz">0</span>
+                                    <button class="quantity-btn plus" data-item="Arroz">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Arroz" data-price="22.90" data-unit="5kg">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Feijão</span>
+                                <span class="item-price">R$ 8,90/kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Feijão">-</button>
+                                    <span class="quantity-value" data-item="Feijão">0</span>
+                                    <button class="quantity-btn plus" data-item="Feijão">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Feijão" data-price="8.90" data-unit="kg">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Açúcar</span>
+                                <span class="item-price">R$ 4,29/kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Açúcar">-</button>
+                                    <span class="quantity-value" data-item="Açúcar">0</span>
+                                    <button class="quantity-btn plus" data-item="Açúcar">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Açúcar" data-price="4.29" data-unit="kg">Adicionar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="category-content" id="bebidas">
+                    <div class="items-list">
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Água Mineral</span>
+                                <span class="item-price">R$ 2,50/1,5L</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Água Mineral">-</button>
+                                    <span class="quantity-value" data-item="Água Mineral">0</span>
+                                    <button class="quantity-btn plus" data-item="Água Mineral">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Água Mineral" data-price="2.50" data-unit="1,5L">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Suco de Laranja</span>
+                                <span class="item-price">R$ 8,90/L</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Suco de Laranja">-</button>
+                                    <span class="quantity-value" data-item="Suco de Laranja">0</span>
+                                    <button class="quantity-btn plus" data-item="Suco de Laranja">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Suco de Laranja" data-price="8.90" data-unit="L">Adicionar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="category-content" id="limpeza">
+                    <div class="items-list">
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Detergente</span>
+                                <span class="item-price">R$ 2,99/un</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Detergente">-</button>
+                                    <span class="quantity-value" data-item="Detergente">0</span>
+                                    <button class="quantity-btn plus" data-item="Detergente">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Detergente" data-price="2.99" data-unit="un">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Sabão em Pó</span>
+                                <span class="item-price">R$ 15,90/1kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Sabão em Pó">-</button>
+                                    <span class="quantity-value" data-item="Sabão em Pó">0</span>
+                                    <button class="quantity-btn plus" data-item="Sabão em Pó">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Sabão em Pó" data-price="15.90" data-unit="1kg">Adicionar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="category-content" id="higiene">
+                    <div class="items-list">
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Sabonete</span>
+                                <span class="item-price">R$ 1,99/un</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Sabonete">-</button>
+                                    <span class="quantity-value" data-item="Sabonete">0</span>
+                                    <button class="quantity-btn plus" data-item="Sabonete">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Sabonete" data-price="1.99" data-unit="un">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Shampoo</span>
+                                <span class="item-price">R$ 12,90/350ml</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Shampoo">-</button>
+                                    <span class="quantity-value" data-item="Shampoo">0</span>
+                                    <button class="quantity-btn plus" data-item="Shampoo">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Shampoo" data-price="12.90" data-unit="350ml">Adicionar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="cart-section">
+                <h2 class="section-title"><i class="fas fa-shopping-basket"></i> Meu Carrinho</h2>
+                
+                <div class="cart-items" id="cart-items">
+                    <div class="empty-cart">
+                        <i class="fas fa-shopping-basket"></i>
+                        <p>Seu carrinho está vazio</p>
+                        <p>Adicione itens para começar</p>
+                    </div>
+                </div>
+                
+                <div class="cart-summary">
+                    <div class="total-price">
+                        <span class="total-label">Total Estimado:</span>
+                        <span class="total-value" id="total-price">R$ 0,00</span>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="action-btn whatsapp-btn" id="whatsapp-btn" disabled>
+                            <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
+                        </button>
+                        <button class="action-btn export-btn" id="export-btn" disabled>
+                            <i class="fas fa-image"></i> Exportar Imagem
+                        </button>
+                        <button class="action-btn clear-btn" id="clear-btn" disabled>
+                            <i class="fas fa-trash"></i> Limpar Tudo
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message">Item adicionado ao carrinho!</span>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Variáveis globais
+            const cart = {};
+            let total = 0;
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            
+            // Elementos do DOM
+            const categoryTabs = document.querySelectorAll('.category-tab');
+            const categoryContents = document.querySelectorAll('.category-content');
+            const cartItemsContainer = document.getElementById('cart-items');
+            const totalPriceElement = document.getElementById('total-price');
+            const whatsappBtn = document.getElementById('whatsapp-btn');
+            const exportBtn = document.getElementById('export-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            
+            // Event Listeners
+            categoryTabs.forEach(tab => {
+                tab.addEventListener('click', switchCategory);
+            });
+            
+            document.querySelectorAll('.quantity-btn.plus').forEach(btn => {
+                btn.addEventListener('click', increaseQuantity);
+            });
+            
+            document.querySelectorAll('.quantity-btn.minus').forEach(btn => {
+                btn.addEventListener('click', decreaseQuantity);
+            });
+            
+            document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+                btn.addEventListener('click', addToCart);
+            });
+            
+            whatsappBtn.addEventListener('click', shareViaWhatsApp);
+            exportBtn.addEventListener('click', exportAsImage);
+            clearBtn.addEventListener('click', clearCart);
+            
+            // Funções
+            function switchCategory(e) {
+                const category = e.target.dataset.category;
+                
+                // Atualiza as abas
+                categoryTabs.forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                e.target.classList.add('active');
+                
+                // Atualiza os conteúdos
+                categoryContents.forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(category).classList.add('active');
+            }
+            
+            function increaseQuantity(e) {
+                const itemName = e.target.dataset.item;
+                const quantityElement = document.querySelector(`.quantity-value[data-item="${itemName}"]`);
+                let quantity = parseInt(quantityElement.textContent);
+                quantityElement.textContent = quantity + 1;
+            }
+            
+            function decreaseQuantity(e) {
+                const itemName = e.target.dataset.item;
+                const quantityElement = document.querySelector(`.quantity-value[data-item="${itemName}"]`);
+                let quantity = parseInt(quantityElement.textContent);
+                if (quantity > 0) {
+                    quantityElement.textContent = quantity - 1;
+                }
+            }
+            
+            function addToCart(e) {
+                const itemName = e.target.dataset.item;
+                const itemPrice = parseFloat(e.target.dataset.price);
+                const itemUnit = e.target.dataset.unit;
+                const quantityElement = document.querySelector(`.quantity-value[data-item="${itemName}"]`);
+                let quantity = parseInt(quantityElement.textContent);
+                
+                if (quantity <= 0) {
+                    showToast('Selecione uma quantidade maior que zero', 'error');
+                    return;
+                }
+                
+                if (cart[itemName]) {
+                    cart[itemName].quantity += quantity;
+                    cart[itemName].totalPrice = cart[itemName].quantity * itemPrice;
+                } else {
+                    cart[itemName] = {
+                        name: itemName,
+                        price: itemPrice,
+                        unit: itemUnit,
+                        quantity: quantity,
+                        totalPrice: quantity * itemPrice
+                    };
+                }
+                
+                total += quantity * itemPrice;
+                updateCart();
+                quantityElement.textContent = 0;
+                showToast(`${quantity}x ${itemName} adicionado ao carrinho!`, 'success');
+            }
+            
+            function updateCart() {
+                if (Object.keys(cart).length === 0) {
+                    cartItemsContainer.innerHTML = `
+                        <div class="empty-cart">
+                            <i class="fas fa-shopping-basket"></i>
+                            <p>Seu carrinho está vazio</p>
+                            <p>Adicione itens para começar</p>
+                        </div>
+                    `;
+                    whatsappBtn.disabled = true;
+                    exportBtn.disabled = true;
+                    clearBtn.disabled = true;
+                } else {
+                    cartItemsContainer.innerHTML = '';
+                    for (const item in cart) {
+                        const cartItem = cart[item];
+                        const itemElement = document.createElement('div');
+                        itemElement.className = 'cart-item';
+                        itemElement.innerHTML = `
+                            <div class="cart-item-info">
+                                <span class="cart-item-name">${cartItem.name}</span>
+                                <span class="cart-item-quantity">${cartItem.quantity} ${cartItem.unit}</span>
+                            </div>
+                            <div class="cart-item-price">R$ ${cartItem.totalPrice.toFixed(2)}</div>
+                            <button class="remove-item-btn" data-item="${cartItem.name}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        `;
+                        cartItemsContainer.appendChild(itemElement);
+                    }
+                    
+                    // Adiciona event listeners aos botões de remover
+                    document.querySelectorAll('.remove-item-btn').forEach(btn => {
+                        btn.addEventListener('click', removeItemFromCart);
+                    });
+                    
+                    whatsappBtn.disabled = false;
+                    exportBtn.disabled = false;
+                    clearBtn.disabled = false;
+                }
+                
+                totalPriceElement.textContent = `R$ ${total.toFixed(2)}`;
+            }
+            
+            function removeItemFromCart(e) {
+                const itemName = e.currentTarget.dataset.item;
+                total -= cart[itemName].totalPrice;
+                delete cart[itemName];
+                updateCart();
+                showToast('Item removido do carrinho', 'error');
+            }
+            
+            function clearCart() {
+                for (const item in cart) {
+                    delete cart[item];
+                }
+                total = 0;
+                updateCart();
+                showToast('Carrinho limpo', 'error');
+            }
+            
+            function shareViaWhatsApp() {
+                let message = '📋 *Lista de Compras* 📋\n\n';
+                
+                // Agrupa por categoria (simplificado)
+                message += '🛒 *Itens do Supermercado*:\n';
+                for (const item in cart) {
+                    const cartItem = cart[item];
+                    message += `✔ ${cartItem.name} - ${cartItem.quantity} ${cartItem.unit} - R$ ${cartItem.totalPrice.toFixed(2)}\n`;
+                }
+                
+                message += `\n💰 *Total Estimado: R$ ${total.toFixed(2)}*`;
+                
+                const encodedMessage = encodeURIComponent(message);
+                window.open(`https://wa.me/?text=${encodedMessage}`);
+            }
+            
+            function exportAsImage() {
+                // Esta função seria mais complexa na implementação real
+                // Aqui está uma versão simplificada que copia o texto
+                const range = document.createRange();
+                range.selectNode(cartItemsContainer);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                window.getSelection().removeAllRanges();
+                
+                showToast('Lista copiada para a área de transferência!', 'success');
+            }
+            
+            function showToast(message, type) {
+                toastMessage.textContent = message;
+                toast.className = 'toast';
+                toast.classList.add(type);
+                toast.classList.add('show');
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>
