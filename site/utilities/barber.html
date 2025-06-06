@@ -1,10 +1,17 @@
+<!--
+ * --------------------------------------------------------------
+ * Author: Rafael Passos Domingues
+ * Last Update: 2025 June 6
+ * --------------------------------------------------------------
+-->
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Agendamento online para Barbearia Costa - Corte de cabelo, barba e serviços completos">
-    <title>💈 Barbearia Costa - Agendamento Online</title>
+    <meta name="description" content="Agendamento online para Barbearia App - Corte de cabelo, barba e serviços completos">
+    <title>💈 Barbearia App - Agendamento Online</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -31,7 +38,7 @@
         .container {
             max-width: 100%;
             margin: 0 auto;
-            padding: 0 0.5rem;
+            padding: 0 0.49rem;
         }
         
         header {
@@ -243,7 +250,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>💈 Barbearia Costa</h1>
+            <h1>💈 Barbearia App</h1>
             <p class="subtitle">Elevando a autoestima</p>
         </header>
         
@@ -292,7 +299,7 @@
     </div>
     
     <footer>
-        <p>Barbearia Costa &copy; <span id="year"></span> - Todos os direitos reservados</p>
+        <p>Barbearia App &copy; <span id="year"></span> - Todos os direitos reservados</p>
         <p>Horário de funcionamento: Segunda a Sexta, das 18h às 20h</p>
     </footer>
 
@@ -361,7 +368,7 @@
             // Simula um delay para melhor UX
             setTimeout(() => {
                 const texto = 
-`💈 *NOVO AGENDAMENTO - BARBEARIA COSTA* 💈
+`💈 *NOVO AGENDAMENTO - BARBEARIA App* 💈
 
 👤 *Cliente:* ${nome}
 📞 *Telefone:* ${telefone}
@@ -381,8 +388,9 @@ ${observacoes || 'Nenhuma observação'}
 _Agendamento realizado via site em ${new Date().toLocaleDateString('pt-BR')}_`;
 
                 // Número do WhatsApp do barbeiro
-                const numeroBarbeiro = '5535910140086';
-                const link = `https://wa.me/${numeroBarbeiro}?text=${encodeURIComponent(texto)}`;
+                // const numeroBarbeiro = '55359';
+                //const link = `https://wa.me/${numeroBarbeiro}?text=${encodeURIComponent(texto)}`;
+                const link = `https://wa.me/?text=${encodeURIComponent(texto)}`;
                 
                 window.open(link, '_blank');
                 
