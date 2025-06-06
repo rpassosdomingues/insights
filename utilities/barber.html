@@ -10,11 +10,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Agendamento premium para Barbearia App - Corte de cabelo, barba e serviços completos">
+    <meta name="description" content="Sistema de agendamento premium para Barbearia - Corte de cabelo, barba e serviços completos">
     <title>💈 Barbearia Premium - Agendamento Inteligente</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css">
     <style>
         :root {
             --primary: #2c3e50;
@@ -24,6 +23,7 @@
             --dark: #2c3e50;
             --success: #27ae60;
             --whatsapp: #25D366;
+            --warning: #f39c12;
             --bg-color: #f5f7fa;
             --text-color: #2c3e50;
             --card-bg: #ffffff;
@@ -44,10 +44,10 @@
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
-            background: linear-gradient(135deg, var(--bg-color) 0%, var(--card-bg) 100%);
+            font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-color);
             margin: 0;
-            padding: 0.5rem;
+            padding: 0;
             color: var(--text-color);
             line-height: 1.6;
             min-height: 100vh;
@@ -57,7 +57,8 @@
         .container {
             max-width: 100%;
             margin: 0 auto;
-            padding: 0 0.49rem;
+            padding: 0.5rem;
+            box-sizing: border-box;
         }
 
         header {
@@ -65,9 +66,10 @@
             margin-bottom: 1.5rem;
             padding: 1rem;
             background-color: rgba(var(--card-bg), 0.95);
-            border-radius: 8px;
+            border-radius: 12px;
             box-shadow: var(--shadow);
             position: relative;
+            border: 1px solid var(--border-color);
         }
 
         .header-content {
@@ -81,14 +83,25 @@
 
         .theme-toggle {
             position: absolute;
-            top: 1rem; /* ajusta a posição a partir do topo */
-            right: 1rem; /* ajusta a posição a partir da direita */
+            top: 1rem;
+            right: 1rem;
             background: none;
             border: none;
             color: var(--text-color);
             cursor: pointer;
             font-size: 1.2rem;
             padding: 0.5rem;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .theme-toggle:hover {
+            background-color: rgba(var(--primary), 0.1);
         }
 
         h1 {
@@ -98,29 +111,33 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            font-weight: 700;
         }
 
         .subtitle {
             color: var(--secondary);
             font-size: 1rem;
             margin-top: 0.5rem;
+            font-weight: 500;
         }
 
         .tab-container {
             display: flex;
-            margin-bottom: 1rem;
-            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-radius: 12px;
             overflow: hidden;
             background-color: var(--light);
+            box-shadow: var(--shadow);
         }
 
         .tab {
             flex: 1;
-            padding: 0.8rem;
+            padding: 1rem;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
             font-weight: 600;
+            font-size: 0.95rem;
         }
 
         .tab.active {
@@ -130,22 +147,23 @@
 
         .form-container, .agenda-container {
             background: var(--card-bg);
-            padding: 1.2rem;
-            border-radius: 10px;
-            max-width: 500px;
-            margin: 0 auto 1.5rem;
+            padding: 1.5rem;
+            border-radius: 12px;
+            max-width: 600px;
+            margin: 0 auto 2rem;
             box-shadow: var(--shadow);
             display: none;
+            border: 1px solid var(--border-color);
         }
 
         .form-container.active, .agenda-container.active {
             display: block;
-            animation: fadeIn 0.5s ease-out;
+            animation: fadeIn 0.4s ease-out;
         }
 
         label {
             display: block;
-            margin-top: 1.2rem;
+            margin-top: 1.5rem;
             font-weight: 600;
             color: var(--primary);
             font-size: 0.95rem;
@@ -153,15 +171,16 @@
 
         input, select, textarea {
             width: 100%;
-            margin-top: 0.4rem;
-            padding: 0.7rem;
+            margin-top: 0.5rem;
+            padding: 0.9rem;
             border: 2px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 0.95rem;
+            border-radius: 8px;
+            font-size: 1rem;
             transition: all 0.2s;
             box-sizing: border-box;
             background-color: var(--input-bg);
             color: var(--text-color);
+            font-family: inherit;
         }
 
         input:focus, select:focus, textarea:focus {
@@ -171,15 +190,21 @@
         }
 
         textarea {
-            min-height: 80px;
+            min-height: 100px;
             resize: vertical;
         }
 
         .service-category {
-            margin-top: 1rem;
+            margin-top: 1.5rem;
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 0.5rem;
+            border-radius: 10px;
+            padding: 0.8rem;
+            background-color: rgba(var(--primary), 0.03);
+            transition: all 0.2s;
+        }
+
+        .service-category:hover {
+            border-color: var(--primary);
         }
 
         .service-category-title {
@@ -190,80 +215,101 @@
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .service-category-title:hover {
+            background-color: rgba(var(--primary), 0.1);
         }
 
         .service-category-content {
             display: none;
             margin-top: 0.5rem;
+            padding: 0.5rem;
         }
 
         .service-category.active .service-category-content {
             display: block;
+            animation: fadeIn 0.3s ease-out;
         }
 
         .checkbox-group, .radio-group {
             display: flex;
             flex-direction: column;
-            margin-top: 0.4rem;
-            gap: 0.6rem;
+            margin-top: 0.5rem;
+            gap: 0.8rem;
         }
 
         .checkbox-group label, .radio-group label {
             display: flex;
             align-items: center;
-            gap: 0.6rem;
-            padding: 0.7rem;
+            gap: 0.8rem;
+            padding: 0.9rem;
             background-color: var(--light);
-            border-radius: 6px;
+            border-radius: 8px;
             margin-top: 0;
             font-weight: normal;
             cursor: pointer;
             transition: all 0.2s;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
+            border: 1px solid var(--border-color);
         }
 
         .checkbox-group label:hover, .radio-group label:hover {
-            background-color: var(--border-color);
+            background-color: rgba(var(--primary), 0.1);
+            border-color: var(--primary);
         }
 
         .checkbox-group input[type="checkbox"], 
         .radio-group input[type="radio"] {
-            width: auto;
+            width: 20px;
+            height: 20px;
             margin: 0;
-            min-width: 18px;
-            min-height: 18px;
+            min-width: 20px;
+            min-height: 20px;
+            accent-color: var(--primary);
         }
 
         button {
-            margin-top: 1.5rem;
+            margin-top: 2rem;
             background: var(--whatsapp);
             color: white;
             border: none;
-            padding: 0.9rem;
-            border-radius: 6px;
+            padding: 1.1rem;
+            border-radius: 8px;
             cursor: pointer;
             width: 100%;
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: bold;
             transition: all 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
+            gap: 0.8rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         button:hover {
             background: #128C7E;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .whatsapp-icon {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
         }
 
         footer {
             text-align: center;
-            margin-top: 2rem;
-            padding: 1rem;
+            margin-top: 3rem;
+            padding: 1.5rem;
             color: var(--text-color);
             font-size: 0.85rem;
             opacity: 0.8;
@@ -276,7 +322,7 @@
 
         .troco-container {
             display: none;
-            margin-top: 0.5rem;
+            margin-top: 1rem;
             animation: fadeIn 0.3s ease-out;
         }
 
@@ -286,10 +332,11 @@
         }
 
         .payment-icon {
-            margin-right: 5px;
-            font-size: 1em;
-            width: 20px;
+            margin-right: 8px;
+            font-size: 1.1em;
+            width: 24px;
             text-align: center;
+            color: var(--primary);
         }
 
         /* Agenda styles */
@@ -297,65 +344,115 @@
             display: flex;
             justify-content: center;
             gap: 0.5rem;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             flex-wrap: wrap;
         }
 
         .agenda-view-option {
-            padding: 0.5rem 1rem;
+            padding: 0.7rem 1.2rem;
             background-color: var(--light);
-            border-radius: 20px;
+            border-radius: 24px;
             cursor: pointer;
             font-size: 0.9rem;
             transition: all 0.2s;
+            border: 1px solid var(--border-color);
+            font-weight: 500;
+        }
+
+        .agenda-view-option:hover {
+            background-color: rgba(var(--primary), 0.1);
+            border-color: var(--primary);
         }
 
         .agenda-view-option.active {
             background-color: var(--primary);
             color: white;
+            border-color: var(--primary);
+        }
+
+        .calendar-container {
+            margin-bottom: 2rem;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .calendar-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .calendar-nav-button {
+            background: var(--light);
+            border: none;
+            border-radius: 6px;
+            padding: 0.5rem 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .calendar-nav-button:hover {
+            background: rgba(var(--primary), 0.1);
         }
 
         .calendar {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 1rem;
+            table-layout: fixed;
         }
 
         .calendar th {
-            padding: 0.5rem;
+            padding: 0.8rem 0.5rem;
             text-align: center;
-            background-color: var(--light);
-            font-weight: bold;
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 0.9rem;
         }
 
         .calendar td {
-            padding: 0.5rem;
+            padding: 0.8rem 0.5rem;
             text-align: center;
             border: 1px solid var(--border-color);
-            height: 40px;
+            height: 45px;
             cursor: pointer;
             transition: all 0.2s;
+            position: relative;
+            font-weight: 500;
         }
 
         .calendar td:hover {
-            background-color: var(--light);
+            background-color: rgba(var(--primary), 0.1);
         }
 
         .calendar td.today {
-            background-color: var(--primary);
-            color: white;
+            background-color: rgba(var(--primary), 0.1);
             font-weight: bold;
+            color: var(--primary);
         }
 
         .calendar td.selected {
             background-color: var(--secondary);
             color: white;
+            font-weight: bold;
         }
 
         .calendar td.disabled {
-            opacity: 0.5;
+            opacity: 0.4;
             cursor: not-allowed;
-            background-color: var(--border-color);
+            background-color: var(--light);
         }
 
         .calendar td.has-appointments {
@@ -365,7 +462,7 @@
         .calendar td.has-appointments::after {
             content: '';
             position: absolute;
-            bottom: 3px;
+            bottom: 5px;
             left: 50%;
             transform: translateX(-50%);
             width: 6px;
@@ -374,43 +471,68 @@
             background-color: var(--secondary);
         }
 
+        .time-slots-container {
+            margin-top: 1.5rem;
+        }
+
+        .time-slots-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .time-slots-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+
         .time-slots {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 0.5rem;
-            margin-top: 1rem;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 0.8rem;
         }
 
         .time-slot {
-            padding: 0.7rem;
+            padding: 0.9rem;
             text-align: center;
             background-color: var(--light);
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
+            font-weight: 500;
+            border: 1px solid var(--border-color);
         }
 
         .time-slot:hover {
-            background-color: var(--secondary);
-            color: white;
+            background-color: rgba(var(--secondary), 0.1);
+            border-color: var(--secondary);
+            color: var(--secondary);
         }
 
         .time-slot.booked {
-            background-color: var(--border-color);
-            opacity: 0.6;
+            background-color: var(--light);
+            opacity: 0.5;
             cursor: not-allowed;
+            text-decoration: line-through;
         }
 
         .time-slot.selected {
             background-color: var(--secondary);
             color: white;
             font-weight: bold;
+            border-color: var(--secondary);
+        }
+
+        .time-slot.unavailable {
+            display: none;
         }
 
         .loading {
             display: none;
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             border: 3px solid rgba(255,255,255,.3);
             border-radius: 50%;
             border-top-color: #fff;
@@ -428,14 +550,17 @@
             right: 20px;
             background-color: var(--success);
             color: white;
-            padding: 1rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.2rem;
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
             transform: translateY(100px);
             opacity: 0;
             transition: all 0.3s ease;
             z-index: 1000;
-            max-width: 300px;
+            max-width: 320px;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
         }
 
         .notification.show {
@@ -443,20 +568,54 @@
             opacity: 1;
         }
 
+        .notification-icon {
+            font-size: 1.4rem;
+        }
+
+        .notification.error {
+            background-color: var(--accent);
+        }
+
+        .notification.warning {
+            background-color: var(--warning);
+        }
+
+        /* Progress bar */
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background-color: rgba(255,255,255,0.3);
+            border-radius: 3px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: white;
+            width: 100%;
+            animation: progress 3s linear forwards;
+        }
+
+        @keyframes progress {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+
         /* Melhorias para telas maiores */
         @media (min-width: 768px) {
             .container {
                 max-width: 800px;
-                padding: 1rem;
+                padding: 1.5rem;
             }
             
             header {
-                padding: 1.5rem;
+                padding: 1.8rem;
                 margin-bottom: 2rem;
             }
             
             h1 {
-                font-size: 2rem;
+                font-size: 2.2rem;
             }
             
             .subtitle {
@@ -464,26 +623,33 @@
             }
             
             .form-container, .agenda-container {
-                padding: 1.8rem;
+                padding: 2rem;
+                border-radius: 16px;
             }
             
             label {
-                font-size: 1rem;
-                margin-top: 1.5rem;
+                font-size: 1.05rem;
+                margin-top: 1.8rem;
             }
             
             input, select, textarea {
-                padding: 0.8rem;
-                font-size: 1rem;
+                padding: 1rem;
+                font-size: 1.05rem;
             }
             
             button {
-                padding: 1rem;
-                font-size: 1.1rem;
+                padding: 1.2rem;
+                font-size: 1.15rem;
             }
 
             .time-slots {
                 grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 1rem;
+            }
+
+            .tab {
+                padding: 1.2rem;
+                font-size: 1.05rem;
             }
         }
 
@@ -493,30 +659,40 @@
             }
             
             .theme-toggle {
-                right: 0.5rem;
+                right: 0.8rem;
+                top: 0.8rem;
             }
             
             h1 {
-                font-size: 1.5rem;
+                font-size: 1.6rem;
             }
             
             .tab {
-                padding: 0.6rem;
+                padding: 0.8rem;
                 font-size: 0.9rem;
             }
             
             .agenda-view-options {
-                gap: 0.3rem;
+                gap: 0.5rem;
             }
             
             .agenda-view-option {
-                padding: 0.4rem 0.8rem;
-                font-size: 0.8rem;
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
             }
             
             .calendar th, .calendar td {
-                padding: 0.3rem;
-                font-size: 0.8rem;
+                padding: 0.6rem 0.3rem;
+                font-size: 0.85rem;
+            }
+
+            .service-category-title {
+                font-size: 0.95rem;
+            }
+
+            .checkbox-group label, .radio-group label {
+                padding: 0.8rem;
+                font-size: 0.9rem;
             }
         }
     </style>
@@ -550,65 +726,68 @@
                 
                 <div class="service-category active" id="corte-cabelo">
                     <div class="service-category-title" onclick="toggleServiceCategory('corte-cabelo')">
-                        <span>💇‍♂️ Corte de Cabelo</span>
+                        <span><i class="fas fa-cut"></i> Corte de Cabelo</span>
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="service-category-content">
                         <div class="checkbox-group">
-                            <label><input type="checkbox" name="servicos" value="Corte Social ✂️ - R$40"> Corte Social ✂️ - R$40</label>
-                            <label><input type="checkbox" name="servicos" value="Corte Degradê 🔥 - R$45"> Corte Degradê 🔥 - R$45</label>
-                            <label><input type="checkbox" name="servicos" value="Corte Militar 💂 - R$35"> Corte Militar 💂 - R$35</label>
-                            <label><input type="checkbox" name="servicos" value="Corte Pompadour 👨‍🎤 - R$50"> Corte Pompadour 👨‍🎤 - R$50</label>
-                            <label><input type="checkbox" name="servicos" value="Corte Undercut ⚡ - R$55"> Corte Undercut ⚡ - R$55</label>
+                            <label><input type="checkbox" name="servicos" value="Corte Social ✂️ - R$40"> <i class="fas fa-cut"></i> Corte Social ✂️ - R$40 (30 min)</label>
+                            <label><input type="checkbox" name="servicos" value="Corte Degradê 🔥 - R$45"> <i class="fas fa-fire"></i> Corte Degradê 🔥 - R$45 (40 min)</label>
+                            <label><input type="checkbox" name="servicos" value="Corte Militar 💂 - R$35"> <i class="fas fa-hat-cowboy"></i> Corte Militar 💂 - R$35 (25 min)</label>
+                            <label><input type="checkbox" name="servicos" value="Corte Pompadour 👨‍🎤 - R$50"> <i class="fas fa-music"></i> Corte Pompadour 👨‍🎤 - R$50 (45 min)</label>
+                            <label><input type="checkbox" name="servicos" value="Corte Undercut ⚡ - R$55"> <i class="fas fa-bolt"></i> Corte Undercut ⚡ - R$55 (50 min)</label>
                         </div>
                     </div>
                 </div>
                 
                 <div class="service-category" id="barba">
                     <div class="service-category-title" onclick="toggleServiceCategory('barba')">
-                        <span>🧔 Barba</span>
+                        <span><i class="fas fa-user"></i> Barba</span>
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="service-category-content">
                         <div class="checkbox-group">
-                            <label><input type="checkbox" name="servicos" value="Barba Tradicional ✂️ - R$30"> Barba Tradicional ✂️ - R$30</label>
-                            <label><input type="checkbox" name="servicos" value="Barba Desenhada 🎨 - R$40"> Barba Desenhada 🎨 - R$40</label>
-                            <label><input type="checkbox" name="servicos" value="Barba Navalha 🪒 - R$35"> Barba Navalha 🪒 - R$35</label>
-                            <label><input type="checkbox" name="servicos" value="Hidratação de Barba 💧 - R$25"> Hidratação de Barba 💧 - R$25</label>
+                            <label><input type="checkbox" name="servicos" value="Barba Tradicional ✂️ - R$30"> <i class="fas fa-cut"></i> Barba Tradicional ✂️ - R$30 (20 min)</label>
+                            <label><input type="checkbox" name="servicos" value="Barba Desenhada 🎨 - R$40"> <i class="fas fa-paint-brush"></i> Barba Desenhada 🎨 - R$40 (30 min)</label>
+                            <label><input type="checkbox" name="servicos" value="Barba Navalha 🪒 - R$35"> <i class="fas fa-cut"></i> Barba Navalha 🪒 - R$35 (25 min)</label>
+                            <label><input type="checkbox" name="servicos" value="Hidratação de Barba 💧 - R$25"> <i class="fas fa-spa"></i> Hidratação de Barba 💧 - R$25 (15 min)</label>
                         </div>
                     </div>
                 </div>
                 
                 <div class="service-category" id="combos">
                     <div class="service-category-title" onclick="toggleServiceCategory('combos')">
-                        <span>✨ Combos</span>
+                        <span><i class="fas fa-star"></i> Combos</span>
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="service-category-content">
                         <div class="checkbox-group">
-                            <label><input type="checkbox" name="servicos" value="Combo Corte + Barba ✂️🧔 - R$60"> Combo Corte + Barba ✂️🧔 - R$60</label>
-                            <label><input type="checkbox" name="servicos" value="Combo Premium 👑 - R$80"> Combo Premium 👑 (Corte, Barba e Hidratação) - R$80</label>
+                            <label><input type="checkbox" name="servicos" value="Combo Corte + Barba ✂️🧔 - R$60"> <i class="fas fa-cut"></i> Combo Corte + Barba ✂️🧔 - R$60 (60 min)</label>
+                            <label><input type="checkbox" name="servicos" value="Combo Premium 👑 - R$80"> <i class="fas fa-crown"></i> Combo Premium 👑 (Corte, Barba e Hidratação) - R$80 (75 min)</label>
                         </div>
                     </div>
                 </div>
                 
                 <div class="service-category" id="outros">
                     <div class="service-category-title" onclick="toggleServiceCategory('outros')">
-                        <span>🔧 Outros Serviços</span>
+                        <span><i class="fas fa-tools"></i> Outros Serviços</span>
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="service-category-content">
                         <div class="checkbox-group">
-                            <label><input type="checkbox" name="servicos" value="Sobrancelha ✏️ - R$15"> Sobrancelha ✏️ - R$15</label>
-                            <label><input type="checkbox" name="servicos" value="Pigmentação 🖌️ - R$50"> Pigmentação 🖌️ - R$50</label>
-                            <label><input type="checkbox" name="servicos" value="Massagem Capilar 💆‍♂️ - R$30"> Massagem Capilar 💆‍♂️ - R$30</label>
+                            <label><input type="checkbox" name="servicos" value="Sobrancelha ✏️ - R$15"> <i class="fas fa-pencil-alt"></i> Sobrancelha ✏️ - R$15 (10 min)</label>
+                            <label><input type="checkbox" name="servicos" value="Pigmentação 🖌️ - R$50"> <i class="fas fa-paint-brush"></i> Pigmentação 🖌️ - R$50 (45 min)</label>
+                            <label><input type="checkbox" name="servicos" value="Massagem Capilar 💆‍♂️ - R$30"> <i class="fas fa-spa"></i> Massagem Capilar 💆‍♂️ - R$30 (20 min)</label>
                         </div>
                     </div>
                 </div>
                 
-                <div id="totalServicos" style="margin-top: 1rem; font-weight: bold; display: none;">
-                    Total: <span id="valorTotal">R$0,00</span>
-                    <span id="tempoTotal" style="font-weight: normal; display: block; font-size: 0.9rem;"></span>
+                <div id="totalServicos" style="margin-top: 1.5rem; font-weight: bold; display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Total:</span>
+                        <span id="valorTotal" style="font-size: 1.2rem;">R$0,00</span>
+                    </div>
+                    <div id="tempoTotal" style="font-weight: normal; font-size: 0.9rem; color: var(--primary); margin-top: 0.3rem;"></div>
                 </div>
                 
                 <label class="required">Forma de pagamento:</label>
@@ -629,8 +808,7 @@
                 
                 <label for="hora" class="required">Horário desejado:</label>
                 <select id="hora" required>
-                    <option value="" disabled selected>Selecione um horário</option>
-                    <!-- Horários serão preenchidos dinamicamente -->
+                    <option value="" disabled selected>Selecione um serviço primeiro</option>
                 </select>
                 
                 <label for="observacoes">Observações ou preferências:</label>
@@ -651,7 +829,14 @@
                 <div class="agenda-view-option" onclick="changeAgendaView('mes')">Este Mês</div>
             </div>
             
-            <div id="calendarContainer" style="display: none;">
+            <div class="calendar-container" id="calendarContainer" style="display: none;">
+                <div class="calendar-header">
+                    <div class="calendar-title" id="calendarMonthTitle"></div>
+                    <div class="calendar-nav">
+                        <button class="calendar-nav-button" onclick="navigateCalendar(-1)"><i class="fas fa-chevron-left"></i></button>
+                        <button class="calendar-nav-button" onclick="navigateCalendar(1)"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
                 <table class="calendar" id="calendar">
                     <thead>
                         <tr>
@@ -663,9 +848,13 @@
             </div>
             
             <div id="timeSlotsContainer">
-                <h3 id="selectedDateTitle" style="text-align: center; margin-bottom: 1rem;"></h3>
+                <div class="time-slots-header">
+                    <div class="time-slots-title" id="selectedDateTitle"></div>
+                </div>
                 <div class="time-slots" id="timeSlots">
-                    <!-- Horários serão preenchidos dinamicamente -->
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 1rem; color: var(--text-color); opacity: 0.7;">
+                        Selecione uma data para ver os horários disponíveis
+                    </div>
                 </div>
             </div>
         </div>
@@ -676,14 +865,21 @@
         <p>Horário de funcionamento: Segunda a Sexta, das 18h às 20h | Sábado, das 9h às 13h</p>
     </footer>
 
-    <div class="notification" id="notification"></div>
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle notification-icon"></i>
+        <div>
+            <div id="notification-message"></div>
+            <div class="progress-container">
+                <div class="progress-bar"></div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
     <script>
         // Configurações globais
-        //const BARBEIRO_WHATSAPP = "5535999999999"; // Substituir pelo número real
-        const HORARIOS_DISPONIVEIS = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "18:00", "18:30", "19:00", "19:30", "20:00"];
+        const BARBEIRO_WHATSAPP = "5535999999999"; // Substituir pelo número real do barbeiro
         const DIAS_FUNCIONAMENTO = {
             0: [], // Domingo - fechado
             1: ["18:00", "18:30", "19:00", "19:30", "20:00"], // Segunda
@@ -716,6 +912,8 @@
         let currentAgendaView = 'hoje';
         let selectedDate = new Date();
         let selectedTime = '';
+        let currentCalendarMonth = new Date().getMonth();
+        let currentCalendarYear = new Date().getFullYear();
 
         // Inicialização
         document.addEventListener('DOMContentLoaded', function() {
@@ -726,7 +924,7 @@
             flatpickr("#data", {
                 locale: "pt",
                 minDate: "today",
-                maxDate: new Date().fp_incr(60), // 60 dias a partir de hoje
+                maxDate: new Date().fp_incr(90), // 90 dias a partir de hoje
                 disable: [
                     function(date) {
                         // Desabilita dias que não são de funcionamento ou feriados
@@ -735,12 +933,11 @@
                     }
                 ],
                 onChange: function(selectedDates, dateStr) {
-                    atualizarHorariosDisponiveis(dateStr);
+                    if (document.querySelectorAll('input[name="servicos"]:checked').length > 0) {
+                        atualizarHorariosDisponiveis(dateStr);
+                    }
                 }
             });
-            
-            // Carrega horários para hoje
-            atualizarHorariosDisponiveis(new Date().toISOString().split('T')[0]);
             
             // Formatação automática do telefone
             document.getElementById('telefone').addEventListener('input', formatarTelefone);
@@ -760,7 +957,14 @@
             
             // Calcular total quando serviços são selecionados
             document.querySelectorAll('input[name="servicos"]').forEach(checkbox => {
-                checkbox.addEventListener('change', calcularTotal);
+                checkbox.addEventListener('change', function() {
+                    calcularTotal();
+                    // Se já tiver uma data selecionada, atualiza os horários
+                    const dataSelecionada = document.getElementById('data').value;
+                    if (dataSelecionada) {
+                        atualizarHorariosDisponiveis(dataSelecionada);
+                    }
+                });
             });
             
             // Verificar se há preferência de tema no localStorage
@@ -840,6 +1044,20 @@
             loadAgenda();
         }
 
+        function navigateCalendar(direction) {
+            currentCalendarMonth += direction;
+            
+            if (currentCalendarMonth < 0) {
+                currentCalendarMonth = 11;
+                currentCalendarYear--;
+            } else if (currentCalendarMonth > 11) {
+                currentCalendarMonth = 0;
+                currentCalendarYear++;
+            }
+            
+            renderCalendar(currentCalendarYear, currentCalendarMonth);
+        }
+
         function loadAgenda() {
             const hoje = new Date();
             let dataInicio, dataFim;
@@ -868,7 +1086,7 @@
             if (currentAgendaView === 'mes') {
                 document.getElementById('calendarContainer').style.display = 'block';
                 document.getElementById('timeSlotsContainer').style.display = 'none';
-                renderCalendar(hoje.getFullYear(), hoje.getMonth());
+                renderCalendar(currentCalendarYear, currentCalendarMonth);
             } else {
                 document.getElementById('calendarContainer').style.display = 'none';
                 document.getElementById('timeSlotsContainer').style.display = 'block';
@@ -883,6 +1101,10 @@
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             
+            // Atualiza o título do mês
+            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            document.getElementById('calendarMonthTitle').textContent = `${monthNames[month]} ${year}`;
+            
             let date = 1;
             for (let i = 0; i < 6; i++) {
                 if (date > daysInMonth) break;
@@ -895,9 +1117,11 @@
                     if (i === 0 && j < firstDay) {
                         // Células vazias antes do primeiro dia do mês
                         cell.textContent = '';
+                        cell.classList.add('disabled');
                     } else if (date > daysInMonth) {
                         // Células vazias após o último dia do mês
                         cell.textContent = '';
+                        cell.classList.add('disabled');
                     } else {
                         // Células com dias do mês
                         cell.textContent = date;
@@ -946,6 +1170,7 @@
             timeSlotsContainer.innerHTML = '';
             
             const currentDate = new Date(startDate);
+            let hasAvailableSlots = false;
             
             while (currentDate <= endDate) {
                 const dateStr = currentDate.toISOString().split('T')[0];
@@ -977,6 +1202,7 @@
                             slotElement.addEventListener('click', function() {
                                 selectTimeSlot(dateStr, slot);
                             });
+                            hasAvailableSlots = true;
                         }
                         
                         timeSlotsContainer.appendChild(slotElement);
@@ -984,6 +1210,14 @@
                 }
                 
                 currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            if (!hasAvailableSlots) {
+                timeSlotsContainer.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--text-color); opacity: 0.7;">
+                        Nenhum horário disponível no período selecionado
+                    </div>
+                `;
             }
             
             // Atualiza o título da data selecionada
@@ -1003,7 +1237,11 @@
             // Atualiza o formulário se estiver na aba de agendamento
             if (document.getElementById('formAgendamentoContainer').classList.contains('active')) {
                 document.getElementById('data').value = dateStr;
-                atualizarHorariosDisponiveis(dateStr);
+                
+                // Se já tiver serviços selecionados, atualiza os horários disponíveis
+                if (document.querySelectorAll('input[name="servicos"]:checked').length > 0) {
+                    atualizarHorariosDisponiveis(dateStr);
+                }
             }
         }
 
@@ -1074,44 +1312,114 @@
             if (servicos.length > 0) {
                 totalElement.style.display = 'block';
                 document.getElementById('valorTotal').textContent = `R$${total},00`;
-                tempoElement.textContent = `Tempo estimado: ${Math.floor(tempoTotal/60)}h${tempoTotal%60}min`;
+                tempoElement.textContent = `Tempo estimado: ${Math.floor(tempoTotal/60)}h${tempoTotal%60 < 10 ? '0' : ''}${tempoTotal%60}min`;
+                
+                // Se já tiver uma data selecionada, atualiza os horários
+                const dataSelecionada = document.getElementById('data').value;
+                if (dataSelecionada) {
+                    atualizarHorariosDisponiveis(dataSelecionada);
+                }
             } else {
                 totalElement.style.display = 'none';
+                document.getElementById('hora').innerHTML = '<option value="" disabled selected>Selecione um serviço primeiro</option>';
             }
         }
 
         function atualizarHorariosDisponiveis(data) {
             const selectHora = document.getElementById('hora');
+            selectHora.innerHTML = '<option value="" disabled selected>Selecione um horário</option>';
             
-            // Limpa opções existentes, mantendo a primeira (placeholder)
-            while (selectHora.options.length > 1) {
-                selectHora.remove(1);
+            // Verifica se há serviços selecionados
+            const servicosSelecionados = document.querySelectorAll('input[name="servicos"]:checked');
+            if (servicosSelecionados.length === 0) {
+                selectHora.innerHTML = '<option value="" disabled selected>Selecione um serviço primeiro</option>';
+                return;
             }
+            
+            // Calcula o tempo total necessário
+            let tempoTotalNecessario = 0;
+            servicosSelecionados.forEach(servico => {
+                const servicoKey = servico.value.split(' - ')[0] + ' - ' + servico.value.split(' - ')[1];
+                tempoTotalNecessario += TEMPO_SERVICOS[servicoKey] || 0;
+            });
             
             // Obtém o dia da semana (0 = Domingo, 1 = Segunda, etc.)
             const dataObj = new Date(data);
             const diaSemana = dataObj.getDay();
             const horariosDia = DIAS_FUNCIONAMENTO[diaSemana] || [];
             
-            // Adiciona horários disponíveis
-            horariosDia.forEach(hora => {
-                // Verifica se o horário está disponível (não está nos agendamentos)
-                const disponivel = !agendamentos.some(a => a.data === data && a.hora === hora);
-                
-                if (disponivel) {
-                    const option = document.createElement('option');
-                    option.value = hora;
-                    option.textContent = hora;
-                    selectHora.appendChild(option);
-                }
+            // Converte horários para minutos desde meia-noite para facilitar cálculos
+            const horariosEmMinutos = horariosDia.map(h => {
+                const [hours, minutes] = h.split(':').map(Number);
+                return hours * 60 + minutes;
             });
             
+            // Verifica cada horário disponível
+            for (let i = 0; i < horariosEmMinutos.length; i++) {
+                const horarioInicio = horariosEmMinutos[i];
+                const horarioFim = horarioInicio + tempoTotalNecessario;
+                const horarioStr = horariosDia[i];
+                
+                // Verifica se o horário está disponível (não está nos agendamentos)
+                let horarioDisponivel = true;
+                
+                // Verifica conflito com outros agendamentos
+                for (const agendamento of agendamentos) {
+                    if (agendamento.data === data) {
+                        const [agHours, agMinutes] = agendamento.hora.split(':').map(Number);
+                        const agInicio = agHours * 60 + agMinutes;
+                        const agFim = agInicio + (TEMPO_SERVICOS[agendamento.servicos[0]] || 30); // Assume 30min se não encontrar
+                        
+                        // Verifica sobreposição de horários
+                        if (!(horarioFim <= agInicio || horarioInicio >= agFim)) {
+                            horarioDisponivel = false;
+                            break;
+                        }
+                    }
+                }
+                
+                // Verifica se o horário ultrapassa o funcionamento do dia
+                if (horarioFim > (horariosEmMinutos[horariosEmMinutos.length - 1] + 30)) {
+                    horarioDisponivel = false;
+                }
+                
+                // Verifica se há horários suficientes consecutivos
+                let horariosConsecutivosSuficientes = true;
+                let horariosNecessarios = Math.ceil(tempoTotalNecessario / 30);
+                
+                for (let j = 0; j < horariosNecessarios; j++) {
+                    if (!horariosDia[i + j] || 
+                        (horariosEmMinutos[i + j] - horariosEmMinutos[i] >= tempoTotalNecessario)) {
+                        break;
+                    }
+                    
+                    // Verifica se cada slot necessário está disponível
+                    const slotDisponivel = !agendamentos.some(a => {
+                        if (a.data === data && a.hora === horariosDia[i + j]) {
+                            const [agHours, agMinutes] = a.hora.split(':').map(Number);
+                            const agInicio = agHours * 60 + agMinutes;
+                            const agFim = agInicio + (TEMPO_SERVICOS[a.servicos[0]] || 30);
+                            return !(horarioFim <= agInicio || (horarioInicio + (j * 30)) >= agFim);
+                        }
+                        return false;
+                    });
+                    
+                    if (!slotDisponivel) {
+                        horariosConsecutivosSuficientes = false;
+                        break;
+                    }
+                }
+                
+                if (horarioDisponivel && horariosConsecutivosSuficientes) {
+                    const option = document.createElement('option');
+                    option.value = horarioStr;
+                    option.textContent = `${horarioStr} - ${Math.floor(tempoTotalNecessario/60)}h${tempoTotalNecessario%60}min`;
+                    selectHora.appendChild(option);
+                }
+            }
+            
             if (selectHora.options.length === 1) {
-                const option = document.createElement('option');
-                option.value = '';
-                option.textContent = 'Nenhum horário disponível nesta data';
-                option.disabled = true;
-                selectHora.appendChild(option);
+                selectHora.innerHTML = '<option value="" disabled selected>Nenhum horário disponível para esta combinação de serviços</option>';
             }
         }
 
@@ -1130,22 +1438,44 @@
             const pagamentoSelecionado = document.querySelector('input[name="pagamento"]:checked');
             
             // Validação dos campos obrigatórios
-            if (!nome || !telefone || !data || !hora || servicosSelecionados.length === 0 || !pagamentoSelecionado) {
-                showNotification('Por favor, preencha todos os campos obrigatórios (*)');
+            if (!nome || !telefone || !data || !hora || hora === 'Selecione um serviço primeiro' || servicosSelecionados.length === 0 || !pagamentoSelecionado) {
+                showNotification('Por favor, preencha todos os campos obrigatórios (*)', 'error');
                 return;
             }
             
             // Validação do telefone
             const telefoneNumerico = telefone.replace(/\D/g, '');
             if (telefoneNumerico.length < 11) {
-                showNotification('Por favor, insira um telefone válido com DDD');
+                showNotification('Por favor, insira um telefone válido com DDD', 'error');
                 return;
             }
             
+            // Calcula o tempo total necessário
+            let tempoTotalNecessario = 0;
+            servicosSelecionados.forEach(servico => {
+                const servicoKey = servico.split(' - ')[0] + ' - ' + servico.split(' - ')[1];
+                tempoTotalNecessario += TEMPO_SERVICOS[servicoKey] || 0;
+            });
+            
             // Verifica conflito de horário
-            const conflito = agendamentos.some(a => a.data === data && a.hora === hora);
+            const [horaInicio, minutoInicio] = hora.split(':').map(Number);
+            const inicioEmMinutos = horaInicio * 60 + minutoInicio;
+            const fimEmMinutos = inicioEmMinutos + tempoTotalNecessario;
+            
+            const conflito = agendamentos.some(a => {
+                if (a.data === data) {
+                    const [agHora, agMinuto] = a.hora.split(':').map(Number);
+                    const agInicio = agHora * 60 + agMinuto;
+                    const agFim = agInicio + (TEMPO_SERVICOS[a.servicos[0]] || 30);
+                    
+                    // Verifica sobreposição de horários
+                    return !(fimEmMinutos <= agInicio || inicioEmMinutos >= agFim);
+                }
+                return false;
+            });
+            
             if (conflito) {
-                showNotification('Este horário já foi reservado. Por favor, escolha outro.');
+                showNotification('Este horário já foi reservado. Por favor, escolha outro.', 'error');
                 return;
             }
             
@@ -1162,18 +1492,15 @@
             const dataFormatada = dataObj.toLocaleDateString('pt-BR', { 
                 weekday: 'long', 
                 day: 'numeric', 
-                month: 'long' 
+                month: 'long',
+                year: 'numeric'
             });
             
-            // Calcula o total e tempo total
+            // Calcula o total
             let total = 0;
-            let tempoTotal = 0;
             servicosSelecionados.forEach(servico => {
                 const valor = servico.match(/R\$\d+/);
                 if (valor) total += parseInt(valor[0].replace('R$', ''));
-                
-                const servicoKey = servico.split(' - ')[0] + ' - ' + servico.split(' - ')[1];
-                tempoTotal += TEMPO_SERVICOS[servicoKey] || 0;
             });
             
             // Monta a mensagem para o WhatsApp
@@ -1185,7 +1512,7 @@
 
 📅 *Data:* ${dataFormatada}
 ⏰ *Horário:* ${hora.substring(0, 5)}
-⏳ *Duração estimada:* ${Math.floor(tempoTotal/60)}h${tempoTotal%60}min
+⏳ *Duração estimada:* ${Math.floor(tempoTotalNecessario/60)}h${tempoTotalNecessario%60 < 10 ? '0' : ''}${tempoTotalNecessario%60}min
 
 ✂️ *Serviços selecionados:*
 ${servicosSelecionados.map(s => `- ${s}`).join('\n')}
@@ -1198,11 +1525,10 @@ ${pagamento === 'Dinheiro' && troco ? `🪙 *Troco para:* ${troco}` : ''}
 📝 *Observações:*
 ${observacoes || 'Nenhuma observação'}
 
-_Agendamento realizado via site em ${new Date().toLocaleDateString('pt-BR')}_`;
+_Agendamento realizado via site em ${new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })} às ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}_`;
 
             // Cria o link do WhatsApp Business
-            //const link = `https://wa.me/${BARBEIRO_WHATSAPP}?text=${encodeURIComponent(texto)}`;
-            const link = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+            const link = `https://wa.me/${BARBEIRO_WHATSAPP}?text=${encodeURIComponent(texto)}`;
             
             // Salva o agendamento localmente
             const novoAgendamento = {
@@ -1216,7 +1542,9 @@ _Agendamento realizado via site em ${new Date().toLocaleDateString('pt-BR')}_`;
                 troco,
                 observacoes,
                 total,
-                timestamp: new Date(`${data}T${hora}`).getTime()
+                tempoTotal: tempoTotalNecessario,
+                timestamp: new Date(`${data}T${hora}`).getTime(),
+                dataHoraAgendamento: new Date().toISOString()
             };
             
             agendamentos.push(novoAgendamento);
@@ -1226,7 +1554,7 @@ _Agendamento realizado via site em ${new Date().toLocaleDateString('pt-BR')}_`;
             window.open(link, '_blank');
             
             // Mostra confirmação
-            showNotification('Agendamento enviado com sucesso!');
+            showNotification('Agendamento confirmado! Uma mensagem foi aberta no WhatsApp.', 'success');
             
             // Atualiza a visualização da agenda
             if (document.getElementById('agendaContainer').classList.contains('active')) {
@@ -1242,14 +1570,38 @@ _Agendamento realizado via site em ${new Date().toLocaleDateString('pt-BR')}_`;
                 document.getElementById('totalServicos').style.display = 'none';
                 
                 // Atualiza os horários disponíveis para a mesma data
-                atualizarHorariosDisponiveis(data);
+                const dataSelecionada = document.getElementById('data').value;
+                if (dataSelecionada && document.querySelectorAll('input[name="servicos"]:checked').length > 0) {
+                    atualizarHorariosDisponiveis(dataSelecionada);
+                }
             }, 1500);
         }
 
-        function showNotification(message) {
+        function showNotification(message, type = 'success') {
             const notification = document.getElementById('notification');
-            notification.textContent = message;
+            const notificationMessage = document.getElementById('notification-message');
+            const notificationIcon = notification.querySelector('.notification-icon');
+            
+            // Configura a notificação conforme o tipo
+            notification.className = 'notification';
+            notification.classList.add(type);
+            
+            if (type === 'success') {
+                notificationIcon.className = 'fas fa-check-circle notification-icon';
+            } else if (type === 'error') {
+                notificationIcon.className = 'fas fa-exclamation-circle notification-icon';
+            } else if (type === 'warning') {
+                notificationIcon.className = 'fas fa-exclamation-triangle notification-icon';
+            }
+            
+            notificationMessage.textContent = message;
             notification.classList.add('show');
+            
+            // Reinicia a animação da barra de progresso
+            const progressBar = notification.querySelector('.progress-bar');
+            progressBar.style.animation = 'none';
+            void progressBar.offsetWidth; // Trigger reflow
+            progressBar.style.animation = 'progress 3s linear forwards';
             
             setTimeout(() => {
                 notification.classList.remove('show');
