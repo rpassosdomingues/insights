@@ -682,7 +682,7 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
     <script>
         // Configurações globais
-        const BARBEIRO_WHATSAPP = "5535999999999"; // Substituir pelo número real
+        //const BARBEIRO_WHATSAPP = "5535999999999"; // Substituir pelo número real
         const HORARIOS_DISPONIVEIS = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "18:00", "18:30", "19:00", "19:30", "20:00"];
         const DIAS_FUNCIONAMENTO = {
             0: [], // Domingo - fechado
@@ -1201,7 +1201,8 @@ ${observacoes || 'Nenhuma observação'}
 _Agendamento realizado via site em ${new Date().toLocaleDateString('pt-BR')}_`;
 
             // Cria o link do WhatsApp Business
-            const link = `https://wa.me/${BARBEIRO_WHATSAPP}?text=${encodeURIComponent(texto)}`;
+            //const link = `https://wa.me/${BARBEIRO_WHATSAPP}?text=${encodeURIComponent(texto)}`;
+            const link = `https://wa.me/?text=${encodeURIComponent(texto)}`;
             
             // Salva o agendamento localmente
             const novoAgendamento = {
