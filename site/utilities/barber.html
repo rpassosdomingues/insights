@@ -1,76 +1,132 @@
-<!--
- * --------------------------------------------------------------
- * Author: Rafael Passos Domingues
- * Last Update: 2025 June 6
- * --------------------------------------------------------------
--->
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Agendamento online para Barbearia App - Corte de cabelo, barba e serviços completos">
-    <title>💈 Barbearia App - Agendamento Online</title>
+    <title>💈 Barbearia App - Agendamento Inteligente</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         :root {
             --primary: #2c3e50;
-            --secondary: #25D366; /* Verde WhatsApp */
+            --secondary: #25D366;
             --accent: #e74c3c;
             --light: #ecf0f1;
             --dark: #2c3e50;
             --success: #27ae60;
             --whatsapp: #25D366;
+            --bg-color: #f5f7fa;
+            --text-color: #2c3e50;
+            --card-bg: #ffffff;
+            --input-bg: #ffffff;
+            --border-color: #ddd;
+            --shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
-        
+
+        .dark-mode {
+            --bg-color: #1a1a1a;
+            --text-color: #f0f0f0;
+            --card-bg: #2d2d2d;
+            --input-bg: #3d3d3d;
+            --border-color: #444;
+            --shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            --primary: #3498db;
+            --light: #3d3d3d;
+        }
+
         body {
             font-family: 'Segoe UI', Roboto, Arial, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: linear-gradient(135deg, var(--bg-color) 0%, var(--card-bg) 100%);
             margin: 0;
             padding: 0.5rem;
-            color: var(--dark);
+            color: var(--text-color);
             line-height: 1.6;
             min-height: 100vh;
-            -webkit-text-size-adjust: 100%;
+            transition: all 0.3s ease;
         }
-        
+
         .container {
             max-width: 100%;
             margin: 0 auto;
             padding: 0 0.49rem;
         }
-        
+
         header {
             text-align: center;
             margin-bottom: 1.5rem;
             padding: 1rem;
-            background-color: rgba(255, 255, 255, 0.95);
+            background-color: rgba(var(--card-bg), 0.95);
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow);
+            position: relative;
         }
-        
+
+        .header-content {
+            position: relative;
+            padding: 0 4rem; /* Espaço para o botão */
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
         h1 {
             color: var(--primary);
             margin-bottom: 0.5rem;
             font-size: 1.8rem;
         }
-        
+
         .subtitle {
             color: var(--secondary);
             font-size: 1rem;
             margin-top: 0;
         }
-        
-        .form-container {
-            background: rgba(255, 255, 255, 0.98);
+
+        .tab-container {
+            display: flex;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: var(--light);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 0.8rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .tab.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .form-container, .agenda-container {
+            background: var(--card-bg);
             padding: 1.2rem;
             border-radius: 10px;
             max-width: 500px;
             margin: 0 auto 1.5rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow);
+            display: none;
         }
-        
+
+        .form-container.active, .agenda-container.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
         label {
             display: block;
             margin-top: 1.2rem;
@@ -78,36 +134,38 @@
             color: var(--primary);
             font-size: 0.95rem;
         }
-        
+
         input, select, textarea {
             width: 100%;
             margin-top: 0.4rem;
             padding: 0.7rem;
-            border: 2px solid #ddd;
+            border: 2px solid var(--border-color);
             border-radius: 6px;
             font-size: 0.95rem;
             transition: all 0.2s;
             box-sizing: border-box;
+            background-color: var(--input-bg);
+            color: var(--text-color);
         }
-        
+
         input:focus, select:focus, textarea:focus {
             border-color: var(--secondary);
             outline: none;
             box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.2);
         }
-        
+
         textarea {
             min-height: 80px;
             resize: vertical;
         }
-        
+
         .checkbox-group, .radio-group {
             display: flex;
             flex-direction: column;
             margin-top: 0.4rem;
             gap: 0.6rem;
         }
-        
+
         .checkbox-group label, .radio-group label {
             display: flex;
             align-items: center;
@@ -121,11 +179,11 @@
             transition: all 0.2s;
             font-size: 0.9rem;
         }
-        
+
         .checkbox-group label:hover, .radio-group label:hover {
-            background-color: #dfe6e9;
+            background-color: var(--border-color);
         }
-        
+
         .checkbox-group input[type="checkbox"], 
         .radio-group input[type="radio"] {
             width: auto;
@@ -133,7 +191,7 @@
             min-width: 18px;
             min-height: 18px;
         }
-        
+
         button {
             margin-top: 1.5rem;
             background: var(--whatsapp);
@@ -151,46 +209,98 @@
             justify-content: center;
             gap: 0.5rem;
         }
-        
+
         button:hover {
             background: #128C7E;
         }
-        
+
         .whatsapp-icon {
             font-size: 1.2rem;
         }
-        
+
         footer {
             text-align: center;
             margin-top: 2rem;
             padding: 1rem;
-            color: #7f8c8d;
+            color: var(--text-color);
             font-size: 0.85rem;
+            opacity: 0.8;
         }
-        
+
         .required::after {
             content: " *";
             color: var(--accent);
         }
-        
+
         .troco-container {
             display: none;
             margin-top: 0.5rem;
             animation: fadeIn 0.3s ease-out;
         }
-        
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-5px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
+
         .payment-icon {
             margin-right: 5px;
             font-size: 1em;
             width: 20px;
             text-align: center;
         }
-        
+
+        /* Agenda styles */
+        .agenda-day {
+            margin-bottom: 1.5rem;
+        }
+
+        .agenda-date {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.3rem;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .agenda-slot {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.7rem;
+            margin-bottom: 0.5rem;
+            background-color: var(--light);
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .agenda-slot.available {
+            cursor: pointer;
+        }
+
+        .agenda-slot.available:hover {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .agenda-slot.booked {
+            opacity: 0.6;
+            background-color: var(--border-color);
+        }
+
+        .loading {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         /* Melhorias para telas maiores */
         @media (min-width: 768px) {
             .container {
@@ -211,7 +321,7 @@
                 font-size: 1.1rem;
             }
             
-            .form-container {
+            .form-container, .agenda-container {
                 padding: 1.8rem;
             }
             
@@ -230,31 +340,45 @@
                 font-size: 1.1rem;
             }
         }
-        
-        /* Animação de loading */
-        .loading {
-            display: none;
-            width: 18px;
-            height: 18px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
+
+        /* Notificação */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--success);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
         }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
         }
     </style>
 </head>
-<body>
-    <div class="container">
+<body class="dark-mode">
+    <div class="header-content">
         <header>
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <i class="fas fa-sun"></i>
+            </button>
             <h1>💈 Barbearia App</h1>
             <p class="subtitle">Elevando a autoestima</p>
         </header>
         
-        <div class="form-container">
+        <div class="tab-container">
+            <div class="tab active" onclick="switchTab('agendar')">Agendar</div>
+            <div class="tab" onclick="switchTab('agenda')">Ver Agenda</div>
+        </div>
+        
+        <div id="formAgendamentoContainer" class="form-container active">
             <form id="formAgendamento">
                 <label for="nomeCliente" class="required">Seu nome completo:</label>
                 <input type="text" id="nomeCliente" required placeholder="Ex: João da Silva">
@@ -264,16 +388,21 @@
                 
                 <label class="required">Escolha os serviços:</label>
                 <div class="checkbox-group">
-                    <label><input type="checkbox" value="Corte de cabelo 💇‍♂️"> Corte de cabelo 💇‍♂️</label>
-                    <label><input type="checkbox" value="Barba 🧔"> Barba 🧔</label>
-                    <label><input type="checkbox" value="Combo Corte + Barba ✂️🧔"> Combo Corte + Barba ✂️🧔</label>
+                    <label><input type="checkbox" name="servicos" value="Corte de cabelo 💇‍♂️ - R$40"> Corte de cabelo 💇‍♂️ - R$40</label>
+                    <label><input type="checkbox" name="servicos" value="Barba 🧔 - R$30"> Barba 🧔 - R$30</label>
+                    <label><input type="checkbox" name="servicos" value="Combo Corte + Barba ✂️🧔 - R$60"> Combo Corte + Barba ✂️🧔 - R$60</label>
+                    <label><input type="checkbox" name="servicos" value="Sobrancelha ✏️ - R$15"> Sobrancelha ✏️ - R$15</label>
+                </div>
+                
+                <div id="totalServicos" style="margin-top: 1rem; font-weight: bold; display: none;">
+                    Total: <span id="valorTotal">R$0,00</span>
                 </div>
                 
                 <label class="required">Forma de pagamento:</label>
                 <div class="radio-group">
-                    <label><input type="radio" name="pagamento" value="Dinheiro"> <i class="fas fa-money-bill-wave payment-icon"></i> Dinheiro</label>
-                    <label><input type="radio" name="pagamento" value="PIX"> <i class="fas fa-qrcode payment-icon"></i> PIX</label>
-                    <label><input type="radio" name="pagamento" value="Cartão"> <i class="fas fa-credit-card payment-icon"></i> Cartão</label>
+                    <label><input type="radio" name="pagamento" value="Dinheiro" required> <i class="fas fa-money-bill-wave payment-icon"></i> Dinheiro</label>
+                    <label><input type="radio" name="pagamento" value="PIX" required> <i class="fas fa-qrcode payment-icon"></i> PIX</label>
+                    <label><input type="radio" name="pagamento" value="Cartão" required> <i class="fas fa-credit-card payment-icon"></i> Cartão</label>
                 </div>
                 
                 <div id="trocoField" class="troco-container">
@@ -282,36 +411,141 @@
                 </div>
                 
                 <label for="data" class="required">Data desejada:</label>
-                <input type="date" id="data" required min="">
+                <input type="text" id="data" required placeholder="Selecione uma data" readonly>
                 
                 <label for="hora" class="required">Horário desejado:</label>
-                <input type="time" id="hora" required min="18:00" max="20:00" step="1800">
+                <select id="hora" required>
+                    <option value="" disabled selected>Selecione um horário</option>
+                    <!-- Horários serão preenchidos dinamicamente -->
+                </select>
                 
                 <label for="observacoes">Observações ou preferências:</label>
-                <textarea id="observacoes" rows="3" placeholder="Ex: Quero um corte mais social"></textarea>
+                <textarea id="observacoes" rows="3" placeholder="Ex: Quero um corte mais social, deixar as laterais mais baixas"></textarea>
                 
                 <button type="button" onclick="enviarAgendamento()">
-                    <i class="fab fa-whatsapp whatsapp-icon"></i> Agendar via WhatsApp
+                    <i class="fab fa-whatsapp whatsapp-icon"></i> Confirmar Agendamento
                     <span class="loading" id="loading"></span>
                 </button>
             </form>
+        </div>
+        
+        <div id="agendaContainer" class="agenda-container">
+            <h2 style="text-align: center; margin-bottom: 1.5rem;">Próximos Horários Disponíveis</h2>
+            <div id="agendaContent">
+                <!-- Conteúdo da agenda será preenchido dinamicamente -->
+            </div>
         </div>
     </div>
     
     <footer>
         <p>Barbearia App &copy; <span id="year"></span> - Todos os direitos reservados</p>
-        <p>Horário de funcionamento: Segunda a Sexta, das 18h às 20h</p>
+        <p>Horário de funcionamento: Segunda a Sexta, das 18h às 20h | Sábado, das 9h às 13h</p>
     </footer>
 
+    <div class="notification" id="notification"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
     <script>
-        // Configura a data mínima como hoje
-        document.getElementById('data').min = new Date().toISOString().split('T')[0];
-        
-        // Atualiza o ano no footer
-        document.getElementById('year').textContent = new Date().getFullYear();
-        
-        // Formatação automática do telefone
-        document.getElementById('telefone').addEventListener('input', function(e) {
+        // Configurações globais
+        const BARBEIRO_WHATSAPP = "5535999999999"; // Substituir pelo número real
+        const HORARIOS_DISPONIVEIS = ["18:00", "18:30", "19:00", "19:30", "20:00"];
+        const DIAS_FUNCIONAMENTO = [1, 2, 3, 4, 5, 6]; // Segunda a Sábado
+        const FERIADOS = []; // Array de datas no formato "YYYY-MM-DD"
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configura o ano no footer
+            document.getElementById('year').textContent = new Date().getFullYear();
+            
+            // Inicializa o datepicker
+            flatpickr("#data", {
+                locale: "pt",
+                minDate: "today",
+                maxDate: new Date().fp_incr(30), // 30 dias a partir de hoje
+                disable: [
+                    function(date) {
+                        // Desabilita dias que não são de funcionamento ou feriados
+                        return !DIAS_FUNCIONAMENTO.includes(date.getDay()) || 
+                               FERIADOS.includes(date.toISOString().split('T')[0]);
+                    }
+                ],
+                onChange: function(selectedDates, dateStr) {
+                    atualizarHorariosDisponiveis(dateStr);
+                    if (document.getElementById('agendaContainer').classList.contains('active')) {
+                        carregarAgenda();
+                    }
+                }
+            });
+            
+            // Carrega horários para hoje
+            atualizarHorariosDisponiveis(new Date().toISOString().split('T')[0]);
+            
+            // Formatação automática do telefone
+            document.getElementById('telefone').addEventListener('input', formatarTelefone);
+            
+            // Mostrar campo de troco se pagamento for em dinheiro
+            document.querySelectorAll('input[name="pagamento"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const trocoField = document.getElementById('trocoField');
+                    if (this.value === 'Dinheiro') {
+                        trocoField.style.display = 'block';
+                    } else {
+                        trocoField.style.display = 'none';
+                        document.getElementById('troco').value = '';
+                    }
+                });
+            });
+            
+            // Calcular total quando serviços são selecionados
+            document.querySelectorAll('input[name="servicos"]').forEach(checkbox => {
+                checkbox.addEventListener('change', calcularTotal);
+            });
+            
+            // Verificar se há preferência de tema no localStorage
+            if (localStorage.getItem('theme') === 'light') {
+                document.body.classList.remove('dark-mode');
+                document.querySelector('.theme-toggle i').className = 'fas fa-moon';
+            }
+            
+            // Carregar agenda se estiver na aba certa
+            if (window.location.hash === '#agenda') {
+                switchTab('agenda');
+            }
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeToggle = document.querySelector('.theme-toggle i');
+            
+            if (body.classList.contains('dark-mode')) {
+                body.classList.remove('dark-mode');
+                themeToggle.className = 'fas fa-moon';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.classList.add('dark-mode');
+                themeToggle.className = 'fas fa-sun';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.form-container, .agenda-container').forEach(c => c.classList.remove('active'));
+            
+            if (tab === 'agendar') {
+                document.querySelector('.tab:nth-child(1)').classList.add('active');
+                document.getElementById('formAgendamentoContainer').classList.add('active');
+                window.location.hash = '';
+            } else {
+                document.querySelector('.tab:nth-child(2)').classList.add('active');
+                document.getElementById('agendaContainer').classList.add('active');
+                carregarAgenda();
+                window.location.hash = 'agenda';
+            }
+        }
+
+        function formatarTelefone(e) {
             let value = e.target.value.replace(/\D/g, '');
             if (value.length > 2) {
                 value = `(${value.substring(0, 2)}) ${value.substring(2)}`;
@@ -322,21 +556,117 @@
                 }
             }
             e.target.value = value.substring(0, 15);
-        });
-        
-        // Mostrar campo de troco se pagamento for em dinheiro
-        document.querySelectorAll('input[name="pagamento"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                const trocoField = document.getElementById('trocoField');
-                if (this.value === 'Dinheiro') {
-                    trocoField.style.display = 'block';
-                } else {
-                    trocoField.style.display = 'none';
-                    document.getElementById('troco').value = '';
+        }
+
+        function calcularTotal() {
+            const servicos = document.querySelectorAll('input[name="servicos"]:checked');
+            let total = 0;
+            
+            servicos.forEach(servico => {
+                const valor = servico.value.match(/R\$\d+/);
+                if (valor) {
+                    total += parseInt(valor[0].replace('R$', ''));
                 }
             });
-        });
-        
+            
+            const totalElement = document.getElementById('totalServicos');
+            if (servicos.length > 0) {
+                totalElement.style.display = 'block';
+                document.getElementById('valorTotal').textContent = `R$${total},00`;
+            } else {
+                totalElement.style.display = 'none';
+            }
+        }
+
+        function atualizarHorariosDisponiveis(data) {
+            const selectHora = document.getElementById('hora');
+            
+            // Limpa opções existentes, mantendo a primeira (placeholder)
+            while (selectHora.options.length > 1) {
+                selectHora.remove(1);
+            }
+            
+            // Adiciona horários disponíveis
+            HORARIOS_DISPONIVEIS.forEach(hora => {
+                // Simulação: verificar se horário está disponível
+                // Na prática, isso viria de uma API ou banco de dados
+                const disponivel = Math.random() > 0.3; // 70% de chance de estar disponível (simulação)
+                
+                if (disponivel) {
+                    const option = document.createElement('option');
+                    option.value = hora;
+                    option.textContent = hora;
+                    selectHora.appendChild(option);
+                }
+            });
+            
+            if (selectHora.options.length === 1) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'Nenhum horário disponível nesta data';
+                option.disabled = true;
+                selectHora.appendChild(option);
+            }
+        }
+
+        function carregarAgenda() {
+            const agendaContent = document.getElementById('agendaContent');
+            agendaContent.innerHTML = '<p>Carregando agenda...</p>';
+            
+            // Simulação de carregamento de agenda
+            setTimeout(() => {
+                let agendaHTML = '';
+                const hoje = new Date();
+                
+                // Gerar agenda para os próximos 7 dias
+                for (let i = 0; i < 7; i++) {
+                    const data = new Date(hoje);
+                    data.setDate(hoje.getDate() + i);
+                    
+                    if (!DIAS_FUNCIONAMENTO.includes(data.getDay()) || 
+                        FERIADOS.includes(data.toISOString().split('T')[0])) continue;
+                    
+                    const dataFormatada = data.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+                    
+                    agendaHTML += `
+                        <div class="agenda-day">
+                            <div class="agenda-date">${dataFormatada}</div>
+                    `;
+                    
+                    // Adicionar horários para este dia
+                    HORARIOS_DISPONIVEIS.forEach(hora => {
+                        const disponivel = Math.random() > 0.3; // Simulação
+                        
+                        agendaHTML += `
+                            <div class="agenda-slot ${disponivel ? 'available' : 'booked'}" 
+                                 onclick="${disponivel ? `agendarDireto('${data.toISOString().split('T')[0]}', '${hora}')` : ''}">
+                                <span>${hora}</span>
+                                <span>${disponivel ? 'Disponível' : 'Reservado'}</span>
+                            </div>
+                        `;
+                    });
+                    
+                    agendaHTML += `</div>`;
+                }
+                
+                agendaContent.innerHTML = agendaHTML || '<p>Nenhum horário disponível nos próximos dias.</p>';
+            }, 500);
+        }
+
+        function agendarDireto(data, hora) {
+            switchTab('agendar');
+            
+            // Preenche os campos automaticamente
+            document.getElementById('data').value = data;
+            document.getElementById('hora').value = hora;
+            
+            // Rola até o formulário
+            document.getElementById('formAgendamentoContainer').scrollIntoView({ behavior: 'smooth' });
+            
+            // Mostra notificação
+            showNotification('Horário selecionado! Complete seus dados para confirmar.');
+        }
+
         function enviarAgendamento() {
             const nome = document.getElementById('nomeCliente').value.trim();
             const telefone = document.getElementById('telefone').value.trim();
@@ -346,38 +676,61 @@
             const troco = document.getElementById('troco').value.trim();
             
             const servicosSelecionados = Array.from(
-                document.querySelectorAll('.checkbox-group input[type="checkbox"]:checked')
+                document.querySelectorAll('input[name="servicos"]:checked')
             ).map(el => el.value);
             
             const pagamentoSelecionado = document.querySelector('input[name="pagamento"]:checked');
             
             // Validação dos campos obrigatórios
             if (!nome || !telefone || !data || !hora || servicosSelecionados.length === 0 || !pagamentoSelecionado) {
-                alert('Por favor, preencha todos os campos obrigatórios (*) e selecione pelo menos um serviço e forma de pagamento.');
+                showNotification('Por favor, preencha todos os campos obrigatórios (*)');
+                return;
+            }
+            
+            // Validação do telefone
+            const telefoneNumerico = telefone.replace(/\D/g, '');
+            if (telefoneNumerico.length < 11) {
+                showNotification('Por favor, insira um telefone válido com DDD');
                 return;
             }
             
             const pagamento = pagamentoSelecionado.value;
             
             // Mostra o loading
-            const btn = document.querySelector('button');
+            const btn = document.querySelector('#formAgendamentoContainer button');
             const loading = document.getElementById('loading');
             btn.disabled = true;
             loading.style.display = 'inline-block';
             
-            // Simula um delay para melhor UX
-            setTimeout(() => {
-                const texto = 
+            // Formata a data
+            const dataObj = new Date(data);
+            const dataFormatada = dataObj.toLocaleDateString('pt-BR', { 
+                weekday: 'long', 
+                day: 'numeric', 
+                month: 'long' 
+            });
+            
+            // Calcula o total
+            let total = 0;
+            servicosSelecionados.forEach(servico => {
+                const valor = servico.match(/R\$\d+/);
+                if (valor) total += parseInt(valor[0].replace('R$', ''));
+            });
+            
+            // Monta a mensagem para o WhatsApp
+            const texto = 
 `💈 *NOVO AGENDAMENTO - BARBEARIA App* 💈
 
 👤 *Cliente:* ${nome}
 📞 *Telefone:* ${telefone}
 
-📅 *Data:* ${new Date(data).toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
+📅 *Data:* ${dataFormatada}
 ⏰ *Horário:* ${hora.substring(0, 5)}
 
 ✂️ *Serviços selecionados:*
 ${servicosSelecionados.map(s => `- ${s}`).join('\n')}
+
+💰 *Total:* R$${total},00
 
 💵 *Forma de pagamento:* ${pagamento}
 ${pagamento === 'Dinheiro' && troco ? `🪙 *Troco para:* ${troco}` : ''}
@@ -387,20 +740,33 @@ ${observacoes || 'Nenhuma observação'}
 
 _Agendamento realizado via site em ${new Date().toLocaleDateString('pt-BR')}_`;
 
-                // Número do WhatsApp do barbeiro
-                // const numeroBarbeiro = '55359';
-                //const link = `https://wa.me/${numeroBarbeiro}?text=${encodeURIComponent(texto)}`;
-                const link = `https://wa.me/?text=${encodeURIComponent(texto)}`;
-                
-                window.open(link, '_blank');
-                
-                // Reseta o formulário
+            // Cria o link do WhatsApp Business
+            const link = `https://wa.me/${BARBEIRO_WHATSAPP}?text=${encodeURIComponent(texto)}`;
+            
+            // Abre o WhatsApp
+            window.open(link, '_blank');
+            
+            // Mostra confirmação
+            showNotification('Agendamento enviado com sucesso!');
+            
+            // Reseta o formulário após um delay
+            setTimeout(() => {
                 document.getElementById('formAgendamento').reset();
                 btn.disabled = false;
                 loading.style.display = 'none';
                 document.getElementById('trocoField').style.display = 'none';
-                
-            }, 800);
+                document.getElementById('totalServicos').style.display = 'none';
+            }, 1500);
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
         }
     </script>
 </body>
