@@ -1,637 +1,2143 @@
-<!--
- * --------------------------------------------------------------
- * Author: Rafael Passos Domingues
- * Last Update: 2025 June 6
- * --------------------------------------------------------------
--->
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>DentaLog - Controle e Divulgação Odontológica</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --primary: #00b4b3;
-    --primary-dark: #008a89;
-    --secondary: #ff7e5f;
-    --light: #f8f9fa;
-    --dark: #212529;
-    --success: #28a745;
-    --info: #17a2b8;
-  }
-  
-  body {
-    font-family: 'Poppins', sans-serif;
-    background: #f5f9f8;
-    margin: 0;
-    padding: 2rem;
-    color: var(--dark);
-    line-height: 1.6;
-  }
-  
-  h1 {
-    text-align: center;
-    font-size: 2.5rem;
-    color: var(--primary);
-    margin-bottom: 1.5rem;
-    font-weight: 600.007;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
-  
-  .container {
-    max-width: 1000px;
-    margin: auto;
-    background: #ffffff;
-    padding: 2.5rem;
-    border-radius: 16px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-  }
-  
-  .section {
-    margin-bottom: 2.5rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid #eee;
-  }
-  
-  .section:last-child {
-    border-bottom: none;
-  }
-  
-  .section h2 {
-    color: var(--primary-dark);
-    margin-bottom: 1.2rem;
-    font-weight: 600.0042;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .section h2 i {
-    font-size: 1.3em;
-  }
-  
-  label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: var(--dark);
-  }
-  
-  input[type="text"], textarea, select {
-    width: 100%;
-    padding: 0.8rem;
-    margin-bottom: 1.2rem;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    box-sizing: border-box;
-    background: #f9f9f9;
-    font-family: 'Poppins', sans-serif;
-    transition: all 0.3s;
-  }
-  
-  input[type="text"]:focus, textarea:focus, select:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(0, 180, 179, 0.1);
-    background: #fff;
-  }
-  
-  textarea {
-    min-height: 100px;
-    resize: vertical;
-  }
-  
-  .checkbox-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 1.5rem;
-  }
-  
-  .checkbox-group label {
-    display: inline-flex;
-    align-items: center;
-    background: #e0f7f7;
-    border-radius: 8px;
-    padding: 0.5rem 1rem;
-    margin: 0;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-weight: 400;
-  }
-  
-  .checkbox-group label:hover {
-    background: #c2f0f0;
-    transform: translateY(-2px);
-  }
-  
-  .checkbox-group input[type="checkbox"] {
-    margin-right: 0.5rem;
-    accent-color: var(--primary);
-  }
-  
-  .button-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 1.5rem;
-  }
-  
-  button {
-    background: var(--primary);
-    color: #fff;
-    padding: 0.8rem 1.5rem;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.3s;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.95rem;
-  }
-  
-  button:hover {
-    background: var(--primary-dark);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-  
-  button.secondary {
-    background: var(--secondary);
-  }
-  
-  button.secondary:hover {
-    background: #e06c4f;
-  }
-  
-  button.outline {
-    background: transparent;
-    border: 2px solid var(--primary);
-    color: var(--primary);
-  }
-  
-  button.outline:hover {
-    background: rgba(0, 180, 179, 0.1);
-  }
-  
-  #dashboard-container {
-    margin-top: 2.5rem;
-    background: #f8fdfd;
-    border-radius: 12px;
-    padding: 1.5rem;
-    border: 1px solid #e0f7f7;
-    position: relative;
-  }
-  
-  #dashboard {
-    max-width: 100%;
-  }
-  
-  .dashboard-title {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    color: var(--primary-dark);
-    font-weight: 600;
-  }
-  
-  .clinic-info {
-    text-align: center;
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
-    color: #666;
-  }
-  
-  .social-media {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 1rem;
-  }
-  
-  .social-icon {
-    color: var(--primary);
-    font-size: 1.2rem;
-  }
-  
-  .add-procedure-container {
-    display: flex;
-    gap: 10px;
-    margin-top: 1rem;
-  }
-  
-  .add-procedure-container input {
-    margin-bottom: 0;
-    flex-grow: 1;
-  }
-  
-  .rating-container {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 1rem;
-  }
-  
-  .rating-star {
-    font-size: 1.8rem;
-    color: #ddd;
-    cursor: pointer;
-    transition: color 0.2s;
-  }
-  
-  .rating-star.active {
-    color: #ffc107;
-  }
-  
-  @media (max-width: 768px) {
-    body {
-      padding: 1rem;
-    }
-    
-    .container {
-      padding: 1.5rem;
-    }
-    
-    .button-group {
-      flex-direction: column;
-    }
-    
-    button {
-      width: 100%;
-      justify-content: center;
-    }
-  }
-</style>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DentaLog 2.0 - Sistema Odontológico Completo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary: #00b4b3;
+            --primary-dark: #008a89;
+            --primary-light: #e0f7f7;
+            --secondary: #ff7e5f;
+            --secondary-dark: #e06c4f;
+            --accent: #4e79a7;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #f5f9f8;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--gray);
+            position: relative;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title i {
+            font-size: 1.3rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+            background-color: #f9f9f9;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 180, 179, 0.1);
+            background-color: #fff;
+        }
+
+        .select-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+            background-color: #f9f9f9;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 1em;
+        }
+
+        .select-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 180, 179, 0.1);
+            background-color: #fff;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-item {
+            display: inline-flex;
+            align-items: center;
+            background-color: var(--primary-light);
+            border-radius: 8px;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .checkbox-item:hover {
+            background-color: #c2f0f0;
+            transform: translateY(-2px);
+        }
+
+        .checkbox-item input {
+            margin-right: 8px;
+            accent-color: var(--primary);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--secondary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(0, 180, 179, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        /* Odontograma Styles */
+        .odontogram-container {
+            width: 100%;
+            overflow-x: auto;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+        }
+
+        .odontogram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 800px;
+        }
+
+        .jaw {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .tooth {
+            width: 40px;
+            height: 60px;
+            margin: 0 5px;
+            border: 2px solid var(--gray);
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            background-color: white;
+        }
+
+        .tooth:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+
+        .tooth-number {
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: var(--dark);
+        }
+
+        .tooth.active {
+            border-color: var(--primary);
+        }
+
+        .tooth.problem {
+            border-color: var(--danger);
+        }
+
+        .tooth-label {
+            position: absolute;
+            bottom: -20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: var(--dark);
+        }
+
+        .problems-list {
+            margin-top: 20px;
+        }
+
+        .problem-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .problem-item .tooth-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 10px;
+            background-color: var(--danger);
+        }
+
+        .problem-item .problem-details {
+            flex-grow: 1;
+        }
+
+        .problem-item .problem-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        /* Budget Styles */
+        .material-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .material-item:last-child {
+            border-bottom: none;
+        }
+
+        .material-checkbox {
+            margin-right: 15px;
+        }
+
+        .material-details {
+            flex-grow: 1;
+        }
+
+        .material-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .material-description {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 5px;
+        }
+
+        .material-price {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .material-quantity {
+            width: 60px;
+            margin-left: 15px;
+        }
+
+        .budget-summary {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .summary-total {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary-dark);
+            border-top: 2px solid var(--primary-light);
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+
+        /* Communication Styles */
+        .message-template {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #f9f9f9;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .message-template:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-2px);
+        }
+
+        .template-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .template-content {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        /* Priority Styles */
+        .priority-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .priority-badge {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .priority-high {
+            background-color: var(--danger);
+        }
+
+        .priority-medium {
+            background-color: var(--warning);
+        }
+
+        .priority-low {
+            background-color: var(--success);
+        }
+
+        .priority-details {
+            flex-grow: 1;
+        }
+
+        .priority-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .priority-description {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .priority-time {
+            font-weight: 600;
+            margin-left: 15px;
+            white-space: nowrap;
+        }
+
+        /* Dashboard Styles */
+        .dashboard-container {
+            margin-top: 30px;
+            background-color: #f8fdfd;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e0f7f7;
+        }
+
+        .dashboard-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        .clinic-info {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .chart-container {
+            margin: 20px 0;
+            height: 300px;
+        }
+
+        .social-media {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-icon {
+            color: var(--primary);
+            font-size: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .social-icon:hover {
+            transform: translateY(-3px);
+            color: var(--primary-dark);
+        }
+
+        /* Rating Styles */
+        .rating-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .rating-star {
+            font-size: 1.8rem;
+            color: #ddd;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .rating-star.active {
+            color: #ffc107;
+        }
+
+        /* Tooltip Styles */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--dark);
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+            font-weight: normal;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .tab-container {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                padding-bottom: 10px;
+            }
+            
+            .tab-btn {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .odontogram {
+                min-width: 600px;
+            }
+            
+            .tooth {
+                width: 30px;
+                height: 45px;
+                margin: 0 3px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .card-title {
+                font-size: 1.2rem;
+            }
+            
+            .odontogram {
+                min-width: 500px;
+            }
+            
+            .tooth {
+                width: 25px;
+                height: 40px;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-  <h1><i class="fas fa-tooth"></i> DentaLog</h1>
-  <p style="text-align: center; margin-bottom: 2rem; color: #555;">Sistema de registro e divulgação de atendimentos odontológicos</p>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <h1><i class="fas fa-tooth"></i> DentaLog 2.0</h1>
+            </div>
+            <p class="subtitle">Sistema completo de gestão odontológica</p>
+        </header>
 
-  <div class="section">
-    <h2><i class="fas fa-procedures"></i> Tipos de Procedimentos</h2>
-    <p>Marque os procedimentos realizados hoje e adicione novos conforme necessário:</p>
-    <div class="checkbox-group" id="procedimentosCheckboxes"></div>
-    <div class="add-procedure-container">
-      <input type="text" id="novoProcedimento" placeholder="Ex: Implante, Lente de contato...">
-      <button onclick="adicionarProcedimento()"><i class="fas fa-plus"></i> Adicionar</button>
+        <div class="tab-container">
+            <button class="tab-btn active" onclick="openTab('atendimento')">
+                <i class="fas fa-procedures"></i> Atendimento
+            </button>
+            <button class="tab-btn" onclick="openTab('odontograma')">
+                <i class="fas fa-teeth"></i> Odontograma
+            </button>
+            <button class="tab-btn" onclick="openTab('orcamento')">
+                <i class="fas fa-calculator"></i> Orçamento
+            </button>
+            <button class="tab-btn" onclick="openTab('comunicacao')">
+                <i class="fas fa-comments"></i> Comunicação
+            </button>
+            <button class="tab-btn" onclick="openTab('prioridade')">
+                <i class="fas fa-exclamation-triangle"></i> Priorização
+            </button>
+            <button class="tab-btn" onclick="openTab('dashboard')">
+                <i class="fas fa-chart-pie"></i> Dashboard
+            </button>
+        </div>
+
+        <!-- Atendimento Tab -->
+        <div class="tab-content active" id="atendimento">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-procedures"></i> Procedimentos Realizados</h2>
+                
+                <div class="form-group">
+                    <label>Selecione os procedimentos realizados:</label>
+                    <div class="checkbox-group" id="procedimentosCheckboxes"></div>
+                    
+                    <div class="form-group">
+                        <label for="novoProcedimento">Adicionar novo procedimento:</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="novoProcedimento" class="form-control" placeholder="Ex: Implante, Lente de contato...">
+                            <button class="btn btn-primary" onclick="adicionarProcedimento()">
+                                <i class="fas fa-plus"></i> Adicionar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-user-injured"></i> Dados do Paciente</h2>
+                
+                <div class="form-group">
+                    <label for="paciente">Nome do Paciente:</label>
+                    <input type="text" id="paciente" class="form-control" placeholder="Nome completo do paciente">
+                </div>
+                
+                <div class="form-group">
+                    <label for="telefone">Telefone:</label>
+                    <input type="text" id="telefone" class="form-control" placeholder="(00) 00000-0000">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">E-mail:</label>
+                    <input type="text" id="email" class="form-control" placeholder="paciente@exemplo.com">
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-file-medical"></i> Detalhes Clínicos</h2>
+                
+                <div class="form-group">
+                    <label for="descricao">Descrição do Caso:</label>
+                    <textarea id="descricao" class="form-control" placeholder="Descreva o caso clínico e as queixas do paciente"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="diagnostico">Diagnóstico:</label>
+                    <input type="text" id="diagnostico" class="form-control" placeholder="Diagnóstico estabelecido">
+                </div>
+                
+                <div class="form-group">
+                    <label for="tratamento">Tratamento Realizado:</label>
+                    <textarea id="tratamento" class="form-control" placeholder="Detalhes do tratamento realizado e orientações"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Avaliação do Paciente:</label>
+                    <div class="rating-container">
+                        <span class="rating-star" onclick="setRating(1)"><i class="far fa-star"></i></span>
+                        <span class="rating-star" onclick="setRating(2)"><i class="far fa-star"></i></span>
+                        <span class="rating-star" onclick="setRating(3)"><i class="far fa-star"></i></span>
+                        <span class="rating-star" onclick="setRating(4)"><i class="far fa-star"></i></span>
+                        <span class="rating-star" onclick="setRating(5)"><i class="far fa-star"></i></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="salvarAtendimento()">
+                    <i class="fas fa-save"></i> Salvar Atendimento
+                </button>
+                <button class="btn btn-secondary" onclick="exportarWhatsApp()">
+                    <i class="fab fa-whatsapp"></i> Enviar para WhatsApp
+                </button>
+                <button class="btn btn-outline" onclick="limparFormulario()">
+                    <i class="fas fa-trash-alt"></i> Limpar Formulário
+                </button>
+            </div>
+        </div>
+
+        <!-- Odontograma Tab -->
+        <div class="tab-content" id="odontograma">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-teeth"></i> Odontograma - Mapa de Dentes</h2>
+                
+                <div class="odontogram-container">
+                    <div class="odontogram">
+                        <!-- Arcada Superior -->
+                        <div class="jaw">
+                            <div class="tooth" data-tooth="18" onclick="selectTooth(this, '18')">
+                                <span class="tooth-number">18</span>
+                                <span class="tooth-label">Siso</span>
+                            </div>
+                            <div class="tooth" data-tooth="17" onclick="selectTooth(this, '17')">
+                                <span class="tooth-number">17</span>
+                                <span class="tooth-label">2º Molar</span>
+                            </div>
+                            <div class="tooth" data-tooth="16" onclick="selectTooth(this, '16')">
+                                <span class="tooth-number">16</span>
+                                <span class="tooth-label">1º Molar</span>
+                            </div>
+                            <div class="tooth" data-tooth="15" onclick="selectTooth(this, '15')">
+                                <span class="tooth-number">15</span>
+                                <span class="tooth-label">2º Pré-Molar</span>
+                            </div>
+                            <div class="tooth" data-tooth="14" onclick="selectTooth(this, '14')">
+                                <span class="tooth-number">14</span>
+                                <span class="tooth-label">1º Pré-Molar</span>
+                            </div>
+                            <div class="tooth" data-tooth="13" onclick="selectTooth(this, '13')">
+                                <span class="tooth-number">13</span>
+                                <span class="tooth-label">Canino</span>
+                            </div>
+                            <div class="tooth" data-tooth="12" onclick="selectTooth(this, '12')">
+                                <span class="tooth-number">12</span>
+                                <span class="tooth-label">Incisivo Lateral</span>
+                            </div>
+                            <div class="tooth" data-tooth="11" onclick="selectTooth(this, '11')">
+                                <span class="tooth-number">11</span>
+                                <span class="tooth-label">Incisivo Central</span>
+                            </div>
+                            <div class="tooth" data-tooth="21" onclick="selectTooth(this, '21')">
+                                <span class="tooth-number">21</span>
+                                <span class="tooth-label">Incisivo Central</span>
+                            </div>
+                            <div class="tooth" data-tooth="22" onclick="selectTooth(this, '22')">
+                                <span class="tooth-number">22</span>
+                                <span class="tooth-label">Incisivo Lateral</span>
+                            </div>
+                            <div class="tooth" data-tooth="23" onclick="selectTooth(this, '23')">
+                                <span class="tooth-number">23</span>
+                                <span class="tooth-label">Canino</span>
+                            </div>
+                            <div class="tooth" data-tooth="24" onclick="selectTooth(this, '24')">
+                                <span class="tooth-number">24</span>
+                                <span class="tooth-label">1º Pré-Molar</span>
+                            </div>
+                            <div class="tooth" data-tooth="25" onclick="selectTooth(this, '25')">
+                                <span class="tooth-number">25</span>
+                                <span class="tooth-label">2º Pré-Molar</span>
+                            </div>
+                            <div class="tooth" data-tooth="26" onclick="selectTooth(this, '26')">
+                                <span class="tooth-number">26</span>
+                                <span class="tooth-label">1º Molar</span>
+                            </div>
+                            <div class="tooth" data-tooth="27" onclick="selectTooth(this, '27')">
+                                <span class="tooth-number">27</span>
+                                <span class="tooth-label">2º Molar</span>
+                            </div>
+                            <div class="tooth" data-tooth="28" onclick="selectTooth(this, '28')">
+                                <span class="tooth-number">28</span>
+                                <span class="tooth-label">Siso</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Arcada Inferior -->
+                        <div class="jaw">
+                            <div class="tooth" data-tooth="48" onclick="selectTooth(this, '48')">
+                                <span class="tooth-number">48</span>
+                                <span class="tooth-label">Siso</span>
+                            </div>
+                            <div class="tooth" data-tooth="47" onclick="selectTooth(this, '47')">
+                                <span class="tooth-number">47</span>
+                                <span class="tooth-label">2º Molar</span>
+                            </div>
+                            <div class="tooth" data-tooth="46" onclick="selectTooth(this, '46')">
+                                <span class="tooth-number">46</span>
+                                <span class="tooth-label">1º Molar</span>
+                            </div>
+                            <div class="tooth" data-tooth="45" onclick="selectTooth(this, '45')">
+                                <span class="tooth-number">45</span>
+                                <span class="tooth-label">2º Pré-Molar</span>
+                            </div>
+                            <div class="tooth" data-tooth="44" onclick="selectTooth(this, '44')">
+                                <span class="tooth-number">44</span>
+                                <span class="tooth-label">1º Pré-Molar</span>
+                            </div>
+                            <div class="tooth" data-tooth="43" onclick="selectTooth(this, '43')">
+                                <span class="tooth-number">43</span>
+                                <span class="tooth-label">Canino</span>
+                            </div>
+                            <div class="tooth" data-tooth="42" onclick="selectTooth(this, '42')">
+                                <span class="tooth-number">42</span>
+                                <span class="tooth-label">Incisivo Lateral</span>
+                            </div>
+                            <div class="tooth" data-tooth="41" onclick="selectTooth(this, '41')">
+                                <span class="tooth-number">41</span>
+                                <span class="tooth-label">Incisivo Central</span>
+                            </div>
+                            <div class="tooth" data-tooth="31" onclick="selectTooth(this, '31')">
+                                <span class="tooth-number">31</span>
+                                <span class="tooth-label">Incisivo Central</span>
+                            </div>
+                            <div class="tooth" data-tooth="32" onclick="selectTooth(this, '32')">
+                                <span class="tooth-number">32</span>
+                                <span class="tooth-label">Incisivo Lateral</span>
+                            </div>
+                            <div class="tooth" data-tooth="33" onclick="selectTooth(this, '33')">
+                                <span class="tooth-number">33</span>
+                                <span class="tooth-label">Canino</span>
+                            </div>
+                            <div class="tooth" data-tooth="34" onclick="selectTooth(this, '34')">
+                                <span class="tooth-number">34</span>
+                                <span class="tooth-label">1º Pré-Molar</span>
+                            </div>
+                            <div class="tooth" data-tooth="35" onclick="selectTooth(this, '35')">
+                                <span class="tooth-number">35</span>
+                                <span class="tooth-label">2º Pré-Molar</span>
+                            </div>
+                            <div class="tooth" data-tooth="36" onclick="selectTooth(this, '36')">
+                                <span class="tooth-number">36</span>
+                                <span class="tooth-label">1º Molar</span>
+                            </div>
+                            <div class="tooth" data-tooth="37" onclick="selectTooth(this, '37')">
+                                <span class="tooth-number">37</span>
+                                <span class="tooth-label">2º Molar</span>
+                            </div>
+                            <div class="tooth" data-tooth="38" onclick="selectTooth(this, '38')">
+                                <span class="tooth-number">38</span>
+                                <span class="tooth-label">Siso</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="problemaDente">Problema Identificado:</label>
+                    <select id="problemaDente" class="select-control">
+                        <option value="">Selecione o problema</option>
+                        <option value="caries">Cárie</option>
+                        <option value="restauracao">Restauração Necessária</option>
+                        <option value="canal">Tratamento de Canal</option>
+                        <option value="extracao">Extração Necessária</option>
+                        <option value="implante">Implante Indicado</option>
+                        <option value="fratura">Fratura</option>
+                        <option value="gengivite">Gengivite</option>
+                        <option value="periodontite">Periodontite</option>
+                        <option value="sensibilidade">Sensibilidade</option>
+                        <option value="outro">Outro Problema</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="detalhesProblema">Detalhes do Problema:</label>
+                    <textarea id="detalhesProblema" class="form-control" placeholder="Descreva em detalhes o problema identificado"></textarea>
+                </div>
+                
+                <button class="btn btn-primary" onclick="adicionarProblema()">
+                    <i class="fas fa-plus"></i> Adicionar Problema
+                </button>
+                
+                <div class="problems-list" id="problemsList"></div>
+            </div>
+        </div>
+
+        <!-- Orçamento Tab -->
+        <div class="tab-content" id="orcamento">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-calculator"></i> Orçamento de Materiais</h2>
+                
+                <div class="form-group">
+                    <label for="filtroMateriais">Filtrar Materiais:</label>
+                    <input type="text" id="filtroMateriais" class="form-control" placeholder="Digite para filtrar..." onkeyup="filtrarMateriais()">
+                </div>
+                
+                <div id="materiaisList">
+                    <!-- Materiais serão adicionados dinamicamente -->
+                </div>
+                
+                <div class="budget-summary">
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">R$ 0,00</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Desconto:</span>
+                        <span id="desconto">R$ 0,00</span>
+                    </div>
+                    <div class="summary-row summary-total">
+                        <span>Total:</span>
+                        <span id="totalOrcamento">R$ 0,00</span>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="gerarOrcamentoPDF()">
+                        <i class="fas fa-file-pdf"></i> Gerar Orçamento PDF
+                    </button>
+                    <button class="btn btn-secondary" onclick="enviarOrcamentoWhatsApp()">
+                        <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
+                    </button>
+                    <button class="btn btn-outline" onclick="limparOrcamento()">
+                        <i class="fas fa-trash-alt"></i> Limpar Orçamento
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comunicação Tab -->
+        <div class="tab-content" id="comunicacao">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-comments"></i> Comunicação Estruturada</h2>
+                
+                <div class="form-group">
+                    <label for="tipoComunicacao">Tipo de Comunicação:</label>
+                    <select id="tipoComunicacao" class="select-control" onchange="carregarTemplates()">
+                        <option value="">Selecione o tipo</option>
+                        <option value="paciente">Para Paciente</option>
+                        <option value="protetico">Para Protético</option>
+                        <option value="fornecedor">Para Fornecedor</option>
+                        <option value="radiologista">Para Radiologista</option>
+                    </select>
+                </div>
+                
+                <div id="templatesContainer">
+                    <!-- Templates serão carregados aqui -->
+                </div>
+                
+                <div class="form-group" id="editorMensagem" style="display: none;">
+                    <label for="mensagemEditada">Editar Mensagem:</label>
+                    <textarea id="mensagemEditada" class="form-control" rows="6"></textarea>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="copiarMensagem()">
+                            <i class="fas fa-copy"></i> Copiar Mensagem
+                        </button>
+                        <button class="btn btn-secondary" onclick="enviarWhatsApp()">
+                            <i class="fab fa-whatsapp"></i> Abrir WhatsApp
+                        </button>
+                        <button class="btn btn-outline" onclick="fecharEditor()">
+                            <i class="fas fa-times"></i> Fechar Editor
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Priorização Tab -->
+        <div class="tab-content" id="prioridade">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-exclamation-triangle"></i> Priorização de Atendimentos</h2>
+                
+                <div class="form-group">
+                    <label for="filtroPrioridade">Filtrar por Prioridade:</label>
+                    <select id="filtroPrioridade" class="select-control" onchange="filtrarPrioridades()">
+                        <option value="todos">Todos</option>
+                        <option value="alta">Alta Prioridade</option>
+                        <option value="media">Média Prioridade</option>
+                        <option value="baixa">Baixa Prioridade</option>
+                    </select>
+                </div>
+                
+                <div id="listaPrioridades">
+                    <!-- Itens de prioridade serão adicionados aqui -->
+                </div>
+                
+                <div class="form-group">
+                    <label for="novoPacientePrioridade">Adicionar Novo Paciente:</label>
+                    <input type="text" id="novoPacientePrioridade" class="form-control" placeholder="Nome do paciente">
+                </div>
+                
+                <div class="form-group">
+                    <label for="descricaoPrioridade">Descrição do Caso:</label>
+                    <textarea id="descricaoPrioridade" class="form-control" placeholder="Descreva o caso e a urgência"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="nivelPrioridade">Nível de Prioridade:</label>
+                    <select id="nivelPrioridade" class="select-control">
+                        <option value="alta">Alta Prioridade</option>
+                        <option value="media">Média Prioridade</option>
+                        <option value="baixa">Baixa Prioridade</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="tempoEstimado">Tempo Estimado (minutos):</label>
+                    <input type="number" id="tempoEstimado" class="form-control" placeholder="Tempo estimado para o atendimento">
+                </div>
+                
+                <button class="btn btn-primary" onclick="adicionarPrioridade()">
+                    <i class="fas fa-plus"></i> Adicionar à Lista
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div class="tab-content" id="dashboard">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-chart-pie"></i> Dashboard de Atendimentos</h2>
+                
+                <div class="form-group">
+                    <label for="periodoDashboard">Período:</label>
+                    <select id="periodoDashboard" class="select-control" onchange="atualizarDashboard()">
+                        <option value="hoje">Hoje</option>
+                        <option value="semana">Esta Semana</option>
+                        <option value="mes">Este Mês</option>
+                        <option value="trimestre">Este Trimestre</option>
+                        <option value="ano">Este Ano</option>
+                    </select>
+                </div>
+                
+                <div class="dashboard-container">
+                    <div class="dashboard-title">Resumo de Atendimentos</div>
+                    <div class="clinic-info" id="clinicInfo">Clínica Odontológica • Dra. Ana Silva • CRO/SP 12345</div>
+                    
+                    <div class="chart-container">
+                        <canvas id="procedimentosChart"></canvas>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="avaliacaoChart"></canvas>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="exportarDashboardPDF()">
+                            <i class="fas fa-file-pdf"></i> Exportar PDF
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportarDashboardImagem()">
+                            <i class="fas fa-image"></i> Exportar Imagem
+                        </button>
+                        <button class="btn btn-outline" onclick="compartilharInstagram()">
+                            <i class="fab fa-instagram"></i> Compartilhar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <div class="section">
-    <h2><i class="fas fa-user-injured"></i> Detalhes do Atendimento</h2>
-    <label for="paciente">Paciente:</label>
-    <input type="text" id="paciente" placeholder="Nome do paciente">
-    
-    <label for="descricao">Descrição do Caso:</label>
-    <textarea id="descricao" placeholder="Descreva o caso clínico e as queixas do paciente"></textarea>
-    
-    <label for="diagnostico">Diagnóstico:</label>
-    <input type="text" id="diagnostico" placeholder="Diagnóstico estabelecido">
-    
-    <label for="tratamento">Tratamento Realizado:</label>
-    <textarea id="tratamento" placeholder="Detalhes do tratamento realizado e orientações"></textarea>
-    
-    <label>Avaliação do Paciente:</label>
-    <div class="rating-container">
-      <span class="rating-star" onclick="setRating(1)"><i class="far fa-star"></i></span>
-      <span class="rating-star" onclick="setRating(2)"><i class="far fa-star"></i></span>
-      <span class="rating-star" onclick="setRating(3)"><i class="far fa-star"></i></span>
-      <span class="rating-star" onclick="setRating(4)"><i class="far fa-star"></i></span>
-      <span class="rating-star" onclick="setRating(5)"><i class="far fa-star"></i></span>
-    </div>
-  </div>
+    <script>
+        // Variáveis globais
+        let procedimentos = ["Limpeza", "Restauração", "Clareamento", "Ortodontia", "Extração"];
+        let rating = 0;
+        let selectedTooth = null;
+        let problemasDentarios = [];
+        let materiais = [];
+        let orcamento = [];
+        let templates = {};
+        let prioridades = [];
+        let atendimentos = [];
+        
+        // Configurações da clínica
+        const clinicInfo = {
+            name: "Clínica Odontológica",
+            dentist: "Dra. Ana Silva",
+            cro: "CRO/SP 12345",
+            phone: "(11) 98765-4321",
+            address: "Av. Paulista, 1000 - São Paulo/SP",
+            instagram: "@clinicaodontologica",
+            email: "contato@clinicaodontologica.com.br"
+        };
 
-  <div class="section">
-    <h2><i class="fas fa-share-alt"></i> Exportar e Compartilhar</h2>
-    <div class="button-group">
-      <button onclick="exportarWhatsApp()"><i class="fab fa-whatsapp"></i> WhatsApp</button>
-      <button onclick="gerarRelatorioPDF()" class="secondary"><i class="fas fa-file-pdf"></i> Gerar PDF</button>
-      <button onclick="gerarDashboard()"><i class="fas fa-chart-pie"></i> Dashboard</button>
-      <button onclick="exportarInstagram()" class="outline"><i class="fab fa-instagram"></i> Instagram</button>
-    </div>
-  </div>
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            renderizarCheckboxes();
+            carregarMateriais();
+            carregarTemplates();
+            carregarPrioridades();
+            carregarAtendimentos();
+            
+            document.getElementById('clinicInfo').textContent = `${clinicInfo.name} • ${clinicInfo.dentist} • ${clinicInfo.cro}`;
+        });
 
-  <div id="dashboard-container" style="display: none;">
-    <div class="dashboard-title">Resumo dos Procedimentos Diários</div>
-    <div class="clinic-info" id="clinicInfo">Clínica Odontológica • Dra. Ana Silva • CRO/SP 12345</div>
-    <canvas id="dashboard"></canvas>
-    <div class="social-media">
-      <span class="social-icon"><i class="fab fa-instagram"></i></span>
-      <span class="social-icon"><i class="fab fa-facebook"></i></span>
-      <span class="social-icon"><i class="fab fa-whatsapp"></i></span>
-    </div>
-  </div>
-</div>
+        // Funções para abas
+        function openTab(tabId) {
+            // Esconder todas as abas
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remover classe active de todos os botões
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Mostrar a aba selecionada
+            document.getElementById(tabId).classList.add('active');
+            
+            // Adicionar classe active ao botão clicado
+            event.currentTarget.classList.add('active');
+            
+            // Atualizar dashboard se for a aba correspondente
+            if (tabId === 'dashboard') {
+                atualizarDashboard();
+            }
+        }
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script>
-  // Configurações iniciais
-  let procedimentos = ["Limpeza", "Restauração", "Clareamento", "Ortodontia", "Extração"];
-  let rating = 0;
-  const checkboxesContainer = document.getElementById('procedimentosCheckboxes');
-  
-  // Configurações da clínica (pode ser editado)
-  const clinicInfo = {
-    name: "Clínica Odontológica",
-    dentist: "Dra. Ana Silva",
-    cro: "CRO/SP 12345",
-    phone: "(11) 98765-4321",
-    address: "Av. Paulista, 1000 - São Paulo/SP"
-  };
+        // Funções para procedimentos
+        function renderizarCheckboxes() {
+            const container = document.getElementById('procedimentosCheckboxes');
+            container.innerHTML = '';
+            
+            procedimentos.forEach(proc => {
+                const div = document.createElement('div');
+                div.className = 'checkbox-item';
+                div.innerHTML = `<input type="checkbox" value="${proc}"> ${proc}`;
+                container.appendChild(div);
+            });
+        }
 
-  // Inicializa a página
-  document.addEventListener('DOMContentLoaded', function() {
-    renderizarCheckboxes();
-    document.getElementById('clinicInfo').textContent = `${clinicInfo.name} • ${clinicInfo.dentist} • ${clinicInfo.cro}`;
-  });
+        function adicionarProcedimento() {
+            const novoProc = document.getElementById('novoProcedimento').value.trim();
+            if (novoProc && !procedimentos.includes(novoProc)) {
+                procedimentos.push(novoProc);
+                renderizarCheckboxes();
+                document.getElementById('novoProcedimento').value = '';
+            }
+        }
 
-  function renderizarCheckboxes() {
-    checkboxesContainer.innerHTML = '';
-    procedimentos.forEach(tipo => {
-      const label = document.createElement('label');
-      label.innerHTML = `<input type="checkbox" value="${tipo}"> ${tipo}`;
-      checkboxesContainer.appendChild(label);
-    });
-  }
+        // Funções para avaliação
+        function setRating(stars) {
+            rating = stars;
+            const starsElements = document.querySelectorAll('.rating-star');
+            starsElements.forEach((star, index) => {
+                if (index < stars) {
+                    star.innerHTML = '<i class="fas fa-star"></i>';
+                    star.classList.add('active');
+                } else {
+                    star.innerHTML = '<i class="far fa-star"></i>';
+                    star.classList.remove('active');
+                }
+            });
+        }
 
-  function adicionarProcedimento() {
-    const novoTipo = document.getElementById('novoProcedimento').value.trim();
-    if (novoTipo && !procedimentos.includes(novoTipo)) {
-      procedimentos.push(novoTipo);
-      renderizarCheckboxes();
-      document.getElementById('novoProcedimento').value = '';
-    }
-  }
+        // Funções para odontograma
+        function selectTooth(element, toothNumber) {
+            // Remover seleção anterior
+            if (selectedTooth) {
+                selectedTooth.classList.remove('active');
+            }
+            
+            // Selecionar novo dente
+            selectedTooth = element;
+            selectedTooth.classList.add('active');
+            document.getElementById('problemaDente').focus();
+        }
 
-  function setRating(stars) {
-    rating = stars;
-    const starsElements = document.querySelectorAll('.rating-star');
-    starsElements.forEach((star, index) => {
-      if (index < stars) {
-        star.innerHTML = '<i class="fas fa-star"></i>';
-        star.classList.add('active');
-      } else {
-        star.innerHTML = '<i class="far fa-star"></i>';
-        star.classList.remove('active');
-      }
-    });
-  }
+        function adicionarProblema() {
+            const toothNumber = selectedTooth ? selectedTooth.getAttribute('data-tooth') : null;
+            if (!toothNumber) {
+                alert('Selecione um dente primeiro');
+                return;
+            }
+            
+            const problema = document.getElementById('problemaDente').value;
+            if (!problema) {
+                alert('Selecione um tipo de problema');
+                return;
+            }
+            
+            const detalhes = document.getElementById('detalhesProblema').value.trim();
+            
+            const novoProblema = {
+                tooth: toothNumber,
+                problem: problema,
+                details: detalhes,
+                date: new Date().toLocaleDateString()
+            };
+            
+            problemasDentarios.push(novoProblema);
+            renderizarProblemas();
+            
+            // Marcar dente como problemático
+            selectedTooth.classList.add('problem');
+            selectedTooth.classList.remove('active');
+            selectedTooth = null;
+            
+            // Limpar formulário
+            document.getElementById('problemaDente').value = '';
+            document.getElementById('detalhesProblema').value = '';
+        }
 
-  function exportarWhatsApp() {
-    const procedimentosSelecionados = Array.from(checkboxesContainer.querySelectorAll('input:checked')).map(cb => `✅ ${cb.value}`);
-    const paciente = document.getElementById('paciente').value.trim();
-    const descricao = document.getElementById('descricao').value.trim();
-    const diagnostico = document.getElementById('diagnostico').value.trim();
-    const tratamento = document.getElementById('tratamento').value.trim();
+        function renderizarProblemas() {
+            const container = document.getElementById('problemsList');
+            container.innerHTML = '';
+            
+            if (problemasDentarios.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--gray);">Nenhum problema registrado ainda.</p>';
+                return;
+            }
+            
+            problemasDentarios.forEach((prob, index) => {
+                const div = document.createElement('div');
+                div.className = 'problem-item';
+                
+                const problemText = getProblemText(prob.problem);
+                
+                div.innerHTML = `
+                    <div class="tooth-indicator"></div>
+                    <div class="problem-details">
+                        <strong>Dente ${prob.tooth}</strong> - ${problemText}
+                        <div style="font-size: 0.8rem; color: var(--gray);">${prob.details}</div>
+                    </div>
+                    <div class="problem-actions">
+                        <button class="btn btn-outline" style="padding: 5px 10px;" onclick="editarProblema(${index})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger" style="padding: 5px 10px;" onclick="removerProblema(${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                container.appendChild(div);
+            });
+        }
 
-    let mensagem = `*🦷 Resumo do Atendimento Odontológico*\n\n`;
-    mensagem += `*${clinicInfo.dentist} - ${clinicInfo.cro}*\n\n`;
-    if (paciente) mensagem += `*👤 Paciente:* ${paciente}\n`;
-    if (procedimentosSelecionados.length) {
-      mensagem += `\n*📌 Procedimentos Realizados:*\n${procedimentosSelecionados.join('\n')}\n`;
-    }
-    if (descricao) mensagem += `\n*📝 Descrição do Caso:*\n${descricao}\n`;
-    if (diagnostico) mensagem += `\n*🔬 Diagnóstico:*\n${diagnostico}\n`;
-    if (tratamento) mensagem += `\n*💊 Tratamento Realizado:*\n${tratamento}\n`;
-    if (rating > 0) {
-      mensagem += `\n*⭐ Avaliação do Paciente:* ${'★'.repeat(rating)}${'☆'.repeat(5-rating)}\n`;
-    }
-    mensagem += `\n*📞 Agende seu horário:* ${clinicInfo.phone}\n`;
-    mensagem += `📍 ${clinicInfo.address}`;
+        function getProblemText(code) {
+            const problems = {
+                'caries': 'Cárie',
+                'restauracao': 'Restauração Necessária',
+                'canal': 'Tratamento de Canal',
+                'extracao': 'Extração Necessária',
+                'implante': 'Implante Indicado',
+                'fratura': 'Fratura',
+                'gengivite': 'Gengivite',
+                'periodontite': 'Periodontite',
+                'sensibilidade': 'Sensibilidade',
+                'outro': 'Outro Problema'
+            };
+            
+            return problems[code] || code;
+        }
 
-    const encoded = encodeURIComponent(mensagem);
-    const link = `https://wa.me/?text=${encoded}`;
-    window.open(link, '_blank');
-  }
+        function removerProblema(index) {
+            problemasDentarios.splice(index, 1);
+            renderizarProblemas();
+        }
 
-  function gerarRelatorioPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    
-    // Cabeçalho
-    doc.setFontSize(18);
-    doc.setTextColor(0, 180, 179);
-    doc.text('Relatório Odontológico', 105, 20, { align: 'center' });
-    
-    doc.setFontSize(12);
-    doc.setTextColor(100, 100, 100);
-    doc.text(`${clinicInfo.dentist} - ${clinicInfo.cro}`, 105, 28, { align: 'center' });
-    
-    // Data
-    const today = new Date();
-    doc.text(`Data: ${today.toLocaleDateString('pt-BR')}`, 105, 35, { align: 'center' });
-    
-    // Linha divisória
-    doc.setDrawColor(0, 180, 179);
-    doc.setLineWidth(0.5);
-    doc.line(20, 40, 190, 40);
-    
-    // Conteúdo
-    doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0);
-    let yPosition = 50;
-    
-    // Paciente
-    const paciente = document.getElementById('paciente').value.trim();
-    if (paciente) {
-      doc.text(`Paciente: ${paciente}`, 20, yPosition);
-      yPosition += 10;
-    }
-    
-    // Procedimentos
-    const procedimentosSelecionados = Array.from(checkboxesContainer.querySelectorAll('input:checked')).map(cb => `• ${cb.value}`);
-    if (procedimentosSelecionados.length) {
-      doc.text('Procedimentos Realizados:', 20, yPosition);
-      yPosition += 10;
-      procedimentosSelecionados.forEach(proc => {
-        doc.text(proc, 25, yPosition);
-        yPosition += 8;
-      });
-    }
-    
-    // Descrição
-    const descricao = document.getElementById('descricao').value.trim();
-    if (descricao) {
-      yPosition += 5;
-      doc.text('Descrição do Caso:', 20, yPosition);
-      yPosition += 8;
-      const descLines = doc.splitTextToSize(descricao, 170);
-      descLines.forEach(line => {
-        doc.text(line, 20, yPosition);
-        yPosition += 8;
-      });
-    }
-    
-    // Diagnóstico
-    const diagnostico = document.getElementById('diagnostico').value.trim();
-    if (diagnostico) {
-      yPosition += 5;
-      doc.text('Diagnóstico:', 20, yPosition);
-      yPosition += 8;
-      const diagLines = doc.splitTextToSize(diagnostico, 170);
-      diagLines.forEach(line => {
-        doc.text(line, 20, yPosition);
-        yPosition += 8;
-      });
-    }
-    
-    // Tratamento
-    const tratamento = document.getElementById('tratamento').value.trim();
-    if (tratamento) {
-      yPosition += 5;
-      doc.text('Tratamento Realizado:', 20, yPosition);
-      yPosition += 8;
-      const tratLines = doc.splitTextToSize(tratamento, 170);
-      tratLines.forEach(line => {
-        doc.text(line, 20, yPosition);
-        yPosition += 8;
-      });
-    }
-    
-    // Avaliação
-    if (rating > 0) {
-      yPosition += 5;
-      doc.text(`Avaliação do Paciente: ${'★'.repeat(rating)}${'☆'.repeat(5-rating)}`, 20, yPosition);
-      yPosition += 10;
-    }
-    
-    // Rodapé
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.text(`Gerado em ${today.toLocaleString('pt-BR')} pelo DentaLog`, 105, 280, { align: 'center' });
-    
-    doc.save(`relatorio_odontologico_${paciente || 'atendimento'}.pdf`);
-  }
+        function editarProblema(index) {
+            // Implementar edição de problema
+            alert('Funcionalidade de edição será implementada aqui');
+        }
 
-  function gerarDashboard() {
-    const ctx = document.getElementById('dashboard').getContext('2d');
-    const dados = procedimentos.map(tipo => {
-      const checkbox = Array.from(checkboxesContainer.querySelectorAll(`input[value="${tipo}"]`))[0];
-      return checkbox && checkbox.checked ? 1 : 0;
-    });
+        // Funções para orçamento
+        function carregarMateriais() {
+            // Simulação de materiais - em uma aplicação real, viria de um banco de dados
+            materiais = [
+                { id: 1, name: "Resina Composta", description: "Kit restauração direta - cor A2", price: 120.00, category: "Restauração" },
+                { id: 2, name: "Amálgama", description: "Pó para restauração em amálgama", price: 85.50, category: "Restauração" },
+                { id: 3, name: "Cimento de Ionômero", description: "Vidro ionômero - 50g", price: 95.00, category: "Restauração" },
+                { id: 4, name: "Anestésico Lidocaína", description: "Cartucho com 1.8ml", price: 8.50, category: "Anestésicos" },
+                { id: 5, name: "Agulha Descarpack", description: "Agulha 30x0.7mm - 100un", price: 45.00, category: "Anestésicos" },
+                { id: 6, name: "Fio de Sutura", description: "Nylon 4-0 - 12un", price: 65.00, category: "Cirurgia" },
+                { id: 7, name: "Gaze Estéril", description: "Pacote com 50un", price: 32.00, category: "Cirurgia" },
+                { id: 8, name: "Coroa Provisória", description: "Coroa acrílica - kit 10un", price: 150.00, category: "Prótese" },
+                { id: 9, name: "Pino de Fibra", description: "Pino radicular - 10un", price: 180.00, category: "Endodontia" },
+                { id: 10, name: "Guta-percha", description: "Cones #25 - 100un", price: 75.00, category: "Endodontia" }
+            ];
+            
+            renderizarMateriais();
+        }
 
-    // Filtra apenas os procedimentos selecionados
-    const labelsSelecionados = [];
-    const dadosSelecionados = [];
-    const coresSelecionadas = [];
-    
-    procedimentos.forEach((tipo, index) => {
-      if (dados[index] > 0) {
-        labelsSelecionados.push(tipo);
-        dadosSelecionados.push(dados[index]);
-        coresSelecionadas.push(getColorForChart(index));
-      }
-    });
+        function renderizarMateriais() {
+            const container = document.getElementById('materiaisList');
+            container.innerHTML = '';
+            
+            materiais.forEach(mat => {
+                const div = document.createElement('div');
+                div.className = 'material-item';
+                
+                div.innerHTML = `
+                    <div class="material-checkbox">
+                        <input type="checkbox" id="mat-${mat.id}" onchange="atualizarOrcamento(${mat.id})">
+                    </div>
+                    <div class="material-details">
+                        <div class="material-name">${mat.name}</div>
+                        <div class="material-description">${mat.description} (${mat.category})</div>
+                        <div class="material-price">R$ ${mat.price.toFixed(2)}</div>
+                    </div>
+                    <input type="number" min="1" value="1" class="form-control material-quantity" id="qtd-${mat.id}" onchange="atualizarQuantidade(${mat.id})" disabled>
+                `;
+                
+                container.appendChild(div);
+            });
+        }
 
-    if (labelsSelecionados.length === 0) {
-      alert('Selecione pelo menos um procedimento para gerar o dashboard.');
-      return;
-    }
+        function filtrarMateriais() {
+            const filtro = document.getElementById('filtroMateriais').value.toLowerCase();
+            const materiaisItems = document.querySelectorAll('.material-item');
+            
+            materiaisItems.forEach(item => {
+                const texto = item.textContent.toLowerCase();
+                if (texto.includes(filtro)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
 
-    if (window.myChart) {
-      window.myChart.destroy();
-    }
+        function atualizarOrcamento(materialId) {
+            const checkbox = document.getElementById(`mat-${materialId}`);
+            const quantidade = document.getElementById(`qtd-${materialId}`);
+            
+            if (checkbox.checked) {
+                quantidade.disabled = false;
+                
+                const material = materiais.find(m => m.id === materialId);
+                orcamento.push({
+                    id: materialId,
+                    name: material.name,
+                    price: material.price,
+                    quantity: parseInt(quantidade.value) || 1
+                });
+            } else {
+                quantidade.disabled = true;
+                quantidade.value = 1;
+                orcamento = orcamento.filter(item => item.id !== materialId);
+            }
+            
+            atualizarTotalOrcamento();
+        }
 
-    document.getElementById('dashboard-container').style.display = 'block';
+        function atualizarQuantidade(materialId) {
+            const quantidade = parseInt(document.getElementById(`qtd-${materialId}`).value) || 1;
+            const item = orcamento.find(item => item.id === materialId);
+            
+            if (item) {
+                item.quantity = quantidade;
+                atualizarTotalOrcamento();
+            }
+        }
 
-    window.myChart = new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels: labelsSelecionados,
+        function atualizarTotalOrcamento() {
+            let subtotal = 0;
+            orcamento.forEach(item => {
+                subtotal += item.price * item.quantity;
+            });
+            
+            document.getElementById('subtotal').textContent = `R$ ${subtotal.toFixed(2)}`;
+            document.getElementById('desconto').textContent = `R$ 0,00`; // Poderia implementar desconto
+            document.getElementById('totalOrcamento').textContent = `R$ ${subtotal.toFixed(2)}`;
+        }
+
+        function gerarOrcamentoPDF() {
+            if (orcamento.length === 0) {
+                alert('Adicione materiais ao orçamento primeiro');
+                return;
+            }
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Cabeçalho
+            doc.setFontSize(18);
+            doc.setTextColor(0, 180, 179);
+            doc.text('Orçamento Odontológico', 105, 20, { align: 'center' });
+            
+            doc.setFontSize(12);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`${clinicInfo.dentist} - ${clinicInfo.cro}`, 105, 28, { align: 'center' });
+            doc.text(`Telefone: ${clinicInfo.phone} | E-mail: ${clinicInfo.email}`, 105, 35, { align: 'center' });
+            
+            // Data
+            const today = new Date();
+            doc.text(`Data: ${today.toLocaleDateString('pt-BR')}`, 105, 42, { align: 'center' });
+            
+            // Linha divisória
+            doc.setDrawColor(0, 180, 179);
+            doc.setLineWidth(0.5);
+            doc.line(20, 48, 190, 48);
+            
+            // Itens do orçamento
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 0);
+            let yPosition = 60;
+            
+            doc.text('Itens do Orçamento:', 20, yPosition);
+            yPosition += 10;
+            
+            let subtotal = 0;
+            orcamento.forEach(item => {
+                const totalItem = item.price * item.quantity;
+                subtotal += totalItem;
+                
+                doc.text(`${item.quantity}x ${item.name} - R$ ${item.price.toFixed(2)}`, 25, yPosition);
+                doc.text(`R$ ${totalItem.toFixed(2)}`, 180, yPosition, { align: 'right' });
+                yPosition += 8;
+            });
+            
+            // Total
+            yPosition += 5;
+            doc.setDrawColor(200, 200, 200);
+            doc.line(20, yPosition, 190, yPosition);
+            yPosition += 10;
+            
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.text('Total:', 20, yPosition);
+            doc.text(`R$ ${subtotal.toFixed(2)}`, 180, yPosition, { align: 'right' });
+            
+            // Rodapé
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.setFont(undefined, 'normal');
+            doc.text(`Orçamento válido por 30 dias. Gerado em ${today.toLocaleString('pt-BR')} pelo DentaLog`, 105, 280, { align: 'center' });
+            
+            doc.save(`orcamento_odontologico_${today.toLocaleDateString('pt-BR').replace(/\//g, '-')}.pdf`);
+        }
+
+        function enviarOrcamentoWhatsApp() {
+            if (orcamento.length === 0) {
+                alert('Adicione materiais ao orçamento primeiro');
+                return;
+            }
+            
+            let mensagem = `*📋 Orçamento Odontológico*\n\n`;
+            mensagem += `*${clinicInfo.dentist} - ${clinicInfo.cro}*\n\n`;
+            mensagem += `*Itens do Orçamento:*\n`;
+            
+            let subtotal = 0;
+            orcamento.forEach(item => {
+                const totalItem = item.price * item.quantity;
+                subtotal += totalItem;
+                mensagem += `- ${item.quantity}x ${item.name}: R$ ${totalItem.toFixed(2)}\n`;
+            });
+            
+            mensagem += `\n*Total: R$ ${subtotal.toFixed(2)}*\n\n`;
+            mensagem += `📞 ${clinicInfo.phone}\n`;
+            mensagem += `📧 ${clinicInfo.email}\n`;
+            mensagem += `📍 ${clinicInfo.address}\n\n`;
+            mensagem += `_Orçamento válido por 30 dias. Data: ${new Date().toLocaleDateString('pt-BR')}_`;
+            
+            const encoded = encodeURIComponent(mensagem);
+            const link = `https://wa.me/?text=${encoded}`;
+            window.open(link, '_blank');
+        }
+
+        function limparOrcamento() {
+            if (confirm('Tem certeza que deseja limpar o orçamento atual?')) {
+                orcamento = [];
+                document.querySelectorAll('.material-item input[type="checkbox"]').forEach(cb => {
+                    cb.checked = false;
+                });
+                document.querySelectorAll('.material-quantity').forEach(input => {
+                    input.value = 1;
+                    input.disabled = true;
+                });
+                atualizarTotalOrcamento();
+            }
+        }
+
+        // Funções para comunicação
+        function carregarTemplates() {
+            const tipo = document.getElementById('tipoComunicacao').value;
+            const container = document.getElementById('templatesContainer');
+            container.innerHTML = '';
+            
+            if (!tipo) return;
+            
+            // Simulação de templates - em uma aplicação real, viria de um banco de dados
+            templates = {
+                paciente: [
+                    {
+                        title: "Confirmação de Consulta",
+                        content: "Olá [Nome], sua consulta está agendada para [Data] às [Hora]. Por favor, chegar 10 minutos antes. Cancelamentos com 24h de antecedência."
+                    },
+                    {
+                        title: "Pós-Operatório",
+                        content: "Prezado [Nome], seguem orientações pós-procedimento:\n1. Evitar alimentos quentes/duros por 24h\n2. Aplicar gelo no local\n3. Tomar medicação conforme prescrito\n4. Qualquer dúvida, entre em contato."
+                    },
+                    {
+                        title: "Lembrete de Retorno",
+                        content: "Olá [Nome], seu retorno está agendado para [Data] às [Hora]. Favor confirmar presença respondendo esta mensagem."
+                    }
+                ],
+                protetico: [
+                    {
+                        title: "Solicitação de Coroa",
+                        content: "Solicito confecção de coroa metalocerâmica para dente [Número]. Cor A2. Margem subgengival. Prazo: 7 dias. Paciente: [Nome]."
+                    },
+                    {
+                        title: "Registro de Ajuste",
+                        content: "Protético, a prótese do paciente [Nome] necessita dos seguintes ajustes:\n1. [Descrição do ajuste]\n2. [Descrição do ajuste]\nFavor retificar e devolver para teste."
+                    }
+                ],
+                fornecedor: [
+                    {
+                        title: "Pedido de Materiais",
+                        content: "Solicito cotação/envio dos seguintes itens:\n1. [Material] - [Quantidade]\n2. [Material] - [Quantidade]\nForma de pagamento: [Condição]. Prazo necessário: [Dias] dias."
+                    }
+                ],
+                radiologista: [
+                    {
+                        title: "Solicitação de RX Panorâmico",
+                        content: "Solicito realização de RX Panorâmico para paciente [Nome]. Motivo: [Diagnóstico suspeito]. Enviar laudo por e-mail."
+                    }
+                ]
+            };
+            
+            templates[tipo].forEach((template, index) => {
+                const div = document.createElement('div');
+                div.className = 'message-template';
+                div.onclick = () => selecionarTemplate(tipo, index);
+                
+                div.innerHTML = `
+                    <div class="template-title">
+                        <i class="fas fa-envelope"></i> ${template.title}
+                    </div>
+                    <div class="template-content">
+                        ${template.content.replace(/\n/g, '<br>')}
+                    </div>
+                `;
+                
+                container.appendChild(div);
+            });
+        }
+
+        function selecionarTemplate(tipo, index) {
+            const template = templates[tipo][index];
+            document.getElementById('mensagemEditada').value = template.content;
+            document.getElementById('editorMensagem').style.display = 'block';
+            
+            // Scroll para o editor
+            document.getElementById('editorMensagem').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function copiarMensagem() {
+            const mensagem = document.getElementById('mensagemEditada').value;
+            navigator.clipboard.writeText(mensagem)
+                .then(() => alert('Mensagem copiada para a área de transferência!'))
+                .catch(() => alert('Não foi possível copiar a mensagem.'));
+        }
+
+        function enviarWhatsApp() {
+            const mensagem = document.getElementById('mensagemEditada').value;
+            const encoded = encodeURIComponent(mensagem);
+            const link = `https://wa.me/?text=${encoded}`;
+            window.open(link, '_blank');
+        }
+
+        function fecharEditor() {
+            document.getElementById('editorMensagem').style.display = 'none';
+        }
+
+        // Funções para priorização
+        function carregarPrioridades() {
+            // Simulação de prioridades - em uma aplicação real, viria de um banco de dados
+            prioridades = [
+                {
+                    id: 1,
+                    paciente: "Carlos Silva",
+                    descricao: "Dor intensa em dente 36 - possível abscesso",
+                    prioridade: "alta",
+                    tempo: 45,
+                    data: "15/06/2023"
+                },
+                {
+                    id: 2,
+                    paciente: "Ana Oliveira",
+                    descricao: "Manutenção de aparelho ortodôntico",
+                    prioridade: "baixa",
+                    tempo: 30,
+                    data: "16/06/2023"
+                },
+                {
+                    id: 3,
+                    paciente: "Roberto Santos",
+                    descricao: "Restauração provisória caiu - dente 15",
+                    prioridade: "media",
+                    tempo: 20,
+                    data: "15/06/2023"
+                }
+            ];
+            
+            renderizarPrioridades();
+        }
+
+        function renderizarPrioridades() {
+            const container = document.getElementById('listaPrioridades');
+            container.innerHTML = '';
+            
+            if (prioridades.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--gray);">Nenhum paciente na lista de prioridades.</p>';
+                return;
+            }
+            
+            prioridades.forEach(pri => {
+                const div = document.createElement('div');
+                div.className = 'priority-item';
+                
+                const priorityClass = `priority-${pri.prioridade}`;
+                
+                div.innerHTML = `
+                    <div class="priority-badge ${priorityClass}">
+                        ${pri.prioridade === 'alta' ? '!' : pri.prioridade === 'media' ? '~' : ''}
+                    </div>
+                    <div class="priority-details">
+                        <div class="priority-name">${pri.paciente}</div>
+                        <div class="priority-description">${pri.descricao}</div>
+                        <div class="priority-description" style="font-size: 0.8rem;">Data: ${pri.data}</div>
+                    </div>
+                    <div class="priority-time">${pri.tempo} min</div>
+                `;
+                
+                container.appendChild(div);
+            });
+        }
+
+        function filtrarPrioridades() {
+            const filtro = document.getElementById('filtroPrioridade').value;
+            
+            if (filtro === 'todos') {
+                renderizarPrioridades();
+                return;
+            }
+            
+            const prioridadesFiltradas = prioridades.filter(p => p.prioridade === filtro);
+            const container = document.getElementById('listaPrioridades');
+            container.innerHTML = '';
+            
+            if (prioridadesFiltradas.length === 0) {
+                container.innerHTML = `<p style="text-align: center; color: var(--gray);">Nenhum paciente com prioridade ${filtro}.</p>`;
+                return;
+            }
+            
+            prioridadesFiltradas.forEach(pri => {
+                const div = document.createElement('div');
+                div.className = 'priority-item';
+                
+                const priorityClass = `priority-${pri.prioridade}`;
+                
+                div.innerHTML = `
+                    <div class="priority-badge ${priorityClass}">
+                        ${pri.prioridade === 'alta' ? '!' : pri.prioridade === 'media' ? '~' : ''}
+                    </div>
+                    <div class="priority-details">
+                        <div class="priority-name">${pri.paciente}</div>
+                        <div class="priority-description">${pri.descricao}</div>
+                        <div class="priority-description" style="font-size: 0.8rem;">Data: ${pri.data}</div>
+                    </div>
+                    <div class="priority-time">${pri.tempo} min</div>
+                `;
+                
+                container.appendChild(div);
+            });
+        }
+
+        function adicionarPrioridade() {
+            const paciente = document.getElementById('novoPacientePrioridade').value.trim();
+            const descricao = document.getElementById('descricaoPrioridade').value.trim();
+            const prioridade = document.getElementById('nivelPrioridade').value;
+            const tempo = parseInt(document.getElementById('tempoEstimado').value) || 0;
+            
+            if (!paciente || !descricao) {
+                alert('Preencha todos os campos obrigatórios');
+                return;
+            }
+            
+            const novaPrioridade = {
+                id: Date.now(),
+                paciente,
+                descricao,
+                prioridade,
+                tempo,
+                data: new Date().toLocaleDateString('pt-BR')
+            };
+            
+            prioridades.unshift(novaPrioridade);
+            renderizarPrioridades();
+            
+            // Limpar formulário
+            document.getElementById('novoPacientePrioridade').value = '';
+            document.getElementById('descricaoPrioridade').value = '';
+            document.getElementById('tempoEstimado').value = '';
+        }
+
+        // Funções para dashboard
+        function carregarAtendimentos() {
+            // Simulação de atendimentos - em uma aplicação real, viria de um banco de dados
+            atendimentos = [
+                { id: 1, paciente: "Carlos Silva", procedimento: "Extração", data: "15/06/2023", avaliacao: 4 },
+                { id: 2, paciente: "Ana Oliveira", procedimento: "Limpeza", data: "15/06/2023", avaliacao: 5 },
+                { id: 3, paciente: "Roberto Santos", procedimento: "Restauração", data: "15/06/2023", avaliacao: 3 },
+                { id: 4, paciente: "Maria Souza", procedimento: "Clareamento", data: "14/06/2023", avaliacao: 5 },
+                { id: 5, paciente: "João Pereira", procedimento: "Extração", data: "14/06/2023", avaliacao: 2 },
+                { id: 6, paciente: "Fernanda Lima", procedimento: "Ortodontia", data: "13/06/2023", avaliacao: 4 }
+            ];
+        }
+
+        function atualizarDashboard() {
+            const periodo = document.getElementById('periodoDashboard').value;
+            
+            // Filtrar atendimentos pelo período selecionado
+            let atendimentosFiltrados = [];
+            const hoje = new Date();
+            
+            switch(periodo) {
+                case 'hoje':
+                    const hojeStr = hoje.toLocaleDateString('pt-BR');
+                    atendimentosFiltrados = atendimentos.filter(a => a.data === hojeStr);
+                    break;
+                case 'semana':
+                    // Simulação - na prática, precisaria comparar datas
+                    atendimentosFiltrados = atendimentos.slice(0, 5);
+                    break;
+                case 'mes':
+                    // Simulação - na prática, precisaria comparar datas
+                    atendimentosFiltrados = atendimentos;
+                    break;
+                default:
+                    atendimentosFiltrados = atendimentos;
+            }
+            
+            // Agrupar procedimentos para o gráfico
+            const procedimentosCount = {};
+            atendimentosFiltrados.forEach(a => {
+                procedimentosCount[a.procedimento] = (procedimentosCount[a.procedimento] || 0) + 1;
+            });
+            
+            // Agrupar avaliações para o gráfico
+            const avaliacoesCount = [0, 0, 0, 0, 0]; // Índice 0 = 1 estrela, 4 = 5 estrelas
+            atendimentosFiltrados.forEach(a => {
+                if (a.avaliacao >= 1 && a.avaliacao <= 5) {
+                    avaliacoesCount[a.avaliacao - 1]++;
+                }
+            });
+            
+            // Criar/atualizar gráficos
+            criarGraficoProcedimentos(procedimentosCount);
+            criarGraficoAvaliacoes(avaliacoesCount);
+        }
+
+        function criarGraficoProcedimentos(data) {
+            const ctx = document.getElementById('procedimentosChart').getContext('2d');
+            
+            if (window.procedimentosChart) {
+                window.procedimentosChart.destroy();
+            }
+            
+            const labels = Object.keys(data);
+            const valores = Object.values(data);
+            const cores = labels.map((_, i) => getColorForChart(i));
+
+            window.procedimentosChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: labels,
         datasets: [{
-          label: 'Procedimentos do Dia',
-          data: dadosSelecionados,
-          backgroundColor: coresSelecionadas,
-          borderWidth: 1
+            label: 'Quantidade de Procedimentos',
+            data: valores,
+            backgroundColor: cores,
+            borderColor: cores.map(c => c.replace('0.7', '1')),
+            borderWidth: 1
         }]
-      },
-      options: {
+    },
+    options: {
         responsive: true,
         plugins: {
-          legend: { 
-            position: 'right',
-            labels: {
-              font: {
-                family: 'Poppins',
-                size: 12
-              },
-              padding: 20
-            }
-          },
-          title: { 
-            display: true, 
-            text: 'Diversidade de Serviços Realizados',
-            font: {
-              family: 'Poppins',
-              size: 16,
-              weight: '600'
+            legend: {
+                display: false
             },
-            padding: {
-              top: 10,
-              bottom: 20
+            title: {
+                display: true,
+                text: 'Procedimentos Realizados',
+                font: {
+                    size: 16,
+                    weight: 'bold'  // Corrigido: removido o número 16 e mantido apenas 'bold'
+                }
             }
-          },
-          tooltip: {
-            bodyFont: {
-              family: 'Poppins',
-              size: 12
-            }
-          }
         },
-        cutout: '60%',
-        animation: {
-          animateScale: true,
-          animateRotate: true
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
         }
-      }
-    });
-  }
-
-  function getColorForChart(index) {
-    const colors = [
-      '#00b4b3', '#ff7e5f', '#4e79a7', '#f28e2b', '#e15759', 
-      '#76b7b2', '#59a14f', '#edc948', '#b07aa1', '#ff9da7'
-    ];
-    return colors[index % colors.length];
-  }
-
-  function exportarInstagram() {
-    const dashboardContainer = document.getElementById('dashboard-container');
-    
-    if (dashboardContainer.style.display === 'none') {
-      alert('Por favor, gere o dashboard primeiro clicando no botão "Dashboard".');
-      return;
     }
+});
+        }
 
-    html2canvas(dashboardContainer, {
-      scale: 2,
-      logging: false,
-      useCORS: true,
-      allowTaint: true
-    }).then(canvas => {
-      const link = document.createElement('a');
-      link.href = canvas.toDataURL('image/png');
-      link.download = 'dentista_dashboard_instagram.png';
-      link.click();
-      
-      // Mensagem de instrução
-      setTimeout(() => {
-        alert('Imagem salva com sucesso! Agora você pode:\n\n1. Abrir o Instagram\n2. Criar uma nova publicação\n3. Selecionar a imagem salva\n4. Adicionar hashtags como #odontologia #dentista #saúdebucal');
-      }, 500);
-    });
-  }
-</script>
+        function criarGraficoAvaliacoes(data) {
+            const ctx = document.getElementById('avaliacaoChart').getContext('2d');
+            
+            if (window.avaliacaoChart) {
+                window.avaliacaoChart.destroy();
+            }
+            
+            window.avaliacaoChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['1 Estrela', '2 Estrelas', '3 Estrelas', '4 Estrelas', '5 Estrelas'],
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            '#dc3545',
+                            '#ff7e5f',
+                            '#ffc107',
+                            '#4e79a7',
+                            '#28a745'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Avaliação dos Pacientes',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function getColorForChart(index) {
+            const colors = [
+                'rgba(0, 180, 179, 0.7)',
+                'rgba(255, 126, 95, 0.7)',
+                'rgba(78, 121, 167, 0.7)',
+                'rgba(40, 167, 69, 0.7)',
+                'rgba(220, 53, 69, 0.7)',
+                'rgba(255, 193, 7, 0.7)'
+            ];
+            return colors[index % colors.length];
+        }
+
+        function exportarDashboardPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Adicionar título
+            doc.setFontSize(18);
+            doc.setTextColor(0, 180, 179);
+            doc.text('Relatório de Atendimentos', 105, 20, { align: 'center' });
+            
+            // Adicionar informações da clínica
+            doc.setFontSize(12);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`${clinicInfo.dentist} - ${clinicInfo.cro}`, 105, 28, { align: 'center' });
+            doc.text(`Período: ${document.getElementById('periodoDashboard').selectedOptions[0].text}`, 105, 35, { align: 'center' });
+            
+            // Adicionar data
+            const today = new Date();
+            doc.text(`Gerado em: ${today.toLocaleDateString('pt-BR')}`, 105, 42, { align: 'center' });
+            
+            // Linha divisória
+            doc.setDrawColor(0, 180, 179);
+            doc.setLineWidth(0.5);
+            doc.line(20, 48, 190, 48);
+            
+            // Adicionar gráficos (simplificado - em produção, usar html2canvas para capturar os gráficos)
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 0);
+            doc.text('Resumo de Procedimentos:', 20, 60);
+            
+            // Simulação de dados - na prática, capturaria os gráficos com html2canvas
+            const procedimentosCount = {};
+            atendimentos.forEach(a => {
+                procedimentosCount[a.procedimento] = (procedimentosCount[a.procedimento] || 0) + 1;
+            });
+            
+            let yPosition = 70;
+            Object.entries(procedimentosCount).forEach(([proc, count]) => {
+                doc.text(`${proc}: ${count} atendimentos`, 25, yPosition);
+                yPosition += 8;
+            });
+            
+            yPosition += 10;
+            doc.text('Avaliações dos Pacientes:', 20, yPosition);
+            yPosition += 10;
+            
+            const avaliacoesCount = [0, 0, 0, 0, 0];
+            atendimentos.forEach(a => {
+                if (a.avaliacao >= 1 && a.avaliacao <= 5) {
+                    avaliacoesCount[a.avaliacao - 1]++;
+                }
+            });
+            
+            avaliacoesCount.forEach((count, index) => {
+                doc.text(`${index + 1} estrela(s): ${count} avaliações`, 25, yPosition);
+                yPosition += 8;
+            });
+            
+            // Rodapé
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Relatório gerado pelo DentaLog 2.0 - ${today.toLocaleString('pt-BR')}`, 105, 280, { align: 'center' });
+            
+            doc.save(`relatorio_atendimentos_${today.toLocaleDateString('pt-BR').replace(/\//g, '-')}.pdf`);
+        }
+
+        function exportarDashboardImagem() {
+            const dashboard = document.querySelector('.dashboard-container');
+            
+            html2canvas(dashboard).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'dashboard_odontologico.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
+        function compartilharInstagram() {
+            alert('Funcionalidade de compartilhamento no Instagram seria implementada aqui. Em uma aplicação real, isso exigiria integração com a API do Instagram.');
+        }
+
+        // Funções para atendimento
+        function salvarAtendimento() {
+            const paciente = document.getElementById('paciente').value.trim();
+            const procedimentosSelecionados = [];
+            
+            document.querySelectorAll('#procedimentosCheckboxes input:checked').forEach(cb => {
+                procedimentosSelecionados.push(cb.parentElement.textContent.trim());
+            });
+            
+            if (!paciente || procedimentosSelecionados.length === 0) {
+                alert('Preencha o nome do paciente e selecione pelo menos um procedimento');
+                return;
+            }
+            
+            const novoAtendimento = {
+                id: Date.now(),
+                paciente,
+                procedimento: procedimentosSelecionados.join(', '),
+                data: new Date().toLocaleDateString('pt-BR'),
+                avaliacao: rating,
+                telefone: document.getElementById('telefone').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                descricao: document.getElementById('descricao').value.trim(),
+                diagnostico: document.getElementById('diagnostico').value.trim(),
+                tratamento: document.getElementById('tratamento').value.trim()
+            };
+            
+            atendimentos.unshift(novoAtendimento);
+            alert('Atendimento salvo com sucesso!');
+            
+            // Limpar formulário
+            limparFormulario();
+        }
+
+        function exportarWhatsApp() {
+            const paciente = document.getElementById('paciente').value.trim();
+            const telefone = document.getElementById('telefone').value.trim();
+            
+            if (!paciente || !telefone) {
+                alert('Preencha o nome e telefone do paciente para enviar via WhatsApp');
+                return;
+            }
+            
+            let mensagem = `*Resumo do Atendimento Odontológico*\n\n`;
+            mensagem += `*Paciente:* ${paciente}\n`;
+            mensagem += `*Data:* ${new Date().toLocaleDateString('pt-BR')}\n\n`;
+            
+            // Procedimentos
+            const procedimentosSelecionados = [];
+            document.querySelectorAll('#procedimentosCheckboxes input:checked').forEach(cb => {
+                procedimentosSelecionados.push(cb.parentElement.textContent.trim());
+            });
+            
+            if (procedimentosSelecionados.length > 0) {
+                mensagem += `*Procedimentos realizados:*\n`;
+                mensagem += procedimentosSelecionados.map(p => `- ${p}`).join('\n') + '\n\n';
+            }
+            
+            // Diagnóstico e tratamento
+            const diagnostico = document.getElementById('diagnostico').value.trim();
+            const tratamento = document.getElementById('tratamento').value.trim();
+            
+            if (diagnostico) mensagem += `*Diagnóstico:* ${diagnostico}\n`;
+            if (tratamento) mensagem += `*Tratamento realizado:* ${tratamento}\n`;
+            
+            // Avaliação
+            if (rating > 0) {
+                mensagem += `\n*Avaliação do atendimento:* ${'★'.repeat(rating)}${'☆'.repeat(5 - rating)}\n`;
+            }
+            
+            // Informações da clínica
+            mensagem += `\n*${clinicInfo.dentist} - ${clinicInfo.cro}*\n`;
+            mensagem += `📞 ${clinicInfo.phone}\n`;
+            mensagem += `📍 ${clinicInfo.address}\n`;
+            
+            const encoded = encodeURIComponent(mensagem);
+            const link = `https://wa.me/${telefone.replace(/\D/g, '')}?text=${encoded}`;
+            window.open(link, '_blank');
+        }
+
+        function limparFormulario() {
+            document.getElementById('paciente').value = '';
+            document.getElementById('telefone').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('descricao').value = '';
+            document.getElementById('diagnostico').value = '';
+            document.getElementById('tratamento').value = '';
+            
+            document.querySelectorAll('#procedimentosCheckboxes input').forEach(cb => {
+                cb.checked = false;
+            });
+            
+            setRating(0);
+        }
+    </script>
 </body>
 </html>
