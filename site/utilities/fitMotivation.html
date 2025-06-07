@@ -1,10 +1,3 @@
-<!--
- * --------------------------------------------------------------
- * Author: Rafael Passos Domingues
- * Last Update: 2025 June 7
- * --------------------------------------------------------------
--->
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -982,248 +975,949 @@
         </div>
         
         <div class="section-title">
-          <h2><i class="fas fa-heartbeat"></i> Nível do Cliente</h2>
+          <h2><i class="fas fa-dumbbell"></i> Treino Personalizado</h2>
         </div>
         
-        <div class="checkbox-group" id="nivelCheckboxes">
-          <label><input type="radio" name="nivel" value="Iniciante" checked /><span>👶 Iniciante</span></label>
-          <label><input type="radio" name="nivel" value="Intermediário" /><span>👍 Intermediário</span></label>
-          <label><input type="radio" name="nivel" value="Avançado" /><span>🔥 Avançado</span></label>
+        <label for="diasTreino">Dias de Treino por Semana</label>
+        <select id="diasTreino">
+          <option value="2">2 dias</option>
+          <option value="3" selected>3 dias</option>
+          <option value="4">4 dias</option>
+          <option value="5">5 dias</option>
+          <option value="6">6 dias</option>
+        </select>
+        
+        <div id="diasTreinoContainer">
+          <!-- Gerado dinamicamente com base na seleção de dias -->
         </div>
         
-        <div class="section-title">
-          <h2><i class="fas fa-dumbbell"></i> Ficha de Treino</h2>
+        <label for="observacoesTreino">Observações do Treino</label>
+        <textarea id="observacoesTreino" placeholder="Detalhes específicos, adaptações, cuidados..."></textarea>
+        
+        <div class="motivation-quote">
+          "O treino deve ser desafiador, mas adaptado às capacidades individuais de cada cliente."
         </div>
         
-        <div class="tab-container" style="margin-top: 1rem;">
-          <div class="tab active" onclick="openWorkoutTab('treinoA')">Treino A</div>
-          <div class="tab" onclick="openWorkoutTab('treinoB')">Treino B</div>
-          <div class="tab" onclick="openWorkoutTab('treinoC')">Treino C</div>
-          <div class="tab" onclick="openWorkoutTab('treinoD')">Treino D</div>
-        </div>
-        
-        <div id="treinoA" class="workout-tab-content active">
-          <label for="grupoMuscularA">Grupo Muscular</label>
-          <select id="grupoMuscularA" class="workout-select">
-            <option value="Superiores">Membros Superiores</option>
-            <option value="Inferiores">Membros Inferiores</option>
-            <option value="Core">Core/Core</option>
-            <option value="Cardio">Cardio</option>
-          </select>
-          
-          <label for="exerciciosA">Exercícios</label>
-          <div class="exercise-container" id="exerciciosA">
-            <div class="exercise-item">
-              <input type="text" placeholder="Nome do exercício" class="exercise-name" />
-              <input type="text" placeholder="Séries" class="exercise-sets" />
-              <input type="text" placeholder="Repetições" class="exercise-reps" />
-              <input type="text" placeholder="Carga" class="exercise-load" />
-              <button class="exercise-remove"><i class="fas fa-times"></i></button>
-            </div>
-          </div>
-          <button class="secondary" onclick="addExercise('exerciciosA')"><i class="fas fa-plus"></i> Adicionar Exercício</button>
-        </div>
-        
-        <div id="treinoB" class="workout-tab-content">
-          <!-- Conteúdo similar ao Treino A -->
-        </div>
-        
-        <div id="treinoC" class="workout-tab-content">
-          <!-- Conteúdo similar ao Treino A -->
-        </div>
-        
-        <div id="treinoD" class="workout-tab-content">
-          <!-- Conteúdo similar ao Treino A -->
-        </div>
-        
-        <div class="section-title">
-          <h2><i class="fas fa-clipboard-list"></i> Observações do Treino</h2>
-        </div>
-        
-        <textarea id="obsTreino" placeholder="Instruções especiais, cuidados, progressões..."></textarea>
-        
-        <button id="btnSalvarTreino" class="accent"><i class="fas fa-save"></i> Salvar Treino</button>
-        <button id="btnImprimirTreino" class="print-btn"><i class="fas fa-print"></i> Imprimir Treino</button>
-        <button id="btnEnviarTreino" class="secondary"><i class="fab fa-whatsapp"></i> Enviar para Cliente</button>
+        <button id="btnGerarTreino"><i class="fas fa-magic"></i> Gerar Treino Automático</button>
+        <button id="btnSalvarTreino" class="secondary"><i class="fas fa-save"></i> Salvar Treino</button>
+        <button id="btnEnviarTreino" class="accent"><i class="fab fa-whatsapp"></i> Enviar Treino</button>
       </div>
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
-  <script>
-    // Função para alternar entre abas
-    function openTab(tabId) {
-      // Esconde todos os conteúdos de aba
-      const tabContents = document.getElementsByClassName('tab-content');
-      for (let i = 0; i < tabContents.length; i++) {
-        tabContents[i].classList.remove('active');
-      }
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<script>
+  // Dados iniciais
+  let clientes = [];
+  let agendamentos = [];
+  let avaliacoes = [];
+  let treinos = [];
+  
+  // Elementos DOM
+  const themeToggle = document.getElementById('themeToggle');
+  const fotoClienteInput = document.getElementById('fotoCliente');
+  const fotoClientePreview = document.getElementById('fotoClientePreview');
+  const btnCalcular = document.getElementById('btnCalcular');
+  const btnEnviarWhatsapp = document.getElementById('btnEnviarWhatsapp');
+  const btnSalvarAvaliacao = document.getElementById('btnSalvarAvaliacao');
+  const btnAgendar = document.getElementById('btnAgendar');
+  const btnPrintDashboard = document.getElementById('btnPrintDashboard');
+  const btnEnviarDashboard = document.getElementById('btnEnviarDashboard');
+  const btnGerarTreino = document.getElementById('btnGerarTreino');
+  const btnSalvarTreino = document.getElementById('btnSalvarTreino');
+  const btnEnviarTreino = document.getElementById('btnEnviarTreino');
+  const msgStatus = document.getElementById('msgStatus');
+  const alertCard = document.getElementById('alertCard');
+  
+  // Inicialização
+  document.addEventListener('DOMContentLoaded', function() {
+    carregarDados();
+    setupEventListeners();
+    atualizarInputsRealtime();
+    initTheme();
+    
+    // Simular alguns dados para demonstração
+    if(clientes.length === 0) {
+      clientes = [
+        { id: 1, nome: "João Silva", telefone: "5511999999999", email: "joao@example.com" },
+        { id: 2, nome: "Maria Souza", telefone: "5511888888888", email: "maria@example.com" }
+      ];
       
-      // Remove a classe active de todas as abas
-      const tabs = document.getElementsByClassName('tab');
-      for (let i = 0; i < tabs.length; i++) {
-        tabs[i].classList.remove('active');
-      }
+      agendamentos = [
+        { id: 1, clienteId: 1, clienteNome: "João Silva", data: "2023-06-15", hora: "09:00", tipo: "Avaliação Física", obs: "Primeira avaliação" },
+        { id: 2, clienteId: 2, clienteNome: "Maria Souza", data: "2023-06-16", hora: "18:00", tipo: "Treino Personalizado", obs: "Treino B" }
+      ];
       
-      // Mostra o conteúdo da aba selecionada
-      document.getElementById(tabId).classList.add('active');
-      
-      // Ativa a aba selecionada
-      event.currentTarget.classList.add('active');
+      salvarDados();
     }
     
-    // Função para alternar entre abas de treino
-    function openWorkoutTab(tabId) {
-      const workoutTabs = document.getElementsByClassName('workout-tab-content');
-      for (let i = 0; i < workoutTabs.length; i++) {
-        workoutTabs[i].classList.remove('active');
-      }
-      
-      const workoutTabButtons = document.querySelectorAll('.tab-container .tab');
-      for (let i = 0; i < workoutTabButtons.length; i++) {
-        workoutTabButtons[i].classList.remove('active');
-      }
-      
-      document.getElementById(tabId).classList.add('active');
-      event.currentTarget.classList.add('active');
+    atualizarListaClientes();
+    atualizarAgendamentos();
+    atualizarEstatisticasAgendamentos();
+  });
+  
+  // Carregar dados do localStorage
+  function carregarDados() {
+    const dadosClientes = localStorage.getItem('fitmotivation_clientes');
+    const dadosAgendamentos = localStorage.getItem('fitmotivation_agendamentos');
+    const dadosAvaliacoes = localStorage.getItem('fitmotivation_avaliacoes');
+    const dadosTreinos = localStorage.getItem('fitmotivation_treinos');
+    
+    if(dadosClientes) clientes = JSON.parse(dadosClientes);
+    if(dadosAgendamentos) agendamentos = JSON.parse(dadosAgendamentos);
+    if(dadosAvaliacoes) avaliacoes = JSON.parse(dadosAvaliacoes);
+    if(dadosTreinos) treinos = JSON.parse(dadosTreinos);
+  }
+  
+  // Salvar dados no localStorage
+  function salvarDados() {
+    localStorage.setItem('fitmotivation_clientes', JSON.stringify(clientes));
+    localStorage.setItem('fitmotivation_agendamentos', JSON.stringify(agendamentos));
+    localStorage.setItem('fitmotivation_avaliacoes', JSON.stringify(avaliacoes));
+    localStorage.setItem('fitmotivation_treinos', JSON.stringify(treinos));
+  }
+  
+  // Configurar listeners de eventos
+  function setupEventListeners() {
+    themeToggle.addEventListener('click', toggleTheme);
+    fotoClienteInput.addEventListener('change', handleFotoClienteUpload);
+    btnCalcular.addEventListener('click', calcularComposicaoCorporal);
+    btnEnviarWhatsapp.addEventListener('click', enviarAvaliacaoWhatsapp);
+    btnSalvarAvaliacao.addEventListener('click', salvarAvaliacao);
+    btnAgendar.addEventListener('click', agendarSessao);
+    btnPrintDashboard.addEventListener('click', imprimirDashboard);
+    btnEnviarDashboard.addEventListener('click', enviarDashboardWhatsapp);
+    btnGerarTreino.addEventListener('click', gerarTreinoAutomatico);
+    btnSalvarTreino.addEventListener('click', salvarTreino);
+    btnEnviarTreino.addEventListener('click', enviarTreinoWhatsapp);
+    
+    document.getElementById('selecionarCliente').addEventListener('change', carregarDashboardCliente);
+    document.getElementById('selecionarClienteTreino').addEventListener('change', carregarDadosClienteTreino);
+    document.getElementById('diasTreino').addEventListener('change', atualizarDiasTreino);
+  }
+  
+  // Tema dark/light
+  function initTheme() {
+    const darkMode = localStorage.getItem('darkMode') === 'true';
+    if(darkMode) {
+      document.body.classList.add('dark-mode');
+      themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+    }
+  }
+  
+  function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    localStorage.setItem('darkMode', isDark);
+    themeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+  }
+  
+  // Upload da foto do cliente
+  function handleFotoClienteUpload(e) {
+    const file = e.target.files[0];
+    if(!file) {
+      fotoClientePreview.style.display = 'none';
+      fotoClientePreview.src = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      fotoClientePreview.src = reader.result;
+      fotoClientePreview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+  
+  // Atualizar inputs em tempo real
+  function atualizarInputsRealtime() {
+    // Altura e Peso
+    document.getElementById('altura').addEventListener('input', function() {
+      document.getElementById('alturaValue').textContent = this.value || '0';
+    });
+    
+    document.getElementById('peso').addEventListener('input', function() {
+      document.getElementById('pesoValue').textContent = this.value || '0';
+    });
+    
+    // Idade
+    document.getElementById('idade').addEventListener('input', function() {
+      document.getElementById('idadeValue').textContent = this.value || '0';
+    });
+  }
+  
+  // Calcular composição corporal
+  function calcularComposicaoCorporal() {
+    const peso = parseFloat(document.getElementById('peso').value);
+    const altura = parseFloat(document.getElementById('altura').value) / 100; // converter para metros
+    const idade = parseInt(document.getElementById('idade').value);
+    const sexo = document.querySelector('input[name="sexo"]:checked')?.value || 'masculino';
+    
+    if(!peso || !altura || !idade) {
+      showMessage('Preencha peso, altura e idade para calcular!', 'error');
+      return;
     }
     
-    // Função para adicionar novo exercício
-    function addExercise(containerId) {
-      const container = document.getElementById(containerId);
-      const exerciseItem = document.createElement('div');
-      exerciseItem.className = 'exercise-item';
-      exerciseItem.innerHTML = `
-        <input type="text" placeholder="Nome do exercício" class="exercise-name" />
-        <input type="text" placeholder="Séries" class="exercise-sets" />
-        <input type="text" placeholder="Repetições" class="exercise-reps" />
-        <input type="text" placeholder="Carga" class="exercise-load" />
-        <button class="exercise-remove" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+    // Calcular IMC
+    const imc = peso / (altura * altura);
+    document.getElementById('imcValue').textContent = imc.toFixed(1);
+    
+    // Classificação do IMC
+    let classificacao = '';
+    if(imc < 18.5) classificacao = 'Abaixo do peso';
+    else if(imc < 24.9) classificacao = 'Peso normal';
+    else if(imc < 29.9) classificacao = 'Sobrepeso';
+    else if(imc < 34.9) classificacao = 'Obesidade Grau I';
+    else if(imc < 39.9) classificacao = 'Obesidade Grau II';
+    else classificacao = 'Obesidade Grau III';
+    
+    document.getElementById('imcClassificacao').textContent = classificacao;
+    
+    // Calcular percentual de gordura (fórmula simplificada)
+    let gorduraPercentual;
+    if(sexo === 'masculino') {
+      // Fórmula para homens (Jackson & Pollock 7 dobras)
+      const somaDobras = calcularSomaDobras();
+      gorduraPercentual = (495 / (1.112 - (0.00043499 * somaDobras) + (0.00000055 * somaDobras * somaDobras) - (0.00028826 * idade))) - 450;
+    } else {
+      // Fórmula para mulheres (Jackson & Pollock 7 dobras)
+      const somaDobras = calcularSomaDobras();
+      gorduraPercentual = (495 / (1.097 - (0.00046971 * somaDobras) + (0.00000056 * somaDobras * somaDobras) - (0.00012828 * idade))) - 450;
+    }
+    
+    // Valores ideais (aproximados por idade e sexo)
+    let gorduraIdeal;
+    if(sexo === 'masculino') {
+      if(idade < 30) gorduraIdeal = 9-15;
+      else if(idade < 40) gorduraIdeal = 11-17;
+      else if(idade < 50) gorduraIdeal = 12-19;
+      else gorduraIdeal = 14-21;
+    } else {
+      if(idade < 30) gorduraIdeal = 14-21;
+      else if(idade < 40) gorduraIdeal = 15-23;
+      else if(idade < 50) gorduraIdeal = 16-25;
+      else gorduraIdeal = 17-27;
+    }
+    
+    const gorduraMediaIdeal = (gorduraIdeal[0] + gorduraIdeal[1]) / 2;
+    const gorduraSobra = gorduraPercentual - gorduraMediaIdeal;
+    
+    // Atualizar valores na interface
+    document.getElementById('gorduraValue').textContent = gorduraPercentual.toFixed(1) + '%';
+    document.getElementById('gorduraIdealValue').textContent = gorduraIdeal[0] + '-' + gorduraIdeal[1] + '%';
+    
+    const massaGorda = (gorduraPercentual / 100) * peso;
+    const massaMagra = peso - massaGorda;
+    
+    document.getElementById('massaGordaValue').textContent = massaGorda.toFixed(1) + 'kg';
+    document.getElementById('massaMagraValue').textContent = massaMagra.toFixed(1) + 'kg';
+    
+    // Mostrar alerta se necessário
+    if(gorduraPercentual > gorduraIdeal[1]) {
+      alertCard.style.display = 'block';
+      document.getElementById('alertMessage').textContent = 
+        `O percentual de gordura (${gorduraPercentual.toFixed(1)}%) está acima do recomendado (${gorduraIdeal[0]}-${gorduraIdeal[1]}%) para ${sexo === 'masculino' ? 'homens' : 'mulheres'} de ${idade} anos.`;
+    } else {
+      alertCard.style.display = 'none';
+    }
+    
+    // Atualizar gráfico
+    atualizarGraficoComposicaoCorporal(massaMagra, massaGorda);
+    
+    showMessage('Cálculos realizados com sucesso!', 'success');
+  }
+  
+  // Calcular soma das dobras cutâneas
+  function calcularSomaDobras() {
+    const dobras = [
+      'subscapular', 'triciptal', 'peitoral', 'axilar', 
+      'suprailiaca', 'abdominal', 'coxa', 'panturrilha'
+    ];
+    
+    return dobras.reduce((total, dobra) => {
+      const valor = parseFloat(document.getElementById(dobra).value) || 0;
+      return total + valor;
+    }, 0);
+  }
+  
+  // Atualizar gráfico de composição corporal
+  function atualizarGraficoComposicaoCorporal(massaMagra, massaGorda) {
+    const ctx = document.getElementById('bodyCompositionChart').getContext('2d');
+    
+    if(window.bodyCompositionChart) {
+      window.bodyCompositionChart.destroy();
+    }
+    
+    window.bodyCompositionChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Massa Magra', 'Massa Gorda'],
+        datasets: [{
+          data: [massaMagra, massaGorda],
+          backgroundColor: ['#3498db', '#e74c3c'],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return `${context.label}: ${context.raw.toFixed(1)}kg (${((context.raw / (massaMagra + massaGorda)) * 100).toFixed(1)}%)`;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+  
+  // Enviar avaliação por WhatsApp
+  function enviarAvaliacaoWhatsapp() {
+    const nome = document.getElementById('nomeCliente').value.trim();
+    const telefone = document.getElementById('telefoneCliente').value.trim();
+    
+    if(!nome || !telefone) {
+      showMessage('Preencha nome e telefone do cliente!', 'error');
+      return;
+    }
+    
+    const peso = document.getElementById('peso').value || 'N/A';
+    const altura = document.getElementById('altura').value || 'N/A';
+    const imc = document.getElementById('imcValue').textContent;
+    const imcClass = document.getElementById('imcClassificacao').textContent;
+    const gordura = document.getElementById('gorduraValue').textContent;
+    const gorduraIdeal = document.getElementById('gorduraIdealValue').textContent;
+    const massaMagra = document.getElementById('massaMagraValue').textContent;
+    const massaGorda = document.getElementById('massaGordaValue').textContent;
+    
+    let mensagem = `📊 *Avaliação Física - FitMotivation Pro* 📊\n\n`;
+    mensagem += `👤 *Cliente:* ${nome}\n\n`;
+    mensagem += `⚖️ *Peso:* ${peso}kg\n`;
+    mensagem += `📏 *Altura:* ${altura}cm\n`;
+    mensagem += `🔢 *IMC:* ${imc} (${imcClass})\n`;
+    mensagem += `💪 *Massa Magra:* ${massaMagra}\n`;
+    mensagem += `🧈 *Massa Gorda:* ${massaGorda}\n`;
+    mensagem += `📉 *% Gordura:* ${gordura} (Ideal: ${gorduraIdeal})\n\n`;
+    
+    if(alertCard.style.display === 'block') {
+      mensagem += `⚠️ *ATENÇÃO:* ${document.getElementById('alertMessage').textContent}\n\n`;
+    }
+    
+    mensagem += `🔹 *Próximos Passos:*\n`;
+    mensagem += `- Agende uma aula experimental\n`;
+    mensagem += `- Vamos criar um plano personalizado\n`;
+    mensagem += `- Foco nos seus objetivos!\n\n`;
+    mensagem += `💬 Dúvidas? Estou à disposição!\n`;
+    mensagem += `✅ Vamos juntos nessa jornada!`;
+    
+    const url = `https://wa.me/${telefone}?text=${encodeURIComponent(mensagem)}`;
+    window.open(url, '_blank');
+  }
+  
+  // Salvar avaliação
+  function salvarAvaliacao() {
+    const nome = document.getElementById('nomeCliente').value.trim();
+    const telefone = document.getElementById('telefoneCliente').value.trim();
+    const email = document.getElementById('emailCliente').value.trim();
+    
+    if(!nome || !telefone) {
+      showMessage('Preencha nome e telefone do cliente!', 'error');
+      return;
+    }
+    
+    // Verificar se o cliente já existe
+    let cliente = clientes.find(c => c.telefone === telefone);
+    const isNovoCliente = !cliente;
+    
+    if(isNovoCliente) {
+      cliente = {
+        id: clientes.length > 0 ? Math.max(...clientes.map(c => c.id)) + 1 : 1,
+        nome,
+        telefone,
+        email,
+        foto: fotoClientePreview.src || ''
+      };
+      clientes.push(cliente);
+    } else {
+      // Atualizar dados do cliente existente
+      cliente.nome = nome;
+      cliente.email = email;
+      if(fotoClientePreview.src) cliente.foto = fotoClientePreview.src;
+    }
+    
+    // Criar objeto de avaliação
+    const avaliacao = {
+      id: avaliacoes.length > 0 ? Math.max(...avaliacoes.map(a => a.id)) + 1 : 1,
+      clienteId: cliente.id,
+      data: new Date().toISOString().split('T')[0],
+      peso: parseFloat(document.getElementById('peso').value),
+      altura: parseFloat(document.getElementById('altura').value),
+      idade: parseInt(document.getElementById('idade').value),
+      sexo: document.querySelector('input[name="sexo"]:checked')?.value || 'masculino',
+      dobras: {
+        subscapular: parseFloat(document.getElementById('subscapular').value) || 0,
+        triciptal: parseFloat(document.getElementById('triciptal').value) || 0,
+        peitoral: parseFloat(document.getElementById('peitoral').value) || 0,
+        axilar: parseFloat(document.getElementById('axilar').value) || 0,
+        suprailiaca: parseFloat(document.getElementById('suprailiaca').value) || 0,
+        abdominal: parseFloat(document.getElementById('abdominal').value) || 0,
+        coxa: parseFloat(document.getElementById('coxa').value) || 0,
+        panturrilha: parseFloat(document.getElementById('panturrilha').value) || 0
+      },
+      perimetros: {
+        torax: parseFloat(document.getElementById('torax').value) || 0,
+        cintura: parseFloat(document.getElementById('cintura').value) || 0,
+        abdomen: parseFloat(document.getElementById('abdomen').value) || 0,
+        quadril: parseFloat(document.getElementById('quadril').value) || 0,
+        bracoNormal: parseFloat(document.getElementById('bracoNormal').value) || 0,
+        bracoContraido: parseFloat(document.getElementById('bracoContraido').value) || 0,
+        coxa: parseFloat(document.getElementById('coxaPerimetro').value) || 0,
+        panturrilha: parseFloat(document.getElementById('panturrilhaPerimetro').value) || 0
+      },
+      imc: parseFloat(document.getElementById('imcValue').textContent),
+      gorduraPercentual: parseFloat(document.getElementById('gorduraValue').textContent),
+      massaMagra: parseFloat(document.getElementById('massaMagraValue').textContent),
+      massaGorda: parseFloat(document.getElementById('massaGordaValue').textContent),
+      observacoes: document.getElementById('observacoes').value
+    };
+    
+    // Adicionar à lista de avaliações
+    avaliacoes.push(avaliacao);
+    
+    // Salvar dados
+    salvarDados();
+    
+    // Atualizar listas
+    atualizarListaClientes();
+    
+    showMessage(`Avaliação ${isNovoCliente ? 'e novo cliente' : ''} salva com sucesso!`, 'success');
+  }
+  
+  // Agendar sessão
+  function agendarSessao() {
+    const clienteId = parseInt(document.getElementById('clienteAgendamento').value);
+    const data = document.getElementById('dataAgendamento').value;
+    const hora = document.getElementById('horaAgendamento').value;
+    const tipo = document.getElementById('tipoAgendamento').value;
+    const obs = document.getElementById('obsAgendamento').value;
+    
+    if(!clienteId || !data || !hora || !tipo) {
+      showMessage('Preencha todos os campos obrigatórios!', 'error');
+      return;
+    }
+    
+    const cliente = clientes.find(c => c.id === clienteId);
+    if(!cliente) {
+      showMessage('Cliente não encontrado!', 'error');
+      return;
+    }
+    
+    const agendamento = {
+      id: agendamentos.length > 0 ? Math.max(...agendamentos.map(a => a.id)) + 1 : 1,
+      clienteId,
+      clienteNome: cliente.nome,
+      data,
+      hora,
+      tipo,
+      obs
+    };
+    
+    agendamentos.push(agendamento);
+    salvarDados();
+    atualizarAgendamentos();
+    atualizarEstatisticasAgendamentos();
+    
+    // Limpar formulário
+    document.getElementById('dataAgendamento').value = '';
+    document.getElementById('horaAgendamento').value = '';
+    document.getElementById('obsAgendamento').value = '';
+    
+    showMessage(`Sessão de ${tipo} agendada para ${cliente.nome}!`, 'success');
+    
+    // Opção de enviar confirmação por WhatsApp
+    if(confirm(`Deseja enviar confirmação por WhatsApp para ${cliente.nome}?`)) {
+      const mensagem = `✅ *Agendamento Confirmado - FitMotivation Pro* ✅\n\n`;
+      mensagem += `👤 *Cliente:* ${cliente.nome}\n`;
+      mensagem += `📅 *Data:* ${formatarData(data)}\n`;
+      mensagem += `⏰ *Horário:* ${hora}\n`;
+      mensagem += `🏋️‍♂️ *Tipo:* ${tipo}\n`;
+      if(obs) mensagem += `📝 *Observações:* ${obs}\n\n`;
+      mensagem += `📍 *Local:* Academia FitMotivation\n`;
+      mensagem += `📱 *Contato:* (XX) XXXX-XXXX\n\n`;
+      mensagem += `Por favor, chegar 10 minutos antes. Cancelamentos com 24h de antecedência.`;
+      
+      const url = `https://wa.me/${cliente.telefone}?text=${encodeURIComponent(mensagem)}`;
+      window.open(url, '_blank');
+    }
+  }
+  
+  // Atualizar lista de agendamentos
+  function atualizarAgendamentos() {
+    const lista = document.getElementById('listaAgendamentos');
+    lista.innerHTML = '';
+    
+    // Ordenar por data e hora
+    const agendamentosOrdenados = [...agendamentos].sort((a, b) => {
+      const dataA = new Date(`${a.data}T${a.hora}`);
+      const dataB = new Date(`${b.data}T${b.hora}`);
+      return dataA - dataB;
+    });
+    
+    agendamentosOrdenados.forEach(ag => {
+      const cliente = clientes.find(c => c.id === ag.clienteId);
+      
+      const item = document.createElement('div');
+      item.className = 'client-item';
+      item.innerHTML = `
+        <div class="client-info">
+          <h4>${ag.clienteNome}</h4>
+          <p><i class="fas fa-calendar-day"></i> ${formatarData(ag.data)} às ${ag.hora} - ${ag.tipo}</p>
+          ${ag.obs ? `<p><i class="fas fa-comment"></i> ${ag.obs}</p>` : ''}
+        </div>
+        <div class="client-actions">
+          <button class="secondary" onclick="cancelarAgendamento(${ag.id})"><i class="fas fa-times"></i></button>
+          <button onclick="enviarLembrete(${ag.id})"><i class="fab fa-whatsapp"></i></button>
+        </div>
       `;
-      container.appendChild(exerciseItem);
-    }
-    
-    // Alternar tema claro/escuro
-    document.getElementById('themeToggle').addEventListener('click', function() {
-      document.body.classList.toggle('dark-mode');
-      const icon = this.querySelector('i');
-      if (document.body.classList.contains('dark-mode')) {
-        icon.classList.replace('fa-moon', 'fa-sun');
-      } else {
-        icon.classList.replace('fa-sun', 'fa-moon');
-      }
-    });
-    
-    // Atualizar valores em tempo real
-    document.querySelectorAll('.stat-input').forEach(input => {
-      input.addEventListener('input', function() {
-        const valueId = this.id + 'Value';
-        document.getElementById(valueId).textContent = this.value || '0';
-        
-        // Calcular IMC se for altura ou peso
-        if (this.id === 'altura' || this.id === 'peso') {
-          calcularIMC();
-        }
-      });
-    });
-    
-    // Função para calcular IMC
-    function calcularIMC() {
-      const altura = parseFloat(document.getElementById('altura').value) / 100; // converter cm para m
-      const peso = parseFloat(document.getElementById('peso').value);
       
-      if (altura && peso) {
-        const imc = (peso / (altura * altura)).toFixed(1);
-        document.getElementById('imcValue').textContent = imc;
-        document.getElementById('imcClassificacao').textContent = classificarIMC(imc);
-      }
+      lista.appendChild(item);
+    });
+  }
+  
+  // Atualizar estatísticas de agendamentos
+  function atualizarEstatisticasAgendamentos() {
+    const hoje = new Date().toISOString().split('T')[0];
+    const agHoje = agendamentos.filter(a => a.data === hoje).length;
+    
+    document.getElementById('agendamentosHoje').textContent = agHoje;
+    
+    // Calcular agendamentos desta semana
+    const hojeObj = new Date();
+    const inicioSemana = new Date(hojeObj.setDate(hojeObj.getDate() - hojeObj.getDay()));
+    const fimSemana = new Date(hojeObj.setDate(hojeObj.getDate() + 6));
+    
+    const agSemana = agendamentos.filter(a => {
+      const dataAg = new Date(a.data);
+      return dataAg >= inicioSemana && dataAg <= fimSemana;
+    }).length;
+    
+    document.getElementById('agendamentosSemana').textContent = agSemana;
+  }
+  
+  // Cancelar agendamento
+  function cancelarAgendamento(id) {
+    if(confirm('Tem certeza que deseja cancelar este agendamento?')) {
+      agendamentos = agendamentos.filter(a => a.id !== id);
+      salvarDados();
+      atualizarAgendamentos();
+      atualizarEstatisticasAgendamentos();
+      showMessage('Agendamento cancelado!', 'success');
+    }
+  }
+  
+  // Enviar lembrete por WhatsApp
+  function enviarLembrete(id) {
+    const agendamento = agendamentos.find(a => a.id === id);
+    if(!agendamento) return;
+    
+    const cliente = clientes.find(c => c.id === agendamento.clienteId);
+    if(!cliente) return;
+    
+    const mensagem = `🔔 *Lembrete de Agendamento - FitMotivation Pro* 🔔\n\n`;
+    mensagem += `Olá ${cliente.nome.split(' ')[0]}! Este é um lembrete do seu agendamento:\n\n`;
+    mensagem += `📅 *Data:* ${formatarData(agendamento.data)}\n`;
+    mensagem += `⏰ *Horário:* ${agendamento.hora}\n`;
+    mensagem += `🏋️‍♂️ *Tipo:* ${agendamento.tipo}\n`;
+    if(agendamento.obs) mensagem += `📝 *Observações:* ${agendamento.obs}\n\n`;
+    mensagem += `📍 *Local:* Academia FitMotivation\n\n`;
+    mensagem += `Por favor, confirme sua presença respondendo esta mensagem.`;
+    
+    const url = `https://wa.me/${cliente.telefone}?text=${encodeURIComponent(mensagem)}`;
+    window.open(url, '_blank');
+  }
+  
+  // Atualizar lista de clientes nos selects
+  function atualizarListaClientes() {
+    const selectAgendamento = document.getElementById('clienteAgendamento');
+    const selectDashboard = document.getElementById('selecionarCliente');
+    const selectTreino = document.getElementById('selecionarClienteTreino');
+    
+    // Limpar opções existentes (mantendo a primeira opção vazia)
+    while(selectAgendamento.options.length > 1) selectAgendamento.remove(1);
+    while(selectDashboard.options.length > 1) selectDashboard.remove(1);
+    while(selectTreino.options.length > 1) selectTreino.remove(1);
+    
+    // Adicionar clientes
+    clientes.forEach(cliente => {
+      const option = document.createElement('option');
+      option.value = cliente.id;
+      option.textContent = cliente.nome;
+      
+      selectAgendamento.appendChild(option.cloneNode(true));
+      selectDashboard.appendChild(option.cloneNode(true));
+      selectTreino.appendChild(option.cloneNode(true));
+    });
+  }
+  
+  // Carregar dashboard do cliente
+  function carregarDashboardCliente() {
+    const clienteId = parseInt(this.value);
+    if(!clienteId) {
+      document.getElementById('dashboardCliente').style.display = 'none';
+      return;
     }
     
-    // Função para classificar IMC
-    function classificarIMC(imc) {
-      imc = parseFloat(imc);
-      if (imc < 18.5) return 'Abaixo do peso';
-      if (imc < 24.9) return 'Peso normal';
-      if (imc < 29.9) return 'Sobrepeso';
-      if (imc < 34.9) return 'Obesidade Grau I';
-      if (imc < 39.9) return 'Obesidade Grau II';
-      return 'Obesidade Grau III';
+    const cliente = clientes.find(c => c.id === clienteId);
+    if(!cliente) return;
+    
+    const avaliacoesCliente = avaliacoes.filter(a => a.clienteId === clienteId).sort((a, b) => new Date(a.data) - new Date(b.data));
+    
+    if(avaliacoesCliente.length === 0) {
+      showMessage('Nenhuma avaliação encontrada para este cliente!', 'error');
+      document.getElementById('dashboardCliente').style.display = 'none';
+      return;
     }
     
-    // Inicializar gráficos
-    function initCharts() {
-      // Gráfico de composição corporal
-      const ctx1 = document.getElementById('bodyCompositionChart').getContext('2d');
-      new Chart(ctx1, {
-        type: 'doughnut',
-        data: {
-          labels: ['Massa Gorda', 'Massa Magra', 'Água Corporal'],
-          datasets: [{
-            data: [15, 60, 25],
-            backgroundColor: [
-              '#e74c3c',
-              '#3498db',
-              '#2ecc71'
-            ],
-            borderWidth: 0
-          }]
+    document.getElementById('dashboardCliente').style.display = 'grid';
+    
+    // Criar gráficos
+    criarGraficoPeso(avaliacoesCliente);
+    criarGraficoGordura(avaliacoesCliente);
+    criarGraficoDobras(avaliacoesCliente);
+    criarGraficoPerimetros(avaliacoesCliente);
+  }
+  
+  // Criar gráfico de evolução de peso
+  function criarGraficoPeso(avaliacoes) {
+    const ctx = document.getElementById('pesoChart').getContext('2d');
+    
+    if(window.pesoChart) {
+      window.pesoChart.destroy();
+    }
+    
+    const labels = avaliacoes.map(a => formatarData(a.data));
+    const dadosPeso = avaliacoes.map(a => a.peso);
+    
+    window.pesoChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Peso (kg)',
+          data: dadosPeso,
+          borderColor: '#3498db',
+          backgroundColor: 'rgba(52, 152, 219, 0.1)',
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            display: false
+          }
         },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              position: 'bottom'
-            }
+        scales: {
+          y: {
+            beginAtZero: false,
+            min: Math.min(...dadosPeso) - 5,
+            max: Math.max(...dadosPeso) + 5
           }
         }
-      });
-      
-      // Gráfico de evolução de peso
-      const ctx2 = document.getElementById('pesoChart').getContext('2d');
-      new Chart(ctx2, {
-        type: 'line',
-        data: {
-          labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
-          datasets: [{
-            label: 'Peso (kg)',
-            data: [78, 76, 75, 74, 73, 72],
-            borderColor: '#3498db',
-            backgroundColor: 'rgba(52, 152, 219, 0.1)',
-            tension: 0.3,
-            fill: true
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: false
-            }
-          }
-        }
-      });
+      }
+    });
+  }
+  
+  // Criar gráfico de evolução de gordura
+  function criarGraficoGordura(avaliacoes) {
+    const ctx = document.getElementById('gorduraChart').getContext('2d');
+    
+    if(window.gorduraChart) {
+      window.gorduraChart.destroy();
     }
     
-    // Inicializar o sistema quando o DOM estiver carregado
-    document.addEventListener('DOMContentLoaded', function() {
-      initCharts();
-      
-      // Pré-carregar alguns dados de exemplo
-      document.getElementById('agendamentosHoje').textContent = '3';
-      document.getElementById('agendamentosSemana').textContent = '12';
-      
-      // Simular clientes cadastrados
-      const clientSelects = document.querySelectorAll('select[id*="cliente"]');
-      clientSelects.forEach(select => {
-        const options = ['João Silva', 'Maria Oliveira', 'Carlos Souza', 'Ana Pereira', 'Pedro Costa'];
-        options.forEach(client => {
-          const option = document.createElement('option');
-          option.value = client;
-          option.textContent = client;
-          select.appendChild(option);
-        });
-      });
+    const labels = avaliacoes.map(a => formatarData(a.data));
+    const dadosGordura = avaliacoes.map(a => a.gorduraPercentual);
+    
+    window.gorduraChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: '% Gordura',
+          data: dadosGordura,
+          borderColor: '#e74c3c',
+          backgroundColor: 'rgba(231, 76, 60, 0.1)',
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: false,
+            min: Math.min(...dadosGordura) - 5,
+            max: Math.max(...dadosGordura) + 5
+          }
+        }
+      }
     });
-  </script>
+  }
+  
+  // Criar gráfico de dobras cutâneas
+  function criarGraficoDobras(avaliacoes) {
+    const ctx = document.getElementById('dobrasChart').getContext('2d');
+    
+    if(window.dobrasChart) {
+      window.dobrasChart.destroy();
+    }
+    
+    const ultimaAvaliacao = avaliacoes[avaliacoes.length - 1];
+    const dobras = ultimaAvaliacao.dobras;
+    
+    window.dobrasChart = new Chart(ctx, {
+      type: 'radar',
+      data: {
+        labels: Object.keys(dobras).map(d => d.charAt(0).toUpperCase() + d.slice(1)),
+        datasets: [{
+          label: 'Dobras Cutâneas (mm)',
+          data: Object.values(dobras),
+          backgroundColor: 'rgba(241, 196, 15, 0.2)',
+          borderColor: '#f1c40f',
+          pointBackgroundColor: '#f1c40f',
+          pointBorderColor: '#fff',
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: '#f1c40f'
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          r: {
+            angleLines: {
+              display: true
+            },
+            suggestedMin: 0,
+            suggestedMax: Math.max(...Object.values(dobras)) + 5
+          }
+        }
+      }
+    });
+  }
+  
+  // Criar gráfico de perímetros
+  function criarGraficoPerimetros(avaliacoes) {
+    const ctx = document.getElementById('perimetrosChart').getContext('2d');
+    
+    if(window.perimetrosChart) {
+      window.perimetrosChart.destroy();
+    }
+    
+    const ultimaAvaliacao = avaliacoes[avaliacoes.length - 1];
+    const perimetros = ultimaAvaliacao.perimetros;
+    
+    window.perimetrosChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: Object.keys(perimetros).map(p => {
+          // Melhorar os labels para exibição
+          if(p === 'bracoNormal') return 'Braço Normal';
+          if(p === 'bracoContraido') return 'Braço Contraído';
+          return p.charAt(0).toUpperCase() + p.slice(1);
+        }),
+        datasets: [{
+          label: 'Perímetros (cm)',
+          data: Object.values(perimetros),
+          backgroundColor: '#2ecc71',
+          borderColor: '#27ae60',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  }
+  
+  // Imprimir dashboard
+  function imprimirDashboard() {
+    const clienteId = parseInt(document.getElementById('selecionarCliente').value);
+    if (!clienteId) {
+      showMessage('Selecione um cliente primeiro!', 'error');
+      return;
+    }
+
+    const cliente = clientes.find(c => c.id === clienteId);
+    if (!cliente) {
+      showMessage('Cliente não encontrado!', 'error');
+      return;
+    }
+
+    // Usar html2canvas para "printar" o dashboard
+    const dashboard = document.getElementById('dashboardCliente');
+    html2canvas(dashboard).then(canvas => {
+      const imgData = canvas.toDataURL('image/png');
+      const novaJanela = window.open('', '_blank');
+      novaJanela.document.write(`<img src="${imgData}" alt="Dashboard de ${cliente.nome}" style="width:100%;"/>`);
+      novaJanela.document.close();
+      novaJanela.focus();
+      novaJanela.print();
+    });
+  }
+
+  // Enviar dashboard por WhatsApp
+  function enviarDashboardWhatsapp() {
+    const clienteId = parseInt(document.getElementById('selecionarCliente').value);
+    if(!clienteId) {
+      showMessage('Selecione um cliente primeiro!', 'error');
+      return;
+    }
+
+    const cliente = clientes.find(c => c.id === clienteId);
+    if(!cliente) return;
+
+    let mensagem = `📊 *Dashboard de Avaliação Física - ${cliente.nome}* 📊\n\n`;
+    mensagem += `✅ Confira o progresso, gráficos e métricas diretamente comigo.\n`;
+    mensagem += `💬 Entre em contato para agendar novos treinos ou tirar dúvidas!\n\n`;
+    mensagem += `🏋️‍♂️ *FitMotivation Pro* - Seu progresso em foco!`;
+
+    const url = `https://wa.me/${cliente.telefone}?text=${encodeURIComponent(mensagem)}`;
+    window.open(url, '_blank');
+  }
+
+  // Atualizar dias de treino
+  function atualizarDiasTreino() {
+    const dias = parseInt(document.getElementById('diasTreino').value);
+    const container = document.getElementById('diasTreinoContainer');
+    container.innerHTML = '';
+
+    for(let i=1; i<=dias; i++) {
+      const label = document.createElement('label');
+      label.textContent = `Treino do Dia ${i}`;
+      const textarea = document.createElement('textarea');
+      textarea.placeholder = `Detalhes do treino do dia ${i}...`;
+      textarea.id = `treinoDia${i}`;
+      container.appendChild(label);
+      container.appendChild(textarea);
+    }
+  }
+
+  // Carregar dados do cliente para treino
+  function carregarDadosClienteTreino() {
+    const clienteId = parseInt(this.value);
+    const container = document.getElementById('treinoContainer');
+    if(!clienteId) {
+      container.style.display = 'none';
+      return;
+    }
+
+    container.style.display = 'block';
+  }
+
+  // Gerar treino automático (exemplo simplificado)
+  function gerarTreinoAutomatico() {
+    const dias = parseInt(document.getElementById('diasTreino').value);
+    for(let i=1; i<=dias; i++) {
+      const textarea = document.getElementById(`treinoDia${i}`);
+      textarea.value = `🏋️‍♂️ Treino do Dia ${i}:\n- Aquecimento\n- Exercícios principais\n- Alongamento`;
+    }
+    showMessage('Treino gerado automaticamente!', 'success');
+  }
+
+  // Salvar treino
+  function salvarTreino() {
+    const clienteId = parseInt(document.getElementById('selecionarClienteTreino').value);
+    if(!clienteId) {
+      showMessage('Selecione um cliente!', 'error');
+      return;
+    }
+
+    const dias = parseInt(document.getElementById('diasTreino').value);
+    const treino = {
+      id: treinos.length > 0 ? Math.max(...treinos.map(t => t.id)) + 1 : 1,
+      clienteId,
+      data: new Date().toISOString().split('T')[0],
+      dias,
+      detalhes: []
+    };
+
+    for(let i=1; i<=dias; i++) {
+      const texto = document.getElementById(`treinoDia${i}`).value;
+      treino.detalhes.push({ dia: i, treino: texto });
+    }
+
+    treinos.push(treino);
+    salvarDados();
+    showMessage('Treino salvo com sucesso!', 'success');
+  }
+
+  // Enviar treino por WhatsApp
+  function enviarTreinoWhatsapp() {
+    const clienteId = parseInt(document.getElementById('selecionarClienteTreino').value);
+    if(!clienteId) {
+      showMessage('Selecione um cliente!', 'error');
+      return;
+    }
+
+    const cliente = clientes.find(c => c.id === clienteId);
+    if(!cliente) return;
+
+    const dias = parseInt(document.getElementById('diasTreino').value);
+    let mensagem = `🏋️‍♂️ *Treino Personalizado - ${cliente.nome}* 🏋️‍♂️\n\n`;
+    for(let i=1; i<=dias; i++) {
+      const treino = document.getElementById(`treinoDia${i}`).value;
+      mensagem += `*Dia ${i}:*\n${treino}\n\n`;
+    }
+    mensagem += `💪 Mantenha o foco e conte comigo para acompanhar seu progresso!`;
+
+    const url = `https://wa.me/${cliente.telefone}?text=${encodeURIComponent(mensagem)}`;
+    window.open(url, '_blank');
+  }
+
+  // Mostrar mensagens de status
+  function showMessage(msg, type) {
+    msgStatus.textContent = msg;
+    msgStatus.className = type;
+    msgStatus.style.display = 'block';
+    setTimeout(() => { msgStatus.style.display = 'none'; }, 3000);
+  }
+
+  // Formatar datas (dd/mm/yyyy)
+  function formatarData(dataStr) {
+    const [ano, mes, dia] = dataStr.split('-');
+    return `${dia}/${mes}/${ano}`;
+  }
+
+  // Troca de abas
+  function openTab(tabId) {
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    document.querySelector(`.tab[onclick="openTab('${tabId}')"]`).classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+  }
+</script>
 </body>
 </html>
