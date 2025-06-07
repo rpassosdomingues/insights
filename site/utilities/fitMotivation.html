@@ -1,17 +1,11 @@
-<!--
- * --------------------------------------------------------------
- * Author: Rafael Passos Domingues
- * Last Update: 2025 June 6
- * --------------------------------------------------------------
--->
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>FitMotivation - Seu Companheiro Fitness</title>
+<title>FitMotivation Pro - Sistema para Personal Trainers</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css" />
 <style>
   :root {
     --primary: #3498db;
@@ -25,6 +19,12 @@
     --border-radius: 12px;
     --box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     --transition: all 0.3s ease;
+    
+    /* Dark mode variables */
+    --bg-dark: #1a1a1a;
+    --card-dark: #2d2d2d;
+    --text-dark: #f0f0f0;
+    --border-dark: #444;
   }
 
   * {
@@ -43,21 +43,56 @@
     align-items: flex-start;
     padding: 1rem;
     line-height: 1.6;
+    transition: var(--transition);
+  }
+
+  body.dark-mode {
+    background: var(--bg-dark);
+    color: var(--text-dark);
   }
 
   .container {
-    max-width: 600.007px;
+    max-width: 800px;
     width: 100%;
     background: white;
     border-radius: var(--border-radius);
     padding: 2rem;
     box-shadow: var(--box-shadow);
     margin: 1rem 0;
+    transition: var(--transition);
+  }
+
+  .dark-mode .container {
+    background: var(--card-dark);
+    color: var(--text-dark);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   }
 
   header {
     text-align: center;
     margin-bottom: 2rem;
+    position: relative;
+  }
+
+  .theme-toggle {
+    position: absolute;
+    right: 0;
+    top: 0;
+    background: var(--light);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+
+  .dark-mode .theme-toggle {
+    background: var(--dark);
+    color: var(--text-dark);
   }
 
   h1 {
@@ -70,6 +105,10 @@
     gap: 0.5rem;
   }
 
+  .dark-mode h1 {
+    color: var(--primary-light);
+  }
+
   .subtitle {
     color: var(--light-gray);
     font-size: 0.9rem;
@@ -80,6 +119,16 @@
     display: flex;
     margin-bottom: 1.5rem;
     border-bottom: 1px solid var(--light-gray);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .tab-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .dark-mode .tab-container {
+    border-bottom-color: var(--border-dark);
   }
 
   .tab {
@@ -89,6 +138,11 @@
     color: var(--light-gray);
     transition: var(--transition);
     border-bottom: 3px solid transparent;
+    white-space: nowrap;
+  }
+
+  .dark-mode .tab {
+    color: #888;
   }
 
   .tab.active {
@@ -96,8 +150,19 @@
     border-bottom: 3px solid var(--primary);
   }
 
+  .dark-mode .tab.active {
+    color: var(--primary-light);
+    border-bottom-color: var(--primary-light);
+  }
+
   .tab-content {
     display: none;
+    animation: fadeIn 0.5s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   .tab-content.active {
@@ -107,8 +172,12 @@
   label {
     display: block;
     margin-top: 1.5rem;
-    font-weight: 600.0042;
+    font-weight: 600;
     color: var(--dark);
+  }
+
+  .dark-mode label {
+    color: var(--text-dark);
   }
 
   input[type="text"],
@@ -131,12 +200,27 @@
     transition: var(--transition);
   }
 
+  .dark-mode input,
+  .dark-mode select,
+  .dark-mode textarea {
+    background: #333;
+    border-color: var(--border-dark);
+    color: var(--text-dark);
+  }
+
   input:focus,
   select:focus,
   textarea:focus {
     outline: none;
     border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+  }
+
+  .dark-mode input:focus,
+  .dark-mode select:focus,
+  .dark-mode textarea:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(93, 173, 226, 0.2);
   }
 
   textarea {
@@ -166,6 +250,11 @@
     gap: 0.5rem;
   }
 
+  .dark-mode .checkbox-group label {
+    background: #333;
+    color: var(--text-dark);
+  }
+
   .checkbox-group input[type="checkbox"],
   .checkbox-group input[type="radio"] {
     display: none;
@@ -175,6 +264,11 @@
   .checkbox-group input[type="radio"]:checked + span {
     background: var(--primary);
     color: white;
+  }
+
+  .dark-mode .checkbox-group input[type="checkbox"]:checked + span,
+  .dark-mode .checkbox-group input[type="radio"]:checked + span {
+    background: var(--primary-light);
   }
 
   .checkbox-group label span {
@@ -209,6 +303,14 @@
     box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
   }
 
+  .dark-mode button {
+    background: var(--primary-light);
+  }
+
+  .dark-mode button:hover {
+    background: var(--primary);
+  }
+
   button.secondary {
     background: var(--secondary);
     color: var(--dark);
@@ -236,6 +338,10 @@
     display: none;
   }
 
+  .dark-mode #fotoPreview {
+    border-color: var(--border-dark);
+  }
+
   .stats-container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -249,6 +355,12 @@
     padding: 1rem;
     box-shadow: var(--box-shadow);
     text-align: center;
+    transition: var(--transition);
+  }
+
+  .dark-mode .stat-card {
+    background: #333;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   }
 
   .stat-value {
@@ -256,6 +368,10 @@
     font-weight: 700;
     color: var(--primary);
     margin-bottom: 0.3rem;
+  }
+
+  .dark-mode .stat-value {
+    color: var(--primary-light);
   }
 
   .stat-label {
@@ -277,6 +393,10 @@
     overflow: hidden;
   }
 
+  .dark-mode .progress-bar {
+    background: #444;
+  }
+
   .progress-fill {
     height: 100%;
     background: var(--success);
@@ -294,6 +414,12 @@
     background: rgba(241, 196, 15, 0.1);
     border-radius: var(--border-radius);
     border-left: 4px solid var(--secondary);
+    transition: var(--transition);
+  }
+
+  .dark-mode .motivation-quote {
+    color: var(--text-dark);
+    background: rgba(241, 196, 15, 0.2);
   }
 
   #msgStatus {
@@ -317,9 +443,203 @@
     border-left: 4px solid var(--accent);
   }
 
-  @media (max-width: 600px) {
+  .dark-mode .success {
+    background: rgba(46, 204, 113, 0.2);
+  }
+
+  .dark-mode .error {
+    background: rgba(231, 76, 60, 0.2);
+  }
+
+  .chart-container {
+    margin: 2rem 0;
+    position: relative;
+    height: 300px;
+    width: 100%;
+  }
+
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .dashboard-card {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--box-shadow);
+    transition: var(--transition);
+  }
+
+  .dark-mode .dashboard-card {
+    background: #333;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  .dashboard-card h3 {
+    margin-bottom: 1rem;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .dark-mode .dashboard-card h3 {
+    color: var(--primary-light);
+  }
+
+  .dobras-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .dobra-input {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dobra-input label {
+    margin-top: 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .dobra-input input {
+    margin-top: 0.3rem;
+  }
+
+  .client-list {
+    margin-top: 1.5rem;
+  }
+
+  .client-item {
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--box-shadow);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: var(--transition);
+  }
+
+  .dark-mode .client-item {
+    background: #333;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+
+  .client-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  }
+
+  .dark-mode .client-item:hover {
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+  }
+
+  .client-info h4 {
+    color: var(--primary);
+    margin-bottom: 0.3rem;
+  }
+
+  .dark-mode .client-info h4 {
+    color: var(--primary-light);
+  }
+
+  .client-info p {
+    font-size: 0.9rem;
+    color: var(--light-gray);
+  }
+
+  .client-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .client-actions button {
+    margin: 0;
+    width: auto;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .print-btn {
+    background: var(--dark);
+    margin-top: 1rem;
+  }
+
+  .dark-mode .print-btn {
+    background: #444;
+  }
+
+  .print-btn:hover {
+    background: #34495e;
+  }
+
+  .dark-mode .print-btn:hover {
+    background: #555;
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 2rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--light-gray);
+  }
+
+  .dark-mode .section-title {
+    border-bottom-color: var(--border-dark);
+  }
+
+  .section-title h2 {
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .dark-mode .section-title h2 {
+    color: var(--primary-light);
+  }
+
+  .alert-card {
+    background: rgba(231, 76, 60, 0.1);
+    border-left: 4px solid var(--accent);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    margin: 1.5rem 0;
+    color: var(--dark);
+  }
+
+  .dark-mode .alert-card {
+    background: rgba(231, 76, 60, 0.2);
+    color: var(--text-dark);
+  }
+
+  .alert-card h3 {
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  @media (max-width: 768px) {
     .container {
       padding: 1.5rem;
+    }
+
+    .dashboard-grid,
+    .dobras-container,
+    .stats-container {
+      grid-template-columns: 1fr;
     }
 
     h1 {
@@ -330,419 +650,573 @@
       padding: 0.6rem 1rem;
       font-size: 0.9rem;
     }
+  }
 
-    .stats-container {
-      grid-template-columns: 1fr;
-    }
+  /* Animations */
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+
+  .pulse {
+    animation: pulse 2s infinite;
   }
 </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1><i class="fas fa-dumbbell"></i> FitMotivation</h1>
-      <p class="subtitle">Seu companheiro para uma vida mais saudável e motivada</p>
+      <button class="theme-toggle" id="themeToggle">
+        <i class="fas fa-moon"></i>
+      </button>
+      <h1><i class="fas fa-dumbbell"></i> FitMotivation Pro</h1>
+      <p class="subtitle">Sistema completo para avaliação física e acompanhamento de clientes</p>
     </header>
 
     <div class="tab-container">
-      <div class="tab active" onclick="openTab('tab1')">Meu Treino</div>
-      <div class="tab" onclick="openTab('tab2')">Agendar Aula</div>
-      <div class="tab" onclick="openTab('tab3')">Meu Progresso</div>
+      <div class="tab active" onclick="openTab('tab1')"><i class="fas fa-user-plus"></i> Novo Cliente</div>
+      <div class="tab" onclick="openTab('tab2')"><i class="fas fa-calendar-check"></i> Agendamentos</div>
+      <div class="tab" onclick="openTab('tab3')"><i class="fas fa-chart-line"></i> Dashboard</div>
+      <div class="tab" onclick="openTab('tab4')"><i class="fas fa-dumbbell"></i> Treinos</div>
     </div>
 
     <div id="tab1" class="tab-content active">
-      <label for="nome">Seu Nome</label>
-      <input type="text" id="nome" placeholder="Como gostaria de ser chamado?" />
-
-      <label>Foto do Progresso</label>
-      <input type="file" id="foto" accept="image/*" />
-      <img id="fotoPreview" alt="Prévia da foto" />
-
-      <label>Temperatura Atual</label>
-      <div id="temperatura" class="stat-card">
-        <div class="stat-value"><i class="fas fa-thermometer-half"></i> <span id="tempValue">Carregando...</span></div>
+      <h2><i class="fas fa-user-edit"></i> Avaliação Física</h2>
+      
+      <label for="nomeCliente">Nome do Cliente</label>
+      <input type="text" id="nomeCliente" placeholder="Nome completo do cliente" />
+      
+      <label for="emailCliente">E-mail</label>
+      <input type="email" id="emailCliente" placeholder="E-mail do cliente" />
+      
+      <label for="telefoneCliente">Telefone (WhatsApp)</label>
+      <input type="tel" id="telefoneCliente" placeholder="(XX) XXXXX-XXXX" />
+      
+      <label>Foto do Cliente (Opcional)</label>
+      <input type="file" id="fotoCliente" accept="image/*" />
+      <img id="fotoClientePreview" alt="Foto do cliente" class="foto-preview" />
+      
+      <div class="section-title">
+        <h2><i class="fas fa-ruler-combined"></i> Medidas Corporais</h2>
       </div>
-
-      <label>Treinos Realizados</label>
-      <div class="checkbox-group" id="treinosCheckboxes">
-        <!-- Vai popular pelo JS -->
-      </div>
-
+      
       <div class="stats-container">
         <div class="stat-card">
-          <div class="stat-value" id="pesoValue">0</div>
-          <div class="stat-label">Peso Máximo (kg)</div>
-          <input type="number" id="pesoMax" min="0" placeholder="Ex: 120" class="stat-input" />
+          <div class="stat-value" id="alturaValue">0</div>
+          <div class="stat-label">Altura (cm)</div>
+          <input type="number" id="altura" min="0" placeholder="Ex: 175" class="stat-input" />
         </div>
         <div class="stat-card">
-          <div class="stat-value" id="tempoValue">0</div>
-          <div class="stat-label">Tempo (min)</div>
-          <input type="number" id="duracao" min="0" placeholder="Ex: 60" class="stat-input" />
+          <div class="stat-value" id="pesoValue">0</div>
+          <div class="stat-label">Peso (kg)</div>
+          <input type="number" id="peso" min="0" placeholder="Ex: 75" class="stat-input" />
         </div>
       </div>
-
-      <label>Sensação do Treino</label>
-      <div class="checkbox-group" id="sensacoesCheckboxes">
-        <label><input type="radio" name="sensacao" value="😅 Desafiador" checked /><span>😅 Desafiador</span></label>
-        <label><input type="radio" name="sensacao" value="💪 Superação" /><span>💪 Superação</span></label>
-        <label><input type="radio" name="sensacao" value="🧘‍♂️ Controlado" /><span>🧘‍♂️ Controlado</span></label>
+      
+      <div class="stats-container">
+        <div class="stat-card">
+          <div class="stat-value" id="imcValue">0</div>
+          <div class="stat-label">IMC</div>
+          <div id="imcClassificacao" style="font-size: 0.8rem; color: var(--light-gray);">Classificação</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="idadeValue">0</div>
+          <div class="stat-label">Idade</div>
+          <input type="number" id="idade" min="0" placeholder="Ex: 30" class="stat-input" />
+        </div>
       </div>
-
-      <label for="comentarios">Reflexão do Dia</label>
-      <textarea id="comentarios" placeholder="Como você se sentiu hoje? O que aprendeu?"></textarea>
-
-      <div class="motivation-quote" id="motivationQuote">
-        "A disciplina é a ponte entre metas e realizações." - Jim Rohn
+      
+      <div class="section-title">
+        <h2><i class="fas fa-tape"></i> Dobras Cutâneas (mm)</h2>
       </div>
-
-      <button id="btnWhatsapp"><i class="fab fa-whatsapp"></i> Compartilhar Progresso</button>
-      <button id="btnInstagram" class="secondary"><i class="fab fa-instagram"></i> Criar Legenda</button>
-
+      
+      <div class="dobras-container">
+        <div class="dobra-input">
+          <label for="subscapular">Subscapular</label>
+          <input type="number" id="subscapular" min="0" step="0.1" placeholder="mm" />
+        </div>
+        <div class="dobra-input">
+          <label for="triciptal">Triciptal</label>
+          <input type="number" id="triciptal" min="0" step="0.1" placeholder="mm" />
+        </div>
+        <div class="dobra-input">
+          <label for="peitoral">Peitoral</label>
+          <input type="number" id="peitoral" min="0" step="0.1" placeholder="mm" />
+        </div>
+        <div class="dobra-input">
+          <label for="axilar">Axilar</label>
+          <input type="number" id="axilar" min="0" step="0.1" placeholder="mm" />
+        </div>
+        <div class="dobra-input">
+          <label for="suprailiaca">Supra-ilíaca</label>
+          <input type="number" id="suprailiaca" min="0" step="0.1" placeholder="mm" />
+        </div>
+        <div class="dobra-input">
+          <label for="abdominal">Abdominal</label>
+          <input type="number" id="abdominal" min="0" step="0.1" placeholder="mm" />
+        </div>
+        <div class="dobra-input">
+          <label for="coxa">Coxa</label>
+          <input type="number" id="coxa" min="0" step="0.1" placeholder="mm" />
+        </div>
+        <div class="dobra-input">
+          <label for="panturrilha">Panturrilha</label>
+          <input type="number" id="panturrilha" min="0" step="0.1" placeholder="mm" />
+        </div>
+      </div>
+      
+      <div class="section-title">
+        <h2><i class="fas fa-ruler"></i> Perímetros (cm)</h2>
+      </div>
+      
+      <div class="dobras-container">
+        <div class="dobra-input">
+          <label for="torax">Tórax</label>
+          <input type="number" id="torax" min="0" step="0.1" placeholder="cm" />
+        </div>
+        <div class="dobra-input">
+          <label for="cintura">Cintura</label>
+          <input type="number" id="cintura" min="0" step="0.1" placeholder="cm" />
+        </div>
+        <div class="dobra-input">
+          <label for="abdomen">Abdômen</label>
+          <input type="number" id="abdomen" min="0" step="0.1" placeholder="cm" />
+        </div>
+        <div class="dobra-input">
+          <label for="quadril">Quadril</label>
+          <input type="number" id="quadril" min="0" step="0.1" placeholder="cm" />
+        </div>
+        <div class="dobra-input">
+          <label for="bracoNormal">Braço Normal</label>
+          <input type="number" id="bracoNormal" min="0" step="0.1" placeholder="cm" />
+        </div>
+        <div class="dobra-input">
+          <label for="bracoContraido">Braço Contraído</label>
+          <input type="number" id="bracoContraido" min="0" step="0.1" placeholder="cm" />
+        </div>
+        <div class="dobra-input">
+          <label for="coxaPerimetro">Coxa</label>
+          <input type="number" id="coxaPerimetro" min="0" step="0.1" placeholder="cm" />
+        </div>
+        <div class="dobra-input">
+          <label for="panturrilhaPerimetro">Panturrilha</label>
+          <input type="number" id="panturrilhaPerimetro" min="0" step="0.1" placeholder="cm" />
+        </div>
+      </div>
+      
+      <div class="section-title">
+        <h2><i class="fas fa-heartbeat"></i> Análise de Composição Corporal</h2>
+      </div>
+      
+      <div class="stats-container">
+        <div class="stat-card">
+          <div class="stat-value" id="gorduraValue">0%</div>
+          <div class="stat-label">% Gordura</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="gorduraIdealValue">0%</div>
+          <div class="stat-label">% Ideal</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="massaGordaValue">0kg</div>
+          <div class="stat-label">Massa Gorda</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="massaMagraValue">0kg</div>
+          <div class="stat-label">Massa Magra</div>
+        </div>
+      </div>
+      
+      <div class="chart-container">
+        <canvas id="bodyCompositionChart"></canvas>
+      </div>
+      
+      <div class="alert-card" id="alertCard" style="display: none;">
+        <h3><i class="fas fa-exclamation-triangle"></i> Atenção!</h3>
+        <p id="alertMessage">O percentual de gordura está acima do recomendado para a idade e sexo do cliente.</p>
+      </div>
+      
+      <label for="observacoes">Observações</label>
+      <textarea id="observacoes" placeholder="Anotações importantes sobre a avaliação..."></textarea>
+      
+      <button id="btnCalcular"><i class="fas fa-calculator"></i> Calcular Composição Corporal</button>
+      <button id="btnEnviarWhatsapp" class="secondary"><i class="fab fa-whatsapp"></i> Enviar para Cliente</button>
+      <button id="btnSalvarAvaliacao" class="accent"><i class="fas fa-save"></i> Salvar Avaliação</button>
+      
       <div id="msgStatus"></div>
     </div>
 
     <div id="tab2" class="tab-content">
-      <h2><i class="fas fa-calendar-check"></i> Agende sua Aula Experimental</h2>
-      <p style="margin-bottom: 1.5rem;">Preencha os dados abaixo para reservar sua aula experimental gratuita.</p>
-
-      <label for="nomeCompleto">Nome Completo</label>
-      <input type="text" id="nomeCompleto" placeholder="Seu nome completo" />
-
-      <label for="email">E-mail</label>
-      <input type="email" id="email" placeholder="Seu melhor e-mail" />
-
-      <label for="telefone">Telefone</label>
-      <input type="tel" id="telefone" placeholder="(XX) XXXXX-XXXX" />
-
-      <label for="dataAula">Data da Aula</label>
-      <input type="date" id="dataAula" />
-
-      <label for="horarioAula">Horário Preferencial</label>
-      <input type="time" id="horarioAula" />
-
-      <label for="tipoAula">Tipo de Aula</label>
-      <select id="tipoAula">
-        <option value="">Selecione...</option>
-        <option value="Musculação">Musculação</option>
-        <option value="Crossfit">Crossfit</option>
-        <option value="Funcional">Funcional</option>
-        <option value="Pilates">Pilates</option>
-        <option value="Yoga">Yoga</option>
+      <h2><i class="fas fa-calendar-alt"></i> Agendamentos</h2>
+      
+      <div class="stats-container">
+        <div class="stat-card pulse">
+          <div class="stat-value" id="agendamentosHoje">0</div>
+          <div class="stat-label">Hoje</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="agendamentosSemana">0</div>
+          <div class="stat-label">Esta Semana</div>
+        </div>
+      </div>
+      
+      <div class="section-title">
+        <h2><i class="fas fa-plus-circle"></i> Novo Agendamento</h2>
+      </div>
+      
+      <label for="clienteAgendamento">Cliente</label>
+      <select id="clienteAgendamento">
+        <option value="">Selecione um cliente...</option>
+        <!-- Populado pelo JavaScript -->
       </select>
-
-      <label for="objetivo">Qual seu principal objetivo?</label>
-      <textarea id="objetivo" placeholder="Ex: Perda de peso, ganho de massa muscular, condicionamento..."></textarea>
-
-      <button id="btnAgendar" class="accent"><i class="fas fa-calendar-plus"></i> Agendar Aula</button>
+      
+      <label for="dataAgendamento">Data</label>
+      <input type="date" id="dataAgendamento" />
+      
+      <label for="horaAgendamento">Horário</label>
+      <input type="time" id="horaAgendamento" />
+      
+      <label for="tipoAgendamento">Tipo de Sessão</label>
+      <select id="tipoAgendamento">
+        <option value="Avaliação Física">Avaliação Física</option>
+        <option value="Treino Personalizado">Treino Personalizado</option>
+        <option value="Aula Experimental">Aula Experimental</option>
+        <option value="Acompanhamento">Acompanhamento</option>
+      </select>
+      
+      <label for="obsAgendamento">Observações</label>
+      <textarea id="obsAgendamento" placeholder="Detalhes sobre a sessão..."></textarea>
+      
+      <button id="btnAgendar" class="accent"><i class="fas fa-calendar-plus"></i> Agendar Sessão</button>
+      
+      <div class="section-title">
+        <h2><i class="fas fa-list"></i> Próximos Agendamentos</h2>
+      </div>
+      
+      <div class="client-list" id="listaAgendamentos">
+        <!-- Populado pelo JavaScript -->
+      </div>
     </div>
 
     <div id="tab3" class="tab-content">
-      <h2><i class="fas fa-chart-line"></i> Meu Progresso</h2>
+      <h2><i class="fas fa-chart-pie"></i> Dashboard do Cliente</h2>
       
-      <div class="stats-container">
-        <div class="stat-card">
-          <div class="stat-value" id="totalTreinos">12</div>
-          <div class="stat-label">Treinos Semanais</div>
+      <label for="selecionarCliente">Selecione o Cliente</label>
+      <select id="selecionarCliente">
+        <option value="">Selecione um cliente...</option>
+        <!-- Populado pelo JavaScript -->
+      </select>
+      
+      <div class="dashboard-grid" id="dashboardCliente" style="display: none;">
+        <div class="dashboard-card">
+          <h3><i class="fas fa-weight"></i> Evolução de Peso</h3>
+          <div class="chart-container">
+            <canvas id="pesoChart"></canvas>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-value" id="mediaTempo">45</div>
-          <div class="stat-label">Minutos/Treino</div>
+        
+        <div class="dashboard-card">
+          <h3><i class="fas fa-percentage"></i> Percentual de Gordura</h3>
+          <div class="chart-container">
+            <canvas id="gorduraChart"></canvas>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-value" id="evolucaoPeso">+8%</div>
-          <div class="stat-label">Evolução Carga</div>
+        
+        <div class="dashboard-card">
+          <h3><i class="fas fa-tape"></i> Dobras Cutâneas</h3>
+          <div class="chart-container">
+            <canvas id="dobrasChart"></canvas>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-value" id="diasConsecutivos">7</div>
-          <div class="stat-label">Dias Consecutivos</div>
+        
+        <div class="dashboard-card">
+          <h3><i class="fas fa-ruler-combined"></i> Perímetros</h3>
+          <div class="chart-container">
+            <canvas id="perimetrosChart"></canvas>
+          </div>
         </div>
       </div>
+      
+      <button id="btnPrintDashboard" class="print-btn"><i class="fas fa-print"></i> Imprimir Dashboard</button>
+      <button id="btnEnviarDashboard" class="secondary"><i class="fab fa-whatsapp"></i> Enviar Dashboard</button>
+    </div>
 
-      <div class="progress-container">
-        <label>Meta Semanal - 5 treinos</label>
-        <div class="progress-bar">
-          <div class="progress-fill" id="progressFill"></div>
+    <div id="tab4" class="tab-content">
+      <h2><i class="fas fa-dumbbell"></i> Prescrição de Treinos</h2>
+      
+      <label for="selecionarClienteTreino">Selecione o Cliente</label>
+      <select id="selecionarClienteTreino">
+        <option value="">Selecione um cliente...</option>
+        <!-- Populado pelo JavaScript -->
+      </select>
+      
+      <div id="treinoContainer" style="display: none;">
+        <div class="section-title">
+          <h2><i class="fas fa-bullseye"></i> Objetivos do Cliente</h2>
         </div>
+        
+        <div class="checkbox-group" id="objetivosCheckboxes">
+          <label><input type="checkbox" name="objetivo" value="Perda de peso" /><span>⚖️ Perda de peso</span></label>
+          <label><input type="checkbox" name="objetivo" value="Ganho de massa" /><span>💪 Ganho de massa</span></label>
+          <label><input type="checkbox" name="objetivo" value="Condicionamento" /><span>🏃 Condicionamento</span></label>
+          <label><input type="checkbox" name="objetivo" value="Reabilitação" /><span>🩹 Reabilitação</span></label>
+          <label><input type="checkbox" name="objetivo" value="Performance" /><span>🏆 Performance</span></label>
+        </div>
+        
+        <div class="section-title">
+          <h2><i class="fas fa-heartbeat"></i> Nível do Cliente</h2>
+        </div>
+        
+        <div class="checkbox-group" id="nivelCheckboxes">
+          <label><input type="radio" name="nivel" value="Iniciante" checked /><span>👶 Iniciante</span></label>
+          <label><input type="radio" name="nivel" value="Intermediário" /><span>👍 Intermediário</span></label>
+          <label><input type="radio" name="nivel" value="Avançado" /><span>🔥 Avançado</span></label>
+        </div>
+        
+        <div class="section-title">
+          <h2><i class="fas fa-heartbeat"></i> Nível do Cliente</h2>
+        </div>
+        
+        <div class="checkbox-group" id="nivelCheckboxes">
+          <label><input type="radio" name="nivel" value="Iniciante" checked /><span>👶 Iniciante</span></label>
+          <label><input type="radio" name="nivel" value="Intermediário" /><span>👍 Intermediário</span></label>
+          <label><input type="radio" name="nivel" value="Avançado" /><span>🔥 Avançado</span></label>
+        </div>
+        
+        <div class="section-title">
+          <h2><i class="fas fa-dumbbell"></i> Ficha de Treino</h2>
+        </div>
+        
+        <div class="tab-container" style="margin-top: 1rem;">
+          <div class="tab active" onclick="openWorkoutTab('treinoA')">Treino A</div>
+          <div class="tab" onclick="openWorkoutTab('treinoB')">Treino B</div>
+          <div class="tab" onclick="openWorkoutTab('treinoC')">Treino C</div>
+          <div class="tab" onclick="openWorkoutTab('treinoD')">Treino D</div>
+        </div>
+        
+        <div id="treinoA" class="workout-tab-content active">
+          <label for="grupoMuscularA">Grupo Muscular</label>
+          <select id="grupoMuscularA" class="workout-select">
+            <option value="Superiores">Membros Superiores</option>
+            <option value="Inferiores">Membros Inferiores</option>
+            <option value="Core">Core/Core</option>
+            <option value="Cardio">Cardio</option>
+          </select>
+          
+          <label for="exerciciosA">Exercícios</label>
+          <div class="exercise-container" id="exerciciosA">
+            <div class="exercise-item">
+              <input type="text" placeholder="Nome do exercício" class="exercise-name" />
+              <input type="text" placeholder="Séries" class="exercise-sets" />
+              <input type="text" placeholder="Repetições" class="exercise-reps" />
+              <input type="text" placeholder="Carga" class="exercise-load" />
+              <button class="exercise-remove"><i class="fas fa-times"></i></button>
+            </div>
+          </div>
+          <button class="secondary" onclick="addExercise('exerciciosA')"><i class="fas fa-plus"></i> Adicionar Exercício</button>
+        </div>
+        
+        <div id="treinoB" class="workout-tab-content">
+          <!-- Conteúdo similar ao Treino A -->
+        </div>
+        
+        <div id="treinoC" class="workout-tab-content">
+          <!-- Conteúdo similar ao Treino A -->
+        </div>
+        
+        <div id="treinoD" class="workout-tab-content">
+          <!-- Conteúdo similar ao Treino A -->
+        </div>
+        
+        <div class="section-title">
+          <h2><i class="fas fa-clipboard-list"></i> Observações do Treino</h2>
+        </div>
+        
+        <textarea id="obsTreino" placeholder="Instruções especiais, cuidados, progressões..."></textarea>
+        
+        <button id="btnSalvarTreino" class="accent"><i class="fas fa-save"></i> Salvar Treino</button>
+        <button id="btnImprimirTreino" class="print-btn"><i class="fas fa-print"></i> Imprimir Treino</button>
+        <button id="btnEnviarTreino" class="secondary"><i class="fab fa-whatsapp"></i> Enviar para Cliente</button>
       </div>
-
-      <div class="motivation-quote">
-        "Você não está apenas treinando seu corpo, está disciplinando sua mente."
-      </div>
-
-      <button id="btnConfig" class="secondary"><i class="fas fa-cog"></i> Configurar Metas</button>
     </div>
   </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
-<script>
-  // Dados iniciais
-  const treinos = [
-    { nome: "Musculação", icone: "fas fa-dumbbell" },
-    { nome: "Cardio", icone: "fas fa-heartbeat" },
-    { nome: "Alongamento", icone: "fas fa-spa" },
-    { nome: "HIIT", icone: "fas fa-bolt" },
-    { nome: "Yoga", icone: "fas fa-peace" },
-    { nome: "Funcional", icone: "fas fa-running" },
-    { nome: "Crossfit", icone: "fas fa-fire" },
-    { nome: "Natação", icone: "fas fa-swimmer" }
-  ];
-
-  const frasesMotivacionais = [
-    "A persistência é o caminho do êxito. - Charles Chaplin",
-    "O corpo alcança o que a mente acredita. - Provérbio Chinês",
-    "Não é sobre ser bom, é sobre ser melhor que ontem. - Desconhecido",
-    "A dor que você sente hoje será a força que você sente amanhã. - Desconhecido",
-    "Disciplina é liberdade. Compromisso é liberdade. - Jocko Willink",
-    "O sucesso é a soma de pequenos esforços repetidos dia após dia. - Robert Collier",
-    "Você é mais forte do que pensa. Acredite. - Desconhecido"
-  ];
-
-  // Elementos DOM
-  const treinosContainer = document.getElementById('treinosCheckboxes');
-  const fotoInput = document.getElementById('foto');
-  const fotoPreview = document.getElementById('fotoPreview');
-  const btnWhatsapp = document.getElementById('btnWhatsapp');
-  const btnInstagram = document.getElementById('btnInstagram');
-  const btnAgendar = document.getElementById('btnAgendar');
-  const msgStatus = document.getElementById('msgStatus');
-  const motivationQuote = document.getElementById('motivationQuote');
-  const pesoValue = document.getElementById('pesoValue');
-  const tempoValue = document.getElementById('tempoValue');
-  const progressFill = document.getElementById('progressFill');
-
-  // Inicialização
-  document.addEventListener('DOMContentLoaded', function() {
-    criarCheckboxes();
-    buscarTemperatura();
-    atualizarFraseMotivacional();
-    setupEventListeners();
-    updateStats();
-    progressFill.style.width = '60%'; // Simulando progresso
-  });
-
-  // Criar checkboxes de treinos
-  function criarCheckboxes() {
-    treinos.forEach(treino => {
-      const label = document.createElement('label');
-      label.innerHTML = `
-        <input type="checkbox" value="${treino.nome}">
-        <span><i class="${treino.icone}"></i> ${treino.nome}</span>
-      `;
-      treinosContainer.appendChild(label);
-    });
-  }
-
-  // Mostrar preview da foto
-  fotoInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if(!file) {
-      fotoPreview.style.display = 'none';
-      fotoPreview.src = '';
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = () => {
-      fotoPreview.src = reader.result;
-      fotoPreview.style.display = 'block';
-    };
-    reader.readAsDataURL(file);
-  });
-
-  // Buscar temperatura
-  async function buscarTemperatura() {
-    const tempEl = document.getElementById('tempValue');
-    tempEl.textContent = 'Carregando...';
-
-    try {
-      const pos = await new Promise((res, rej) => {
-        navigator.geolocation.getCurrentPosition(res, rej, {timeout: 8000});
-      });
-
-      const {latitude, longitude} = pos.coords;
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=celsius`;
-      const resp = await fetch(url);
-      if(!resp.ok) throw new Error('Erro na API de temperatura');
-      const data = await resp.json();
-
-      const temp = data.current_weather.temperature;
-      tempEl.textContent = `${temp.toFixed(1)}°C`;
-    } catch(e) {
-      tempEl.textContent = 'Indisponível';
-    }
-  }
-
-  // Atualizar estatísticas em tempo real
-  function updateStats() {
-    document.getElementById('pesoMax').addEventListener('input', function() {
-      pesoValue.textContent = this.value || '0';
-    });
-
-    document.getElementById('duracao').addEventListener('input', function() {
-      tempoValue.textContent = this.value || '0';
-    });
-  }
-
-  // Atualizar frase motivacional
-  function atualizarFraseMotivacional() {
-    const randomIndex = Math.floor(Math.random() * frasesMotivacionais.length);
-    motivationQuote.textContent = frasesMotivacionais[randomIndex];
-  }
-
-  // Configurar listeners de eventos
-  function setupEventListeners() {
-    btnWhatsapp.addEventListener('click', exportarParaWhatsapp);
-    btnInstagram.addEventListener('click', criarLegendaInstagram);
-    btnAgendar.addEventListener('click', agendarAula);
-  }
-
-  // Abrir tab
-  function openTab(tabId) {
-    const tabs = document.querySelectorAll('.tab');
-    const tabContents = document.querySelectorAll('.tab-content');
-
-    tabs.forEach(tab => tab.classList.remove('active'));
-    tabContents.forEach(content => content.classList.remove('active'));
-
-    document.getElementById(tabId).classList.add('active');
-    document.querySelector(`.tab[onclick="openTab('${tabId}')"]`).classList.add('active');
-  }
-
-  // Exportar para WhatsApp
-  function exportarParaWhatsapp() {
-    const nome = document.getElementById('nome').value.trim();
-    if(!nome) {
-      showMessage('Por favor, preencha seu nome!', 'error');
-      return;
-    }
-
-    const treinosSelecionados = Array.from(treinosContainer.querySelectorAll('input:checked')).map(cb => {
-      const icon = cb.nextElementSibling.querySelector('i').className;
-      return `➤ ${cb.value} <i class="${icon}"></i>`;
-    });
-    
-    if(treinosSelecionados.length === 0) {
-      showMessage('Selecione pelo menos um treino!', 'error');
-      return;
-    }
-
-    const fotoData = fotoPreview.src && fotoPreview.style.display !== 'none' ? '📸 Foto do progresso incluída' : '';
-    const temperatura = document.getElementById('tempValue').textContent;
-    const pesoMax = document.getElementById('pesoMax').value.trim();
-    const duracao = document.getElementById('duracao').value.trim();
-    const sensacao = document.querySelector('input[name="sensacao"]:checked').value;
-    const comentarios = document.getElementById('comentarios').value.trim();
-
-    let mensagem = `🏋️‍♂️ *Relatório de Treino - FitMotivation* 🏋️‍♀️\n\n`;
-    mensagem += `👤 *Atleta:* ${nome}\n`;
-    mensagem += `🌡️ *Temperatura:* ${temperatura}\n`;
-    if(fotoData) mensagem += `${fotoData}\n\n`;
-
-    mensagem += `📅 *Treinos Realizados:*\n${treinosSelecionados.join('\n')}\n\n`;
-
-    if(pesoMax) mensagem += `🏋️‍♂️ *Peso Máximo:* ${pesoMax} kg\n`;
-    if(duracao) mensagem += `⏱️ *Duração:* ${duracao} min\n`;
-    mensagem += `💭 *Sensação:* ${sensacao}\n`;
-    if(comentarios) mensagem += `📝 *Reflexão:* ${comentarios}\n`;
-
-    mensagem += `\n💪 *Continue assim! Cada treino conta!*`;
-
-    shareOnWhatsapp(mensagem);
-  }
-
-  // Criar legenda para Instagram
-  function criarLegendaInstagram() {
-    const nome = document.getElementById('nome').value.trim();
-    if(!nome) {
-      showMessage('Por favor, preencha seu nome!', 'error');
-      return;
-    }
-
-    const treinosSelecionados = Array.from(treinosContainer.querySelectorAll('input:checked')).map(cb => cb.value);
-    if(treinosSelecionados.length === 0) {
-      showMessage('Selecione pelo menos um treino!', 'error');
-      return;
-    }
-
-    const pesoMax = document.getElementById('pesoMax').value.trim() || 'N/A';
-    const duracao = document.getElementById('duracao').value.trim() || 'N/A';
-    const sensacao = document.querySelector('input[name="sensacao"]:checked').value;
-    const comentarios = document.getElementById('comentarios').value.trim();
-
-    let legenda = `🔥 #FitMotivation - Meu Progresso Diário 🔥\n\n`;
-    legenda += `💪 Hoje foi dia de: ${treinosSelecionados.join(', ')}\n\n`;
-    legenda += `📊 Meus números:\n`;
-    legenda += `➤ Peso máximo: ${pesoMax}kg\n`;
-    legenda += `➤ Tempo de treino: ${duracao}min\n`;
-    legenda += `➤ Sensação: ${sensacao}\n\n`;
-    legenda += `💭 Reflexão do dia: ${comentarios || 'Foco no progresso, não na perfeição!'}\n\n`;
-    legenda += `#FitnessMotivation #ProgressoDiário #SaúdeEmPrimeiroLugar #${nome.replace(/\s/g, '')}`;
-
-    copyToClipboard(legenda);
-    showMessage('Legenda copiada para a área de transferência! Cole no Instagram!', 'success');
-  }
-
-  // Agendar aula experimental
-  function agendarAula() {
-    const nomeCompleto = document.getElementById('nomeCompleto').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const telefone = document.getElementById('telefone').value.trim();
-    const dataAula = document.getElementById('dataAula').value;
-    const horarioAula = document.getElementById('horarioAula').value;
-    const tipoAula = document.getElementById('tipoAula').value;
-    const objetivo = document.getElementById('objetivo').value.trim();
-
-    if(!nomeCompleto || !email || !telefone || !dataAula || !horarioAula || !tipoAula) {
-      showMessage('Por favor, preencha todos os campos obrigatórios!', 'error');
-      return;
-    }
-
-    // Simular envio (em um caso real, seria uma chamada AJAX)
-    setTimeout(() => {
-      showMessage(`Aula de ${tipoAula} agendada com sucesso para ${formatarData(dataAula)} às ${horarioAula}! Entraremos em contato para confirmar.`, 'success');
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+  <script>
+    // Função para alternar entre abas
+    function openTab(tabId) {
+      // Esconde todos os conteúdos de aba
+      const tabContents = document.getElementsByClassName('tab-content');
+      for (let i = 0; i < tabContents.length; i++) {
+        tabContents[i].classList.remove('active');
+      }
       
-      // Limpar formulário
-      document.getElementById('nomeCompleto').value = '';
-      document.getElementById('email').value = '';
-      document.getElementById('telefone').value = '';
-      document.getElementById('dataAula').value = '';
-      document.getElementById('horarioAula').value = '';
-      document.getElementById('tipoAula').value = '';
-      document.getElementById('objetivo').value = '';
-    }, 1000);
-  }
-
-  // Funções auxiliares
-  function shareOnWhatsapp(message) {
-    const encoded = encodeURIComponent(message);
-    window.open(`https://wa.me/?text=${encoded}`, '_blank');
-  }
-
-  function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => {
-      console.log('Texto copiado para a área de transferência');
-    }).catch(err => {
-      console.error('Erro ao copiar texto: ', err);
-    });
-  }
-
-  function showMessage(message, type) {
-    msgStatus.textContent = message;
-    msgStatus.className = type;
-    msgStatus.style.display = 'block';
+      // Remove a classe active de todas as abas
+      const tabs = document.getElementsByClassName('tab');
+      for (let i = 0; i < tabs.length; i++) {
+        tabs[i].classList.remove('active');
+      }
+      
+      // Mostra o conteúdo da aba selecionada
+      document.getElementById(tabId).classList.add('active');
+      
+      // Ativa a aba selecionada
+      event.currentTarget.classList.add('active');
+    }
     
-    setTimeout(() => {
-      msgStatus.style.display = 'none';
-    }, 5000);
-  }
-
-  function formatarData(dataString) {
-    if (!dataString) return '';
-    const data = new Date(dataString);
-    const dia = String(data.getDate()).padStart(2, '0');
-    const mes = String(data.getMonth() + 1).padStart(2, '0');
-    const ano = data.getFullYear();
-    return `${dia}/${mes}/${ano}`;
-  }
-</script>
+    // Função para alternar entre abas de treino
+    function openWorkoutTab(tabId) {
+      const workoutTabs = document.getElementsByClassName('workout-tab-content');
+      for (let i = 0; i < workoutTabs.length; i++) {
+        workoutTabs[i].classList.remove('active');
+      }
+      
+      const workoutTabButtons = document.querySelectorAll('.tab-container .tab');
+      for (let i = 0; i < workoutTabButtons.length; i++) {
+        workoutTabButtons[i].classList.remove('active');
+      }
+      
+      document.getElementById(tabId).classList.add('active');
+      event.currentTarget.classList.add('active');
+    }
+    
+    // Função para adicionar novo exercício
+    function addExercise(containerId) {
+      const container = document.getElementById(containerId);
+      const exerciseItem = document.createElement('div');
+      exerciseItem.className = 'exercise-item';
+      exerciseItem.innerHTML = `
+        <input type="text" placeholder="Nome do exercício" class="exercise-name" />
+        <input type="text" placeholder="Séries" class="exercise-sets" />
+        <input type="text" placeholder="Repetições" class="exercise-reps" />
+        <input type="text" placeholder="Carga" class="exercise-load" />
+        <button class="exercise-remove" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+      `;
+      container.appendChild(exerciseItem);
+    }
+    
+    // Alternar tema claro/escuro
+    document.getElementById('themeToggle').addEventListener('click', function() {
+      document.body.classList.toggle('dark-mode');
+      const icon = this.querySelector('i');
+      if (document.body.classList.contains('dark-mode')) {
+        icon.classList.replace('fa-moon', 'fa-sun');
+      } else {
+        icon.classList.replace('fa-sun', 'fa-moon');
+      }
+    });
+    
+    // Atualizar valores em tempo real
+    document.querySelectorAll('.stat-input').forEach(input => {
+      input.addEventListener('input', function() {
+        const valueId = this.id + 'Value';
+        document.getElementById(valueId).textContent = this.value || '0';
+        
+        // Calcular IMC se for altura ou peso
+        if (this.id === 'altura' || this.id === 'peso') {
+          calcularIMC();
+        }
+      });
+    });
+    
+    // Função para calcular IMC
+    function calcularIMC() {
+      const altura = parseFloat(document.getElementById('altura').value) / 100; // converter cm para m
+      const peso = parseFloat(document.getElementById('peso').value);
+      
+      if (altura && peso) {
+        const imc = (peso / (altura * altura)).toFixed(1);
+        document.getElementById('imcValue').textContent = imc;
+        document.getElementById('imcClassificacao').textContent = classificarIMC(imc);
+      }
+    }
+    
+    // Função para classificar IMC
+    function classificarIMC(imc) {
+      imc = parseFloat(imc);
+      if (imc < 18.5) return 'Abaixo do peso';
+      if (imc < 24.9) return 'Peso normal';
+      if (imc < 29.9) return 'Sobrepeso';
+      if (imc < 34.9) return 'Obesidade Grau I';
+      if (imc < 39.9) return 'Obesidade Grau II';
+      return 'Obesidade Grau III';
+    }
+    
+    // Inicializar gráficos
+    function initCharts() {
+      // Gráfico de composição corporal
+      const ctx1 = document.getElementById('bodyCompositionChart').getContext('2d');
+      new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+          labels: ['Massa Gorda', 'Massa Magra', 'Água Corporal'],
+          datasets: [{
+            data: [15, 60, 25],
+            backgroundColor: [
+              '#e74c3c',
+              '#3498db',
+              '#2ecc71'
+            ],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+      
+      // Gráfico de evolução de peso
+      const ctx2 = document.getElementById('pesoChart').getContext('2d');
+      new Chart(ctx2, {
+        type: 'line',
+        data: {
+          labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+          datasets: [{
+            label: 'Peso (kg)',
+            data: [78, 76, 75, 74, 73, 72],
+            borderColor: '#3498db',
+            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+            tension: 0.3,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: false
+            }
+          }
+        }
+      });
+    }
+    
+    // Inicializar o sistema quando o DOM estiver carregado
+    document.addEventListener('DOMContentLoaded', function() {
+      initCharts();
+      
+      // Pré-carregar alguns dados de exemplo
+      document.getElementById('agendamentosHoje').textContent = '3';
+      document.getElementById('agendamentosSemana').textContent = '12';
+      
+      // Simular clientes cadastrados
+      const clientSelects = document.querySelectorAll('select[id*="cliente"]');
+      clientSelects.forEach(select => {
+        const options = ['João Silva', 'Maria Oliveira', 'Carlos Souza', 'Ana Pereira', 'Pedro Costa'];
+        options.forEach(client => {
+          const option = document.createElement('option');
+          option.value = client;
+          option.textContent = client;
+          select.appendChild(option);
+        });
+      });
+    });
+  </script>
 </body>
 </html>
