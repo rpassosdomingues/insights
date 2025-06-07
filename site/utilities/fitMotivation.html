@@ -1564,46 +1564,48 @@
       selectTreino.appendChild(option.cloneNode(true));
     });
   }
-  
-  // Carregar dashboard do cliente
+
+  // Carregar dashboard do cliente ao selecionar
   function carregarDashboardCliente() {
     const clienteId = parseInt(this.value);
-    if(!clienteId) {
-      document.getElementById('dashboardCliente').style.display = 'none';
+    const dashboard = document.getElementById('dashboardCliente');
+
+    if (!clienteId) {
+      dashboard.style.display = 'none';
       return;
     }
-    
+
     const cliente = clientes.find(c => c.id === clienteId);
-    if(!cliente) return;
-    
-    const avaliacoesCliente = avaliacoes.filter(a => a.clienteId === clienteId).sort((a, b) => new Date(a.data) - new Date(b.data));
-    
-    if(avaliacoesCliente.length === 0) {
+    if (!cliente) return;
+
+    const avaliacoesCliente = avaliacoes
+      .filter(a => a.clienteId === clienteId)
+      .sort((a, b) => new Date(a.data) - new Date(b.data));
+
+    if (avaliacoesCliente.length === 0) {
       showMessage('Nenhuma avaliação encontrada para este cliente!', 'error');
-      document.getElementById('dashboardCliente').style.display = 'none';
+      dashboard.style.display = 'none';
       return;
     }
-    
-    document.getElementById('dashboardCliente').style.display = 'grid';
-    
-    // Criar gráficos
+
+    dashboard.style.display = 'grid';
+
+    // Gerar gráficos
     criarGraficoPeso(avaliacoesCliente);
     criarGraficoGordura(avaliacoesCliente);
     criarGraficoDobras(avaliacoesCliente);
     criarGraficoPerimetros(avaliacoesCliente);
   }
-  
-  // Criar gráfico de evolução de peso
+
+  // Gráfico de evolução de peso
   function criarGraficoPeso(avaliacoes) {
     const ctx = document.getElementById('pesoChart').getContext('2d');
-    
-    if(window.pesoChart) {
-      window.pesoChart.destroy();
-    }
-    
+
+    if (window.pesoChart) window.pesoChart.destroy();
+
     const labels = avaliacoes.map(a => formatarData(a.data));
     const dadosPeso = avaliacoes.map(a => a.peso);
-    
+
     window.pesoChart = new Chart(ctx, {
       type: 'line',
       data: {
@@ -1620,9 +1622,7 @@
       options: {
         responsive: true,
         plugins: {
-          legend: {
-            display: false
-          }
+          legend: { display: false }
         },
         scales: {
           y: {
@@ -1634,18 +1634,16 @@
       }
     });
   }
-  
-  // Criar gráfico de evolução de gordura
+
+  // Gráfico de percentual de gordura
   function criarGraficoGordura(avaliacoes) {
     const ctx = document.getElementById('gorduraChart').getContext('2d');
-    
-    if(window.gorduraChart) {
-      window.gorduraChart.destroy();
-    }
-    
+
+    if (window.gorduraChart) window.gorduraChart.destroy();
+
     const labels = avaliacoes.map(a => formatarData(a.data));
     const dadosGordura = avaliacoes.map(a => a.gorduraPercentual);
-    
+
     window.gorduraChart = new Chart(ctx, {
       type: 'line',
       data: {
@@ -1658,13 +1656,11 @@
           fill: true,
           tension: 0.3
         }]
-      },
-      options: {
+        },
+        options: {
         responsive: true,
         plugins: {
-          legend: {
-            display: false
-          }
+          legend: { display: false }
         },
         scales: {
           y: {
@@ -1676,18 +1672,16 @@
       }
     });
   }
-  
-  // Criar gráfico de dobras cutâneas
+
+  // Gráfico de dobras cutâneas
   function criarGraficoDobras(avaliacoes) {
     const ctx = document.getElementById('dobrasChart').getContext('2d');
-    
-    if(window.dobrasChart) {
-      window.dobrasChart.destroy();
-    }
-    
+
+    if (window.dobrasChart) window.dobrasChart.destroy();
+
     const ultimaAvaliacao = avaliacoes[avaliacoes.length - 1];
     const dobras = ultimaAvaliacao.dobras;
-    
+
     window.dobrasChart = new Chart(ctx, {
       type: 'radar',
       data: {
@@ -1698,18 +1692,14 @@
           backgroundColor: 'rgba(241, 196, 15, 0.2)',
           borderColor: '#f1c40f',
           pointBackgroundColor: '#f1c40f',
-          pointBorderColor: '#fff',
-          pointHoverBackgroundColor: '#fff',
-          pointHoverBorderColor: '#f1c40f'
+          pointBorderColor: '#fff'
         }]
       },
       options: {
         responsive: true,
         scales: {
           r: {
-            angleLines: {
-              display: true
-            },
+            angleLines: { display: true },
             suggestedMin: 0,
             suggestedMax: Math.max(...Object.values(dobras)) + 5
           }
@@ -1717,25 +1707,22 @@
       }
     });
   }
-  
-  // Criar gráfico de perímetros
+
+  // Gráfico de perímetros
   function criarGraficoPerimetros(avaliacoes) {
     const ctx = document.getElementById('perimetrosChart').getContext('2d');
-    
-    if(window.perimetrosChart) {
-      window.perimetrosChart.destroy();
-    }
-    
+
+    if (window.perimetrosChart) window.perimetrosChart.destroy();
+
     const ultimaAvaliacao = avaliacoes[avaliacoes.length - 1];
     const perimetros = ultimaAvaliacao.perimetros;
-    
+
     window.perimetrosChart = new Chart(ctx, {
       type: 'bar',
       data: {
         labels: Object.keys(perimetros).map(p => {
-          // Melhorar os labels para exibição
-          if(p === 'bracoNormal') return 'Braço Normal';
-          if(p === 'bracoContraido') return 'Braço Contraído';
+          if (p === 'bracoNormal') return 'Braço Normal';
+          if (p === 'bracoContraido') return 'Braço Contraído';
           return p.charAt(0).toUpperCase() + p.slice(1);
         }),
         datasets: [{
@@ -1749,20 +1736,16 @@
       options: {
         responsive: true,
         plugins: {
-          legend: {
-            display: false
-          }
+          legend: { display: false }
         },
         scales: {
-          y: {
-            beginAtZero: true
-          }
+          y: { beginAtZero: true }
         }
       }
     });
   }
-  
-  // Imprimir dashboard
+
+  // Função para imprimir o dashboard como imagem
   function imprimirDashboard() {
     const clienteId = parseInt(document.getElementById('selecionarCliente').value);
     if (!clienteId) {
@@ -1776,33 +1759,35 @@
       return;
     }
 
-    // Usar html2canvas para "printar" o dashboard
     const dashboard = document.getElementById('dashboardCliente');
     html2canvas(dashboard).then(canvas => {
       const imgData = canvas.toDataURL('image/png');
       const novaJanela = window.open('', '_blank');
-      novaJanela.document.write(`<img src="${imgData}" alt="Dashboard de ${cliente.nome}" style="width:100%;"/>`);
+      novaJanela.document.write(`<img src="${imgData}" alt="Dashboard de ${cliente.nome}" style="width:100%;" />`);
       novaJanela.document.close();
       novaJanela.focus();
       novaJanela.print();
     });
   }
 
-  // Enviar dashboard por WhatsApp
+  // Função para enviar o dashboard por WhatsApp
   function enviarDashboardWhatsapp() {
     const clienteId = parseInt(document.getElementById('selecionarCliente').value);
-    if(!clienteId) {
+    if (!clienteId) {
       showMessage('Selecione um cliente primeiro!', 'error');
       return;
     }
 
     const cliente = clientes.find(c => c.id === clienteId);
-    if(!cliente) return;
+    if (!cliente) {
+      showMessage('Cliente não encontrado!', 'error');
+      return;
+    }
 
-    let mensagem = `📊 *Dashboard de Avaliação Física - ${cliente.nome}* 📊\n\n`;
-    mensagem += `✅ Confira o progresso, gráficos e métricas diretamente comigo.\n`;
-    mensagem += `💬 Entre em contato para agendar novos treinos ou tirar dúvidas!\n\n`;
-    mensagem += `🏋️‍♂️ *FitMotivation Pro* - Seu progresso em foco!`;
+    const mensagem = `📊 *Dashboard de Avaliação Física - ${cliente.nome}* 📊\n\n` +
+                    `✅ Confira o progresso, gráficos e métricas diretamente comigo.\n` +
+                    `💬 Entre em contato para agendar novos treinos ou tirar dúvidas!\n\n` +
+                    `🏋️‍♂️ *FitMotivation Pro* - Seu progresso em foco!`;
 
     const url = `https://wa.me/${cliente.telefone}?text=${encodeURIComponent(mensagem)}`;
     window.open(url, '_blank');
